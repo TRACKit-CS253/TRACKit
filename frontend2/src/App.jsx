@@ -7,7 +7,7 @@ import Courses from "./pages/Course/Courses";
 
 function App() {
 
-  const role = "faculty";
+  const role = "student";
 
   const courses = [
     {code: 'EE320', name: 'Digital Signal Processing', prof:"Abhishek Gupta"},
