@@ -6,6 +6,7 @@ import { Route, Routes } from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Courses from "./pages/Course/Courses";
 import AddStudent from "./pages/Admin/AddStudent"; // Import AddStudent component
+import AddFaculty from "./pages/Admin/AddFaculty"; // Import AddFaculty component
 
 function App() {
   
@@ -27,6 +28,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/add-student" element={<AddStudent />} /> {/* Add route for AddStudent */}
+        <Route path="/admin/add-faculty" element={<AddFaculty />} />
         <Route path="/dashboard/*" element={<Dashboard course={courses} />} />
         {
           courses.map(course => (

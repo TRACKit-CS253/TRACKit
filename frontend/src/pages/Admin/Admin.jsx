@@ -15,6 +15,10 @@ export default function Admin() {
     navigate('/admin/add-student');
   };
 
+  const handleAddFacultyClick = () => {
+    navigate('/admin/add-faculty');
+  };
+
   return (
     <div className='bg-[#F5F5F5] h-screen w-full'>
       <nav className='flex justify-between p-5'>
@@ -33,10 +37,15 @@ export default function Admin() {
             >
               Add Student
             </p>
-          </div>
+            </div>
           <div className='m-auto mb-8'>
             <img src={faculty} alt="" />
-            <p className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200'>Add Faculty</p>
+            <p 
+              className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200'
+              onClick={handleAddFacultyClick}
+            >
+              Add Faculty
+            </p>
           </div>
           <div className='m-auto mb-8'>
             <img src={addCourse} alt="" />
