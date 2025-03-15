@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const courseController = require('../controllers/course.controller');
 const { verifyToken, isAdmin } = require('../middleware/auth.middleware');
-
+const { isUserInCourse, isFacultyInCourse } = require('../middleware/course.middleware');
 // Public routes
 router.get('/', courseController.getAllCourses);
 router.get('/:id', courseController.getCourseById);

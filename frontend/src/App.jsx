@@ -1,16 +1,16 @@
 import "./App.css";
 import React, { useState, useEffect } from 'react';
-import Admin from "./pages/Admin";
+import Admin from "./pages/Admin/Admin";
 import Login from "./pages/Login";
 import { Route, Routes } from "react-router-dom";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Courses from "./pages/Course/Courses";
+import AddStudent from "./pages/Admin/AddStudent"; // Import AddStudent component
 
 function App() {
   
   const user = JSON.parse(localStorage.getItem('user'));
-  const role = user.userType;
-  
+  const role = user ? user.userType : null; // Add null check for user
   
   const courses = [
     {code: 'EE320', name: 'Digital Signal Processing', prof:"Abhishek Gupta"},
@@ -22,14 +22,15 @@ function App() {
   ];
 
   return (
-    <div >
+    <div>
       <Routes>
-        <Route path="/login" element={<Login></Login>}></Route>
-        <Route path="/admin" element={<Admin></Admin>}></Route>
-        <Route path="/dashboard/*" element={<Dashboard course={courses}></Dashboard>}></Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/add-student" element={<AddStudent />} /> {/* Add route for AddStudent */}
+        <Route path="/dashboard/*" element={<Dashboard course={courses} />} />
         {
-          courses.map(course=>(
-            <Route path={`/${course.code}/*`} element={<Courses role={role} course={course.code}></Courses>}></Route>
+          courses.map(course => (
+            <Route key={course.code} path={`/${course.code}/*`} element={<Courses role={role} course={course.code} />} />
           ))
         }
         {/* <Route path="/courses/*" element={<Courses role={role} course={courses}></Courses>}></Route> */}
