@@ -12,7 +12,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/api/auth/login', { username, password });//API USED FROM BACKEND
+      const response = await axios.post('http://localhost:3001/api/auth/login', { username, password });//API USED FROM BACKEND
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user)); // Store user information
