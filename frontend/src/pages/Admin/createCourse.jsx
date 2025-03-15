@@ -2,24 +2,21 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
 
-export default function AddFaculty() {
+export default function CreateCourse() {
   const [activeTab, setActiveTab] = useState('manual');
-  const [facultyData, setFacultyData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    firstName: '',
-    lastName: '',
-    department: '',
-    position: '',
-    userType: 'faculty'
+  const [courseData, setCourseData] = useState({
+    code: '',
+    name: '',
+    description: '',
+    credits: 9,
+    semester: ''
   });
   const [csvFile, setCsvFile] = useState(null);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFacultyData({
-      ...facultyData,
+    setCourseData({
+      ...courseData,
       [e.target.name]: e.target.value
     });
   };
@@ -31,7 +28,7 @@ export default function AddFaculty() {
   const handleManualSubmit = (e) => {
     e.preventDefault();
     // Log form data for development purposes
-    console.log('Faculty Data:', facultyData);
+    console.log('Course Data:', courseData);
   };
 
   const handleBulkSubmit = (e) => {
@@ -50,7 +47,7 @@ export default function AddFaculty() {
       
       <div className="flex items-center justify-center mt-8">
         <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
-          <h2 className="text-2xl font-bold mb-6 text-center">Add Faculty</h2>
+          <h2 className="text-2xl font-bold mb-6 text-center">Create Course</h2>
           
           <div className="flex mb-6">
             <button
@@ -70,86 +67,70 @@ export default function AddFaculty() {
           {activeTab === 'manual' ? (
             <form onSubmit={handleManualSubmit}>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Username:</label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">Course Code:</label>
                 <input
                   type="text"
-                  name="username"
-                  value={facultyData.username}
+                  name="code"
+                  value={courseData.code}
                   onChange={handleChange}
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">First Name:</label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">Course Name:</label>
                 <input
                   type="text"
-                  name="firstName"
-                  value={facultyData.firstName}
+                  name="name"
+                  value={courseData.name}
                   onChange={handleChange}
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Last Name:</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={facultyData.lastName}
+                <label className="block text-gray-700 text-sm font-bold mb-2">Description:</label>
+                <textarea
+                  name="description"
+                  value={courseData.description}
                   onChange={handleChange}
+                  rows="3"
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
+                <label className="block text-gray-700 text-sm font-bold mb-2">Credits:</label>
                 <input
-                  type="email"
-                  name="email"
-                  value={facultyData.email}
+                  type="number"
+                  name="credits"
+                  value={courseData.credits}
                   onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Department:</label>
-                <input
-                  type="text"
-                  name="department"
-                  value={facultyData.department}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Position:</label>
-                <input
-                  type="text"
-                  name="position"
-                  value={facultyData.position}
-                  onChange={handleChange}
+                  min="1"
+                  max="20"
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
               <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Password:</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={facultyData.password}
+                <label className="block text-gray-700 text-sm font-bold mb-2">Semester:</label>
+                <select
+                  name="semester"
+                  value={courseData.semester}
                   onChange={handleChange}
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
+                >
+                  <option value="">Select Semester</option>
+                  <option value="Fall">Fall</option>
+                  <option value="Spring">Spring</option>
+                  <option value="Summer">Summer</option>
+                </select>
               </div>
               <button
                 type="submit"
                 className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
-                Add Faculty
+                Create Course
               </button>
             </form>
           ) : (
@@ -164,14 +145,14 @@ export default function AddFaculty() {
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
                 <p className="text-sm text-gray-500 mt-2">
-                  CSV file should contain columns: username, firstName, lastName, email, department, position, password
+                  CSV file should contain columns: code, name, description, credits, semester
                 </p>
               </div>
               <button
                 type="submit"
                 className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
-                Upload and Add Faculty
+                Upload and Create Courses
               </button>
             </form>
           )}

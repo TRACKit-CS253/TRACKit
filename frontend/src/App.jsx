@@ -7,7 +7,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Courses from "./pages/Course/Courses";
 import AddStudent from "./pages/Admin/AddStudent"; // Import AddStudent component
 import AddFaculty from "./pages/Admin/AddFaculty"; // Import AddFaculty component
-
+import CreateCourse from "./pages/Admin/createCourse"; // Import CreateCourse component
 function App() {
   
   const user = JSON.parse(localStorage.getItem('user'));
@@ -29,6 +29,7 @@ function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/add-student" element={<AddStudent />} /> {/* Add route for AddStudent */}
         <Route path="/admin/add-faculty" element={<AddFaculty />} />
+        <Route path="/admin/create-course" element={<CreateCourse />} />
         <Route path="/dashboard/*" element={<Dashboard course={courses} />} />
         {
           courses.map(course => (
