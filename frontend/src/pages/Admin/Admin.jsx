@@ -9,21 +9,49 @@ import manageCourse from "../../assets/manageCourse.png";
 import { useAuth } from '../../contexts/AuthContext';
 import LogoutButton from '../../components/LogoutButton';
 import { useNavigate } from 'react-router-dom';
+
 export default function Admin() {
   const navigate = useNavigate();
-
-  const handleAddStudentClick = () => {
-    navigate('/admin/add-student');
-  };
-
-  const handleAddFacultyClick = () => {
-    navigate('/admin/add-faculty');
-  };
-
-  const handleCreateCourseClick = () => {
-    navigate('/admin/create-course');
-  };
   const { currentUser } = useAuth();
+
+  const adminOptions = [
+    {
+      id: 1,
+      title: "Add Student",
+      image: student,
+      onClick: () => navigate('/admin/add-student')
+    },
+    {
+      id: 2,
+      title: "Add Faculty",
+      image: faculty,
+      onClick: () => navigate('/admin/add-faculty')
+    },
+    {
+      id: 3,
+      title: "Create Courses",
+      image: addCourse,
+      onClick: () => navigate('/admin/create-course')
+    },
+    {
+      id: 4,
+      title: "Manage Courses",
+      image: manageCourse,
+      onClick: () => {} // Add navigation function when needed
+    },
+    {
+      id: 5,
+      title: "Manage Users",
+      image: manageUser,
+      onClick: () => {} // Add navigation function when needed
+    },
+    {
+      id: 6,
+      title: "Contact Developers",
+      image: cntDev,
+      onClick: () => {} // Add navigation function when needed
+    }
+  ];
 
   return (
     <div className='bg-[#F5F5F5] h-screen w-full'>
@@ -40,54 +68,19 @@ export default function Admin() {
 
       <div className='w-full'>
         <div className='w-10/12 m-auto grid grid-cols-3'>
-          <div className='m-auto my-8'>
-            <img src={student} alt="" className="cursor-pointer" />
-            <p 
-              className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer'
-              onClick={handleAddStudentClick}
-            >
-              Add Student
-            </p>
-          </div>
-          <div className='m-auto mb-8'>
-            <img src={faculty} alt="" className="cursor-pointer" />
-            <p 
-              className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer'
-              onClick={handleAddFacultyClick}
-            >
-              Add Faculty
-            </p>
-          </div>
-          <div className='m-auto mb-8'>
-            <img src={addCourse} alt="" className="cursor-pointer" />
-            <p 
-              className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer'
-              onClick={handleCreateCourseClick}
-            > 
-              Create Courses
-            </p>
-          </div>
-          <div className='m-auto mb-8'>
-            <img src={manageCourse} alt="" className="cursor-pointer" />
-            <p className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer'>
-              Manage Courses
-            </p>
-          </div>
-          <div className='m-auto mb-8'>
-            <img src={manageUser} alt="" className="cursor-pointer" />
-            <p className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer'>
-              Manage Users
-            </p>
-          </div>
-          <div className='m-auto mb-8'>
-            <img src={cntDev} alt="" className="cursor-pointer" />
-            <p className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer'>
-              Contact Developers
-            </p>
-          </div>
+          {adminOptions.map(option => (
+            <div key={option.id} className='m-auto my-8'>
+              <img src={option.image} alt="" className="cursor-pointer" />
+              <p 
+                className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer hover:scale-95'
+                onClick={option.onClick}
+              >
+                {option.title}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
   );
-
 }
