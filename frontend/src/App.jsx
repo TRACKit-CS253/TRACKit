@@ -57,10 +57,10 @@ const AppRoutes = () => {
       {/* Admin routes - protected for admin users only */}
       <Route element={<ProtectedRoute requiredRole="admin" />}>
         <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/add-student" element={<AddStudent />} /> {/* Add route for AddStudent */}
+        <Route path="/admin/add-faculty" element={<AddFaculty />} />
+        <Route path="/admin/create-course" element={<CreateCourse />} />
       </Route>
-      <Route path="/admin/add-student" element={<AddStudent />} /> {/* Add route for AddStudent */}
-      <Route path="/admin/add-faculty" element={<AddFaculty />} />
-      <Route path="/admin/create-course" element={<CreateCourse />} />
       {/* Dashboard routes - protected for any authenticated user */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard/*" element={<Dashboard course={courses} />} />

@@ -27,14 +27,14 @@ export default function Admin() {
 
   return (
     <div className='bg-[#F5F5F5] h-screen w-full'>
-      <nav className='flex justify-between p-5'>
+      <nav className='flex justify-between p-5 bg-[#F5F5F5] z-10 shadow-md'>
         <p className='text-[33px] font-semibold ml-3'>TRACKit</p>
         <p className='text-[33px] font-semibold'>
-          Welcome System Admin: {currentUser?.firstName} {currentUser?.lastName}
+          Welcome System Admin: {currentUser?.firstName}
         </p>
         <div className="flex items-center gap-4">
           <LogoutButton className="mr-4" />
-          <CgProfile className='text-[45px] m-2'></CgProfile>
+          <CgProfile className='text-[45px] m-2 hover:text-blue-500 duration-200 transition-colors'></CgProfile>
         </div>
       </nav>
 

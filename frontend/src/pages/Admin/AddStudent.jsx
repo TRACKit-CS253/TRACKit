@@ -42,14 +42,14 @@ export default function AddStudent() {
 
   return (
     <div className="bg-[#F5F5F5] min-h-screen">
-      <nav className="flex justify-between p-5">
-        <p className="text-[33px] font-semibold ml-3">TRACKit</p>
+      <nav className="flex justify-between p-5 sticky top-0 bg-[#F5F5F5] z-10 shadow-md">
+        <p className="text-[33px] font-semibold ml-3 cursor-pointer" onClick={()=>{navigate('/')}}>TRACKit</p>
         <p className="text-[33px] font-semibold">Welcome System Admin: IIT Kanpur</p>
-        <CgProfile className="text-[45px] m-2" />
+        <CgProfile className="cursor-pointer text-[45px] m-2 hover:text-blue-500 duration-200 transition-colors" onClick={()=>{navigate('/')}}/>
       </nav>
       
       <div className="flex items-center justify-center mt-8">
-        <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <div className="bg-white p-8 rounded shadow-lg w-full max-w-md mb-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Add Students</h2>
           
           <div className="flex mb-6">
@@ -160,7 +160,7 @@ export default function AddStudent() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline duration-200 transition-all hover:scale-95"
               >
                 Add Student
               </button>

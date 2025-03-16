@@ -39,10 +39,10 @@ export default function CreateCourse() {
 
   return (
     <div className="bg-[#F5F5F5] min-h-screen">
-      <nav className="flex justify-between p-5">
-        <p className="text-[33px] font-semibold ml-3">TRACKit</p>
+      <nav className="flex justify-between p-5 sticky top-0 bg-[#F5F5F5] z-10 shadow-md">
+        <p className="text-[33px] font-semibold ml-3 cursor-pointer" onClick={()=>{navigate('/')}}>TRACKit</p>
         <p className="text-[33px] font-semibold">Welcome System Admin: IIT Kanpur</p>
-        <CgProfile className="text-[45px] m-2" />
+        <CgProfile className="cursor-pointer text-[45px] m-2 hover:text-blue-500 duration-200 transition-colors" onClick={()=>{navigate('/')}}/>
       </nav>
       
       <div className="flex items-center justify-center mt-8">
