@@ -39,9 +39,9 @@ export default function Lectures({ role }) {
 
   return (
     <div className='w-full h-screen overflow-y-auto'>
-      <div className='flex justify-between p-3 px-8 items-center sticky top-0 bg-[#F5F5F5]'>
+      <div className='flex justify-between p-3 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-md'>
         <p className='text-[32px] uppercase font-semibold m-4'>Lectures</p>
-        <div className='flex items-center gap-4'>
+        <div className='flex items-center gap-4 '>
           {role !== "student" && (
             <button className='bg-blue-500 shadow-xl text-white py-2 px-4 flex justify-center items-center gap-2 hover:bg-green-600 hover:scale-95 transition-all duration-200 rounded'>
               <FaPlus className='text-[18px]' />
@@ -49,16 +49,16 @@ export default function Lectures({ role }) {
             </button>
           )}
           <NavLink to="/dashboard/profile">
-            <CgProfile className='text-[40px] cursor-pointer' />
+            <CgProfile className='text-[40px] cursor-pointer hover:text-blue-500 transition-colors duration-200' />
           </NavLink>
         </div>
       </div>
 
       <div className='p-6'> 
         {lecturesData.map((week) => (
-          <div key={week.id} className='mb-6'>
+          <div key={week.id} className='mb-6 ml-6'>
             <div 
-              className='w-full py-4 border-2 flex flex-col px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200'
+              className='w-full py-3 border-2 flex flex-col px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200'
               onClick={() => toggleWeek(week.id)}
             >
               <div className='flex justify-between w-full font-semibold'>

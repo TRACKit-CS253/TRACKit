@@ -24,7 +24,7 @@ export default function Announcements({ role }) {
 
   return (
     <div className='w-full h-screen overflow-y-auto'>
-      <div className='flex justify-between p-3 px-8 items-center sticky top-0 bg-[#F5F5F5]'>
+      <div className='flex justify-between p-3 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-md'>
         <p className='text-[32px] uppercase font-semibold m-4'>Announcements</p>
         <div className='flex items-center gap-4'>
           {role !== "student" && (
@@ -41,8 +41,8 @@ export default function Announcements({ role }) {
 
       <div className='p-6'> 
         {data.map((item, index) => (
-          <div key={index} className='mb-2'>
-            <div className='w-full py-4 border-2 flex flex-col px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200'>
+          <div key={index} className='mb-2 ml-6'>
+            <div className='w-full py-3 border-2 flex flex-col px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200'>
               <div className='flex justify-between w-full font-semibold'>
                 <span className='text-lg'>{item.title}</span> {/* Increased text size */}
                 <div className='flex gap-8 items-center'>

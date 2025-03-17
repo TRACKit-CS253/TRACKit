@@ -45,11 +45,11 @@ export default function AddFaculty() {
       <nav className="flex justify-between p-5 sticky top-0 bg-[#F5F5F5] z-10 shadow-md">
         <p className="text-[33px] font-semibold ml-3 cursor-pointer" onClick={()=>{navigate('/')}}>TRACKit</p>
         <p className="text-[33px] font-semibold">Welcome System Admin: IIT Kanpur</p>
-        <CgProfile className="text-[45px] m-2 hover:text-blue-500 duration-200 transition-colors" onClick={()=>{navigate('/')}}/>
+        <CgProfile className="text-[45px] m-2 hover:text-blue-500 duration-200 transition-colors cursor-pointer" onClick={()=>{navigate('/')}}/>
       </nav>
       
       <div className="flex items-center justify-center mt-8">
-        <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <div className="bg-white p-8 rounded shadow-md w-full max-w-md mb-4">
           <h2 className="text-2xl font-bold mb-6 text-center">Add Faculty</h2>
           
           <div className="flex mb-6">
@@ -147,7 +147,7 @@ export default function AddFaculty() {
               </div>
               <button
                 type="submit"
-                className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                className="w-full duration-200 transition-all hover:scale-95 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
               >
                 Add Faculty
               </button>

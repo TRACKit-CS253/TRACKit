@@ -63,7 +63,7 @@ export default function CourseHome({ present, total, role }) {
         {data.map((item, index) => (
           <div key={index} className='mb-2'>
             <div 
-              className='w-full py-2 border-2 flex flex-col  m-2 px-6 rounded-xl cursor-pointer'>
+              className='w-full py-3 border-2 flex flex-col  m-2 px-6 rounded-xl cursor-pointer'>
               <div className='flex justify-between w-full font-semibold'>
                 {item.title}
                 <div className=' flex gap-8 items-center'>
