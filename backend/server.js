@@ -6,7 +6,7 @@ const rateLimit = require('express-rate-limit');
 const db = require('./models');
 const path = require('path');
 const fileUpload = require('express-fileupload');
-
+const bodyParser = require('body-parser');
 const app = express();
 
 // Security middleware
@@ -34,6 +34,7 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Log all incoming requests
 app.use((req, res, next) => {
