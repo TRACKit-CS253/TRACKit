@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import loginImg from '../assets/login.png';
+import { checkUsername } from '../services/auth.service';
 
 const ForgotPassword = () => {
   const [username, setUsername] = useState('');
@@ -15,15 +16,7 @@ const ForgotPassword = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/check-username`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username }),
-      });
-      
-      const data = await response.json();
+      const data = await checkUsername(username);
       
       if (data.success) {
         // Navigate to OTP page with necessary data
