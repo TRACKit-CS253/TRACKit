@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit');
 const db = require('./models');
 const path = require('path');
 const fileUpload = require('express-fileupload');
+const bodyParser = require('body-parser');
+const mailer = require('./mailer'); // Import mailer.js
+const crypto = require('crypto');
 
 const app = express();
 
@@ -20,7 +23,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-//Rate limiting
+// Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 25000 // limit each IP to 100 requests per windowMs
@@ -34,6 +37,7 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Log all incoming requests
 app.use((req, res, next) => {
@@ -42,9 +46,6 @@ app.use((req, res, next) => {
 });
 
 // Import routes
-
-
-// Routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/courses', require('./routes/course.routes'));
@@ -57,6 +58,39 @@ app.use('/api/result', require('./routes/result.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/events', require('./routes/event.routes'));
 app.use('/api/forum', require('./routes/forum.routes'));
+
+// Password reset route
+app.post('/api/password-reset', async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: 'Email is required'
+    });
+  }
+
+  try {
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const result = await mailer.sendPasswordResetEmail(email, resetToken);
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        message: 'Password reset instructions sent to your email'
+      });
+    } else {
+      console.error(`Failed to send reset email to ${email}:`, result.error);
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    console.error('Reset email error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error sending password reset email'
+    });
+  }
+});
 
 // Log all registered routes
 const listRoutes = (app) => {
@@ -74,15 +108,14 @@ const listRoutes = (app) => {
   });
 };
 listRoutes(app);
+console.log("✔ Password reset route registered: POST /api/password-reset");
 
 // Initialize database and sync models
-// Modified to preserve data between restarts in development mode
 const shouldForceSync = process.env.NODE_ENV === 'development' && process.env.FORCE_SYNC === 'true';
 
 db.sequelize.sync({ force: shouldForceSync })
   .then(async () => {
     console.log('Database synced successfully');
-    // Only initialize sample data if we're forcing a sync
     if (shouldForceSync) {
       console.log('Waiting for database tables to settle before initialization...');
       await new Promise(resolve => setTimeout(resolve, 3000));
@@ -97,15 +130,6 @@ db.sequelize.sync({ force: shouldForceSync })
   .catch(err => {
     console.error('Failed to sync database:', err);
   });
-  
-
-// Add this to server.js before app.listen()
-console.log('Registered routes:');
-app._router.stack.forEach(function(r){
-  if (r.route && r.route.path){
-    console.log(r.route.stack[0].method.toUpperCase() + ' ' + r.route.path);
-  }
-});
 
 // Add proper error handling middleware
 app.use((err, req, res, next) => {
@@ -115,9 +139,6 @@ app.use((err, req, res, next) => {
     message: err.message || 'Internal server error'
   });
 });
-
-// Ensure routes are properly mounted
-app.use('/users', require('./routes/user.routes'));
 
 // Handle 404
 app.use((req, res) => {
