@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import loginImg from '../assets/login.png';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
@@ -20,7 +21,7 @@ const ResetPassword = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch('/api/auth/reset-password', {
+      const response = await fetch('/api/auth/reset-password', { // Updated URL
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,7 +34,7 @@ const ResetPassword = () => {
 
       const data = await response.json();
       if (data.success) {
-        setSuccess('Password reset successful!');
+        setSuccess('Password reset successful! Redirecting to login...');
         setTimeout(() => navigate('/login'), 2000);
       } else {
         setError(data.message || 'Failed to reset password');
@@ -46,36 +47,50 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow-lg">
-        <h2 className="text-center text-3xl font-bold">Reset Password</h2>
-        {error && <div className="text-red-500 text-center">{error}</div>}
-        {success && <div className="text-green-500 text-center">{success}</div>}
-        
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+    <div className='w-full h-screen relative flex justify-around items-center'>
+      <img src={loginImg} className='absolute h-full w-full z-[-100]' alt="Login Background" />
+      
+      <div className='h-full absolute w-[40%] left-[100px]'>
+        <h1 className='text-[62px] font-[800] top-[60px] absolute'>TRACKit</h1>
+        <p className='absolute top-[140px] w-full font-semibold'>Testing Reporting Academic Comprehensive Kit</p>
+      </div>
+
+      <div className='bg-white w-[30%] rounded-xl h-[97%] flex flex-col justify-center items-center absolute right-5 shadow-3xl'>
+        <div className='w-[80%]'>
+          <p className='font-semibold text-[28px]'>Reset Password</p>
+          <h1 className='text-[20px] mt-2'>Enter your new password</h1>
+        </div>
+
+        <form className='flex flex-col items-start gap-3 w-[80%] relative' onSubmit={handleSubmit}>
           <input
             type="password"
-            required
-            className="w-full px-3 py-2 border rounded-lg"
-            placeholder="New Password"
+            placeholder='Enter New Password'
+            className='h-[40px] w-full bg-[#F5F5F5] px-[25px] rounded-lg mt-6'
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
+            disabled={isLoading}
           />
           <input
             type="password"
-            required
-            className="w-full px-3 py-2 border rounded-lg"
-            placeholder="Confirm Password"
+            placeholder='Confirm New Password'
+            className='h-[40px] w-full bg-[#F5F5F5] px-[25px] rounded-lg mt-1'
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          <button
-            type="submit"
+            required
             disabled={isLoading}
-            className="w-full py-2 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          />
+          
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className='bg-black text-white w-full mt-5 h-[40px] rounded-lg transition-all duration-200 hover:scale-95 disabled:opacity-50'
           >
             {isLoading ? 'Resetting...' : 'Reset Password'}
           </button>
+          
+          {success && <p className="text-green-500 text-sm mt-2 w-full text-center">{success}</p>}
+          {error && <p className="text-red-500 text-sm mt-2 w-full text-center">{error}</p>}
         </form>
       </div>
     </div>
