@@ -7,26 +7,43 @@ const ForgotPassword = () => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
   
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setMessage('');
     setIsLoading(true);
     
     try {
       const data = await checkUsername(username);
       
       if (data.success) {
-        // Navigate to OTP page with necessary data
-        navigate('/enter-otp', { 
-          state: { 
-            userId: data.userId,
-            email: data.email,
-            username: username 
+        try {
+          console.log('Sending reset email to:', data.email);
+          const response = await fetch('http://localhost:3001/api/auth/forgot-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ email: data.email })
+          });
+
+          const result = await response.json();
+          console.log('Reset email response:', result);
+
+          if (result.success) {
+            setMessage(`Password reset instructions have been sent to ${data.email}. Please check your email inbox.`);
+            setError('');
+          } else {
+            throw new Error(result.message || 'Failed to send reset email');
           }
-        });
+        } catch (emailError) {
+          console.error('Email error:', emailError);
+          setError('Failed to send reset email. Please try again.');
+        }
       } else {
         setError(data.message || 'No such user exists');
       }
@@ -72,6 +89,7 @@ const ForgotPassword = () => {
             {isLoading ? 'Checking...' : 'Continue'}
           </button>
           
+          {message && <p className="text-green-500 text-sm mt-2 w-full text-center">{message}</p>}
           {error && <p className="text-red-500 text-sm mt-2 w-full text-center">{error}</p>}
           
           <button 
