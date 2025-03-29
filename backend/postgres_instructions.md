@@ -62,7 +62,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO trackit_user
 ```bash
 # Test connection with the new user
 psql -U trackit_user -d trackit_db -W
-# Enter the password when prompted: trackit_password
+# Enter the password when prompted:
+
 
 # If successful, exit
 \q
@@ -83,6 +84,7 @@ DB_HOST=localhost
 DB_USER=trackit_user
 DB_PASSWORD=trackit_password
 DB_NAME=trackit_db
+FRONTEND_URL=http://localhost:3000
 ```
 
 ### Database Configuration
