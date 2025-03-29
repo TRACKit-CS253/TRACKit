@@ -7,10 +7,12 @@ const db = require('./models');
 const path = require('path');
 const fileUpload = require('express-fileupload');
 
+
 const app = express();
 
 // Security middleware
 app.use(helmet());
+app.use(express.json());
 
 // Update CORS configuration
 app.use(cors({
@@ -57,6 +59,7 @@ app.use('/api/result', require('./routes/result.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/events', require('./routes/event.routes'));
 app.use('/api/forum', require('./routes/forum.routes'));
+app.use('/api/contact', require('./routes/mail.routes'));
 
 // Log all registered routes
 const listRoutes = (app) => {
