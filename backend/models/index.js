@@ -1,13 +1,25 @@
 const { Sequelize } = require('sequelize');
 const dbConfig = require('../config/db.config');
 
-const sequelize = new Sequelize(
+// const sequelize = new Sequelize( // Old SQLite connection
+//   dbConfig.database,
+//   null,
+//   null,
+//   {
+//     dialect: dbConfig.dialect,
+//     storage: dbConfig.storage,
+//     logging: dbConfig.logging,
+//     pool: dbConfig.pool
+//   }
+// );
+
+const sequelize = new Sequelize( // New PostgreSQL connection
   dbConfig.database,
-  null,
-  null,
+  dbConfig.username,  // Add username parameter (was null for SQLite)
+  dbConfig.password,  // Add password parameter (was null for SQLite)
   {
+    host: dbConfig.host,
     dialect: dbConfig.dialect,
-    storage: dbConfig.storage,
     logging: dbConfig.logging,
     pool: dbConfig.pool
   }
