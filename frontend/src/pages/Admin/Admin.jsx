@@ -29,7 +29,7 @@ export default function Admin() {
   return (
     <div className='bg-[#F5F5F5] h-screen w-full'>
       {/* Header */}
-      <div className=" bg-white p-8 shadow-lg z-10 flex justify-between items-center mb-8">
+      <div className="fixed top-0 left-0 right-0 bg-white p-8 shadow-lg z-10 flex justify-between items-center">
         <span 
           className="text-4xl font-semibold cursor-pointer" 
           onClick={() => navigate("/admin")}
@@ -45,20 +45,23 @@ export default function Admin() {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className='w-full'>
-        <div className='w-10/12 m-auto grid grid-cols-3'>
-          {adminOptions.map((option) => (
-            <div key={option.id} className='m-auto my-8'>
-              <img src={option.image} alt={option.title} className="cursor-pointer" />
-              <p 
-                className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer hover:scale-95'
-                onClick={() => handleNavigation(option.path)}
-              >
-                {option.title}
-              </p>
-            </div>
-          ))}
+      {/* Add padding to the main content to prevent overlap with the fixed header */}
+      <div className="pt-[100px]">
+        {/* Main Content */}
+        <div className='w-full'>
+          <div className='w-10/12 m-auto grid grid-cols-3'>
+            {adminOptions.map((option) => (
+              <div key={option.id} className='m-auto my-8'>
+                <img src={option.image} alt={option.title} className="cursor-pointer" />
+                <p 
+                  className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer hover:scale-95'
+                  onClick={() => handleNavigation(option.path)}
+                >
+                  {option.title}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

@@ -87,3 +87,26 @@ exports.updateStudentProfile = async (req, res) => {
     });
   }
 };
+
+// get UserId by RollNumber
+exports.getUserIdByRollNumber = async (req, res) => {
+  try {
+    const { rollNumber } = req.params;
+    const student = await Student.findOne({ where: { rollNumber } });
+    if (!student) {
+      return res.status(404).json({
+        success: false,
+        message: 'Student not found'
+      });
+    }
+    res.status(200).json({
+      success: true,
+      userId: student.userId
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || 'Some error occurred while retrieving student'
+    });
+  }
+};

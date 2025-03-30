@@ -25,4 +25,7 @@ router.get('/:id/profile', verifyToken, async (req, res, next) => {
 //   }
 // }, studentController.updateStudentProfile);
 
+// Get userId by rollNumber - Accessible by admin only
+router.get('/rollNumber/:rollNumber', studentController.getUserIdByRollNumber);
+
 module.exports = router;
