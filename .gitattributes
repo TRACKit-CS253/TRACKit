@@ -1,2 +1,2 @@
-backend/config/db.config.js merge = ours
-backend/models/index.js merge = ours
+backend/config/db.config.js merge=ours
+backend/models/index.js merge=ours
