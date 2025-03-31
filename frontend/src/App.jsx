@@ -20,6 +20,7 @@ import NotificationContainer from './components/Notification';
 import { EventProvider } from './contexts/EventContext';
 import ForgotPassword from './pages/ForgotPassword';
 import ChangePassword from './pages/ChangePassword';
+import VerifyOTP from './pages/VerifyOTP';
 
 // Wrapper component to handle course params
 const CourseWrapper = () => {
@@ -85,6 +86,7 @@ const AppRoutes = () => {
       </Route>
       
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/verify-otp" element={<VerifyOTP />} />
       <Route path="/change-password" element={<ChangePassword />} />
       
       {/* Catch-all route */}

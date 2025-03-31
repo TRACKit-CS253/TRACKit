@@ -15,7 +15,8 @@ const ForgotPassword = () => {
     setIsLoading(true);
     
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/check-username`, {
+      // First verify username exists
+      const checkResponse = await fetch('http://localhost:3001/api/auth/check-username', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -23,19 +24,31 @@ const ForgotPassword = () => {
         body: JSON.stringify({ username }),
       });
       
-      const data = await response.json();
+      const checkData = await checkResponse.json();
       
-      if (data.success) {
-        // Navigate to OTP page with necessary data
-        navigate('/enter-otp', { 
-          state: { 
-            userId: data.userId,
-            email: data.email,
-            username: username 
-          }
+      if (checkData.success) {
+        // Send OTP
+        const otpResponse = await fetch('http://localhost:3001/api/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: checkData.email }),
         });
+        
+        const otpData = await otpResponse.json();
+        
+        if (otpData.success) {
+          navigate('/verify-otp', { 
+            state: { 
+              email: checkData.email 
+            }
+          });
+        } else {
+          setError(otpData.message || 'Failed to send OTP');
+        }
       } else {
-        setError(data.message || 'No such user exists');
+        setError(checkData.message || 'User not found');
       }
     } catch (err) {
       console.error('Error:', err);

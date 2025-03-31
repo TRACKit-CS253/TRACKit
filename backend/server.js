@@ -6,6 +6,9 @@ const rateLimit = require('express-rate-limit');
 const db = require('./models');
 const path = require('path');
 const fileUpload = require('express-fileupload');
+const bodyParser = require('body-parser');
+const mailer = require('./mailer'); // Import mailer.js
+const crypto = require('crypto');
 
 
 const app = express();
@@ -22,7 +25,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-//Rate limiting
+// Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 25000 // limit each IP to 100 requests per windowMs
@@ -36,6 +39,7 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Log all incoming requests
 app.use((req, res, next) => {
@@ -44,9 +48,6 @@ app.use((req, res, next) => {
 });
 
 // Import routes
-
-
-// Routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/courses', require('./routes/course.routes'));
@@ -79,13 +80,11 @@ const listRoutes = (app) => {
 listRoutes(app);
 
 // Initialize database and sync models
-// Modified to preserve data between restarts in development mode
 const shouldForceSync = process.env.NODE_ENV === 'development' && process.env.FORCE_SYNC === 'true';
 
 db.sequelize.sync({ force: shouldForceSync })
   .then(async () => {
     console.log('Database synced successfully');
-    // Only initialize sample data if we're forcing a sync
     if (shouldForceSync) {
       console.log('Waiting for database tables to settle before initialization...');
       await new Promise(resolve => setTimeout(resolve, 3000));
@@ -100,15 +99,6 @@ db.sequelize.sync({ force: shouldForceSync })
   .catch(err => {
     console.error('Failed to sync database:', err);
   });
-  
-
-// Add this to server.js before app.listen()
-console.log('Registered routes:');
-app._router.stack.forEach(function(r){
-  if (r.route && r.route.path){
-    console.log(r.route.stack[0].method.toUpperCase() + ' ' + r.route.path);
-  }
-});
 
 // Add proper error handling middleware
 app.use((err, req, res, next) => {
@@ -118,9 +108,6 @@ app.use((err, req, res, next) => {
     message: err.message || 'Internal server error'
   });
 });
-
-// Ensure routes are properly mounted
-app.use('/users', require('./routes/user.routes'));
 
 // Handle 404
 app.use((req, res) => {

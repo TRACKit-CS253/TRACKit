@@ -34,6 +34,7 @@ db.ForumReply = require('./forum_reply.model')(sequelize, Sequelize);
 db.Heading = require('./heading.model')(sequelize, Sequelize);
 db.Subheading = require('./subheading.model')(sequelize, Sequelize);
 db.Lecture = require('./lecture.model')(sequelize, Sequelize);
+db.OTP = require('./otp.model')(sequelize, Sequelize);
 
 // Setup relationships
 // User relationships with specialized models
@@ -45,6 +46,9 @@ db.Student.belongsTo(db.User, { foreignKey: 'userId' });
 
 db.User.hasOne(db.Admin, { foreignKey: 'userId' });
 db.Admin.belongsTo(db.User, { foreignKey: 'userId' });
+
+db.User.hasOne(db.OTP, { foreignKey: 'userId' });
+db.OTP.belongsTo(db.User, { foreignKey: 'userId' });
 
 // Course relationships
 db.Course.belongsToMany(db.Faculty, { 
