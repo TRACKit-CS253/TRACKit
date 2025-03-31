@@ -4,7 +4,6 @@ import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
 import { GoHome } from "react-icons/go";
 
-
 const ManageCourses = () => {
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
@@ -28,6 +27,17 @@ const ManageCourses = () => {
   const [activeTab, setActiveTab] = useState("edit");
   const [testRollNumber, setTestRollNumber] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
+  const [studentSearchTerm, setStudentSearchTerm] = useState("");
+  const [facultySearchTerm, setFacultySearchTerm] = useState("");
+
+  // Filtered lists based on search terms
+  const filteredStudents = courseDetails.Students.filter((student) =>
+    student.name.toLowerCase().includes(studentSearchTerm.toLowerCase())
+  );
+
+  const filteredFaculty = courseDetails.Faculty.filter((faculty) =>
+    faculty.name.toLowerCase().includes(facultySearchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -284,7 +294,7 @@ const ManageCourses = () => {
         <div className="flex justify-center mb-4">
           <input
             type="text"
-            placeholder="Search courses by name or ID..."
+            placeholder="Search courses by name or Code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="p-4 w-2/3 border border-gray-300 rounded-lg"
@@ -406,13 +416,22 @@ const ManageCourses = () => {
                   <h2 className="text-3xl font-semibold text-center mb-5 text-gray-800">
                     📖 Course Details
                   </h2>
+                  {/* Students Enrolled Section */}
                   <div className="mb-6 p-4 rounded-lg shadow-md bg-blue-50">
                     <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
                       👨‍🎓 Students Enrolled
                     </h3>
-                    {courseDetails.Students.length > 0 ? (
-                      <ul className="list-none mt-3 space-y-2">
-                        {courseDetails.Students.map((student) => (
+                    {/* Search Bar for Students */}
+                    <input
+                      type="text"
+                      placeholder="Search students by name..."
+                      value={studentSearchTerm}
+                      onChange={(e) => setStudentSearchTerm(e.target.value)}
+                      className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {filteredStudents.length > 0 ? (
+                      <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
+                        {filteredStudents.map((student) => (
                           <li
                             key={student.id}
                             className="bg-white p-3 rounded-lg shadow flex justify-between items-center"
@@ -420,7 +439,6 @@ const ManageCourses = () => {
                             <span className="text-gray-700">{student.name}</span>
                             <button
                               onClick={() =>
-                                console.log("Remove student:", student.id) ||
                                 removestudentfromcourse(courseDetails.id, student.id)
                               }
                               className="text-red-500 hover:text-red-700 transition-all"
@@ -431,17 +449,25 @@ const ManageCourses = () => {
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-gray-600 mt-3">No students enrolled.</p>
+                      <p className="text-gray-600 mt-3">No students found.</p>
                     )}
                   </div>
+                  {/* Faculty Assigned Section */}
                   <div className="p-4 rounded-lg shadow-md bg-green-50">
                     <h3 className="text-xl font-semibold text-green-600 flex items-center gap-2">
                       🎓 Faculty Assigned
                     </h3>
-                    {courseDetails.Faculty.length > 0 ? (
-                      <ul className="list-none mt-3 space-y-2">
-                        {/* Faculty List */}
-                        {courseDetails.Faculty.map((faculty) => (
+                    {/* Search Bar for Faculty */}
+                    <input
+                      type="text"
+                      placeholder="Search faculty by name..."
+                      value={facultySearchTerm}
+                      onChange={(e) => setFacultySearchTerm(e.target.value)}
+                      className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    {filteredFaculty.length > 0 ? (
+                      <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
+                        {filteredFaculty.map((faculty) => (
                           <li
                             key={faculty.id}
                             className="bg-white p-3 rounded-lg shadow flex justify-between items-center"
@@ -459,7 +485,7 @@ const ManageCourses = () => {
                         ))}
                       </ul>
                     ) : (
-                      <p className="text-gray-600 mt-3">No faculty assigned.</p>
+                      <p className="text-gray-600 mt-3">No faculty found.</p>
                     )}
                   </div>
                   {/* Bulk Add Students Section */}

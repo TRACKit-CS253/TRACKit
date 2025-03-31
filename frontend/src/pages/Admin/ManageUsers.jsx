@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTrashAlt, FaTimes } from "react-icons/fa";
+import { FaTrashAlt, FaTimes, FaSearch } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
 import { GoHome } from "react-icons/go";
 
@@ -11,6 +11,8 @@ const ManageUser = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState("");
   const [courses, setCourses] = useState([]);
+  const [courseSearchTerm, setCourseSearchTerm] = useState("");
+  const [showSearchBox, setShowSearchBox] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -257,16 +259,29 @@ const ManageUser = () => {
 
       {selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-          <div className="bg-white p-8 rounded-lg shadow-xl w-1/3 max-h-[80vh] overflow-y-auto mt-16">
-            <h2 className="text-2xl mb-4">Edit User Details</h2>
+          <div className="bg-white p-8 rounded-2xl shadow-2xl w-1/3 max-h-[80vh] overflow-y-auto relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setSelectedUser(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-all text-xl"
+            >
+              <FaTimes />
+            </button>
+
+            {/* Header */}
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+              Edit User Details
+            </h2>
+
+            {/* User Details */}
             {Object.keys(selectedUser)
               .filter(
                 (key) =>
-                  !["student", "faculty", "createdAt", "updatedAt", "courses"].includes(key) // Exclude "courses" field
+                  !["student", "faculty", "createdAt", "updatedAt", "courses"].includes(key)
               )
               .map((key) => (
                 <div key={key} className="mb-4">
-                  <label className="block text-gray-700 font-semibold">
+                  <label className="block text-gray-700 font-semibold mb-1">
                     {labelMapping[key] || key}
                   </label>
                   <input
@@ -278,15 +293,16 @@ const ManageUser = () => {
                         [key]: e.target.value,
                       }))
                     }
-                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
               ))}
 
+            {/* Faculty-Specific Fields */}
             {selectedUser.userType === "faculty" && (
               <>
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-semibold">
+                  <label className="block text-gray-700 font-semibold mb-1">
                     Department
                   </label>
                   <input
@@ -301,12 +317,12 @@ const ManageUser = () => {
                         },
                       }))
                     }
-                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-semibold">
+                  <label className="block text-gray-700 font-semibold mb-1">
                     Position
                   </label>
                   <input
@@ -318,72 +334,83 @@ const ManageUser = () => {
                         faculty: { ...prev.faculty, position: e.target.value },
                       }))
                     }
-                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
 
+                {/* Teaching Courses Section */}
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-semibold">
+                  <label className="block text-gray-700 font-semibold mb-1">
                     Teaching Courses
                   </label>
-                  <div className="mb-4">
+                  {/* Search Bar for Teaching Courses */}
+                  <input
+                    type="text"
+                    placeholder="Search courses by name or code..."
+                    value={courseSearchTerm}
+                    onChange={(e) => setCourseSearchTerm(e.target.value)}
+                    className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <div className="mb-4 max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3">
                     <ul>
-                      {selectedUser.courses?.map((course) => (
-                        <li
-                          key={course.id}
-                          className="flex justify-between items-center mb-2"
-                        >
-                          <span>
-                            {course.id} - {course.name}
-                          </span>
-                          <button
-                            onClick={() =>
-                                removefacultyfromcourse(course.id,selectedUser.id)
-                            }
-                            className="text-red-500 hover:text-red-700"
+                      {selectedUser.courses
+                        ?.filter((course) =>
+                          course.name.toLowerCase().includes(courseSearchTerm.toLowerCase()) ||
+                          course.code.toLowerCase().includes(courseSearchTerm.toLowerCase())
+                        )
+                        .map((course) => (
+                          <li
+                            key={course.id}
+                            className="flex justify-between items-center mb-2"
                           >
-                            <FaTrashAlt />
-                          </button>
-                        </li>
-                      ))}
+                            <span className="text-gray-700">
+                              {course.code} - {course.name}
+                            </span>
+                            <button
+                              onClick={() =>
+                                removefacultyfromcourse(course.id, selectedUser.id)
+                              }
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </li>
+                        ))}
                     </ul>
                   </div>
                   <select
                     value={selectedCourse}
                     onChange={(e) => setSelectedCourse(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select a course</option>
                     {courses.map((course) => (
                       <option key={course.id} value={course.id}>
-                        {course.id} - {course.name}
+                        {course.code} - {course.name}
                       </option>
                     ))}
                   </select>
-                  <div className="flex justify-between items-center mt-2">
-                    <button
-                      onClick={() => {
-                        addfacultytocourse(selectedCourse, selectedUser.id);
-                      }}
-                      className={`px-4 py-2 rounded-lg ${
-                        !selectedCourse
-                          ? "bg-black text-white opacity-50 cursor-not-allowed"
-                          : "bg-green-500 text-white hover:scale-95"
-                      }`}
-                      disabled={!selectedCourse} 
-                    >
-                      Add to Course
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => addfacultytocourse(selectedCourse, selectedUser.id)}
+                    className={`mt-2 w-full px-4 py-2 rounded-lg ${
+                      !selectedCourse
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-500 text-white hover:bg-blue-600"
+                    }`}
+                    disabled={!selectedCourse}
+                  >
+                    Add to Course
+                  </button>
                 </div>
               </>
             )}
 
+            {/* Student-Specific Fields */}
             {selectedUser.userType === "student" && (
               <>
                 {["rollNumber", "major", "enrollmentYear"].map((field) => (
                   <div key={field} className="mb-4">
-                    <label className="block text-gray-700 font-semibold">
+                    <label className="block text-gray-700 font-semibold mb-1">
                       {labelMapping[field]}
                     </label>
                     <input
@@ -395,78 +422,106 @@ const ManageUser = () => {
                           student: { ...prev.student, [field]: e.target.value },
                         }))
                       }
-                      className="w-full p-2 border border-gray-300 rounded-lg"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
                 ))}
 
+                {/* Enrolled Courses Section */}
                 <div className="mb-4">
-                  <label className="block text-gray-700 font-semibold">
+                  <label className="block text-gray-700 font-semibold mb-1">
                     Enrolled Courses
                   </label>
-                  <div className="mb-4">
+                  {/* Search Toggle Icon */}
+                  <button
+                    onClick={() => setShowSearchBox((prev) => !prev)}
+                    className="text-blue-500 hover:text-blue-700 mb-2 flex items-center gap-2"
+                  >
+                    {showSearchBox ? (
+                      <FaTimes className="text-lg" title="Hide Search" />
+                    ) : (
+                      <FaSearch className="text-lg" title="Search Courses" />
+                    )}
+                  </button>
+                  {/* Conditionally Render Search Box with Animation */}
+                  <div
+                    className={`transition-all duration-300 overflow-hidden ${
+                      showSearchBox ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                    }`}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search courses by name or code..."
+                      value={courseSearchTerm}
+                      onChange={(e) => setCourseSearchTerm(e.target.value)}
+                      className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  <div className="mb-4 max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3">
                     <ul>
-                      {selectedUser.courses?.map((course) => (
-                        <li
-                          key={course.id}
-                          className="flex justify-between items-center mb-2"
-                        >
-                          <span>
-                            {course.id} - {course.name}
-                          </span>
-                          <button
-                            onClick={() =>
-                                removestudentfromcourse(course.id,selectedUser.id)
-                            }
-                            className="text-red-500 hover:text-red-700"
+                      {selectedUser.courses
+                        ?.filter((course) =>
+                          course.name.toLowerCase().includes(courseSearchTerm.toLowerCase()) ||
+                          course.code.toLowerCase().includes(courseSearchTerm.toLowerCase())
+                        )
+                        .map((course) => (
+                          <li
+                            key={course.id}
+                            className="flex justify-between items-center mb-2"
                           >
-                            <FaTrashAlt />
-                          </button>
-                        </li>
-                      ))}
+                            <span className="text-gray-700">
+                              {course.code} - {course.name}
+                            </span>
+                            <button
+                              onClick={() =>
+                                removestudentfromcourse(course.id, selectedUser.id)
+                              }
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <FaTrashAlt />
+                            </button>
+                          </li>
+                        ))}
                     </ul>
                   </div>
                   <select
                     value={selectedCourse}
                     onChange={(e) => setSelectedCourse(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded-lg"
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">Select a course</option>
                     {courses.map((course) => (
                       <option key={course.id} value={course.id}>
-                        {course.id} - {course.name}
+                        {course.code} - {course.name}
                       </option>
                     ))}
                   </select>
-                  <div className="flex justify-between items-center mt-2">
-                    <button
-                      onClick={() => {
-                        addstudenttocourse(selectedCourse, selectedUser.id);
-                      }}
-                      className={`px-4 py-2 rounded-lg ${
-                        !selectedCourse
-                          ? "bg-black text-white opacity-50 cursor-not-allowed"
-                          : "bg-green-500 text-white hover:scale-95"
-                      }`}
-                      disabled={!selectedCourse}
-                    >
-                      Add to Course
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => addstudenttocourse(selectedCourse, selectedUser.id)}
+                    className={`mt-2 w-full px-4 py-2 rounded-lg ${
+                      !selectedCourse
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-blue-500 text-white hover:bg-blue-600"
+                    }`}
+                    disabled={!selectedCourse}
+                  >
+                    Add to Course
+                  </button>
                 </div>
               </>
             )}
 
-            <div className="flex justify-end gap-4 mt-4">
+            {/* Footer Buttons */}
+            <div className="flex justify-end gap-4 mt-6">
               <button
                 onClick={handleSaveChanges}
-                className="bg-green-500 text-white px-4 py-2 rounded-lg"
+                className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
               >
                 Save Changes
               </button>
               <button
                 onClick={() => setSelectedUser(null)}
-                className="bg-red-500 text-white px-4 py-2 rounded-lg"
+                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600"
               >
                 Cancel
               </button>
