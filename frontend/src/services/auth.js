@@ -1,4 +1,4 @@
-export const API_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+export const API_URL = process.env.REACT_APP_API_URL;
 
 // Fetch user profile data (student/faculty)
 export const fetchUserProfile = async (userType, id, token) => {

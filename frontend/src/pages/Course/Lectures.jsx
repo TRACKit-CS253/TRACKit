@@ -8,7 +8,7 @@ import { useCourse } from '../../contexts/CourseContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+
 
 export default function Lectures({ role }) {
   const { courseDetails, loading } = useCourse(); // Ensure loading state is used
@@ -59,7 +59,7 @@ export default function Lectures({ role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${BACKEND_URL}/api/lectures/course/${courseDetails.id}`,
+        `${process.env.REACT_APP_API_URL}/api/lectures/course/${courseDetails.id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -271,8 +271,8 @@ export default function Lectures({ role }) {
       pdfFiles.forEach((file) => formDataToSend.append('files', file)); // Updated to handle all file types
 
       const url = formType === 'create'
-        ? `${BACKEND_URL}/api/lectures`
-        : `${BACKEND_URL}/api/lectures/${courseDetails.id}/${currentLectureId}`;
+        ? `${process.env.REACT_APP_API_URL}/api/lectures`
+        : `${process.env.REACT_APP_API_URL}/api/lectures/${courseDetails.id}/${currentLectureId}`;
 
       const response = await axios({
         method: formType === 'create' ? 'post' : 'put',
@@ -307,7 +307,7 @@ export default function Lectures({ role }) {
 
     try {
       const token = localStorage.getItem('token');
-      const url = `${BACKEND_URL}/api/lectures/${courseDetails.id}/${lectureToDelete.id}/`;
+      const url = `${process.env.REACT_APP_API_URL}/api/lectures/${courseDetails.id}/${lectureToDelete.id}/`;
 
       const response = await axios.delete(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -341,7 +341,7 @@ export default function Lectures({ role }) {
       
       // Create heading without requiring subheading
       const response = await axios.post(
-        `${BACKEND_URL}/api/lectures/heading`,
+        `${process.env.REACT_APP_API_URL}/api/lectures/heading`,
         { 
           courseId: courseDetails.id, 
           heading: newHeadingData.heading,
@@ -392,7 +392,7 @@ export default function Lectures({ role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.post(
-        `${BACKEND_URL}/api/lectures/subheading`,
+        `${process.env.REACT_APP_API_URL}/api/lectures/subheading`,
         {
           courseId: courseDetails.id,
           heading: subsectionFormData.heading,
@@ -436,7 +436,7 @@ export default function Lectures({ role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.put(
-        `${BACKEND_URL}/api/lectures/${courseDetails.id}/subheading`,
+        `${process.env.REACT_APP_API_URL}/api/lectures/${courseDetails.id}/subheading`,
         {
           heading: subheadingFormData.heading, // Include the heading (module name)
           currentSubheading: subheadingFormData.currentSubheading || subheadingFormData.subheading, // Use stored original subheading
@@ -473,7 +473,7 @@ export default function Lectures({ role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.delete(
-        `${BACKEND_URL}/api/lectures/${courseDetails.id}/subheading`,
+        `${process.env.REACT_APP_API_URL}/api/lectures/${courseDetails.id}/subheading`,
         {
           headers: { Authorization: `Bearer ${token}` },
           data: {

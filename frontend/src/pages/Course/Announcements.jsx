@@ -9,7 +9,6 @@ import { useCourse } from '../../contexts/CourseContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
 
 export default function Announcements({ role }) {
   const [expandedIndices, setExpandedIndices] = useState({});
@@ -43,7 +42,7 @@ export default function Announcements({ role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${BACKEND_URL}/api/announcements/course/${courseDetails.id}`,
+        `${process.env.REACT_APP_API_URL}/api/announcements/course/${courseDetails.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -85,7 +84,7 @@ export default function Announcements({ role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.delete(
-        `${BACKEND_URL}/api/announcements/${courseDetails.id}/${announcementToDelete.id}`,
+        `${process.env.REACT_APP_API_URL}/api/announcements/${courseDetails.id}/${announcementToDelete.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -118,7 +117,7 @@ export default function Announcements({ role }) {
       
       if (formType === 'create') {
         response = await axios.post(
-          `${BACKEND_URL}/api/announcements`,
+          `${process.env.REACT_APP_API_URL}/api/announcements`,
           {
             courseId: courseDetails.id,
             announcementHeading: formData.announcementHeading,
@@ -139,7 +138,7 @@ export default function Announcements({ role }) {
         }
       } else if (formType === 'edit') {
         response = await axios.put(
-          `${BACKEND_URL}/api/announcements/${courseDetails.id}/${currentAnnouncementId}`,
+          `${process.env.REACT_APP_API_URL}/api/announcements/${courseDetails.id}/${currentAnnouncementId}`,
           {
             announcementHeading: formData.announcementHeading,
             announcementBody: formData.announcementBody
@@ -195,7 +194,7 @@ export default function Announcements({ role }) {
           </div>
         ) : (
       <>
-        <div className='flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5]'>
+        <div className='flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-50'>
           <div>
             <p className='text-[32px] uppercase font-semibold m-4'>Announcements</p>
             <p className='text-gray-600 ml-4 -mt-3'>

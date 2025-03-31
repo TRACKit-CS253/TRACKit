@@ -29,15 +29,15 @@ export function AuthProvider({ children }) {
   const login = async (username, password) => {
     try {
       const response = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/auth/login`,
+        `${process.env.REACT_APP_API_URL}/api/auth/login`,
         { username, password }
       );
       
       if (response.data && response.data.success && response.data.token) {
         const { token, user } = response.data;
         
-        console.log("Received token:", token);
-        console.log("Storing user data:", user);
+        // console.log("Received token:", token);
+        // console.log("Storing user data:", user);
         
         // Store token and user in localStorage
         localStorage.setItem('token', token);

@@ -50,51 +50,48 @@ export default function ContactUs({name, email}) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
+    
         if (!formData.subject || !formData.message) {
             setSubmitStatus({
                 success: false,
-                message: 'Please fill in all required fields'
+                message: 'Please fill in all required fields',
             });
             return;
         }
-
-        // try {
-        //     setSubmitStatus({ loading: true });
-            
-        //     // Replace with your actual API endpoint for submitting contact messages
-        //     const response = await authFetch('/api/contact', {
-        //         method: 'POST',
-        //         body: JSON.stringify({
-        //             name: displayData.name,
-        //             email: displayData.email,
-        //             subject: formData.subject,
-        //             message: formData.message
-        //         })
-        //     });
-
-        //     if (response.success) {
-        //         setSubmitStatus({
-        //             success: true,
-        //             message: 'Message sent successfully!'
-        //         });
-        //         setFormData({ subject: '', message: '' });
-        //     } else {
-        //         throw new Error(response.message || 'Failed to send message');
-        //     }
-        // } catch (err) {
-        //     setSubmitStatus({
-        //         success: false,
-        //         message: err.message || 'Error sending message. Please try again later.'
-        //     });
-        // }
-
-        //data doesn't go in the mail 
-        setSubmitStatus({
-            success: true, 
-            message:"Response recorded successfully"
-        });
-        setFormData({ subject: '', message: '' });
+    
+        try {
+            setSubmitStatus({ loading: true });
+    
+            // Call the backend API to send the email
+            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/contact/send-email`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subject: formData.subject,
+                    message: formData.message,
+                    userEmail: displayData.email, // User's email
+                }),
+            });
+    
+            const result = await response.json();
+    
+            if (result.success) {
+                setSubmitStatus({
+                    success: true,
+                    message: 'Message sent successfully!',
+                });
+                setFormData({ subject: '', message: '' });
+            } else {
+                throw new Error(result.message || 'Failed to send message');
+            }
+        } catch (err) {
+            setSubmitStatus({
+                success: false,
+                message: err.message || 'Error sending message. Please try again later.',
+            });
+        }
     };
 
     const displayData = profileData || user;    

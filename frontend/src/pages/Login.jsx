@@ -28,11 +28,11 @@ const Login = () => {
           navigate('/dashboard/courses');
         }
       } else {
-        setError(result.message || 'Invalid username or password');
+        setError('Invalid username or password');
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError('An unexpected error occurred. Please try again.');
+      setError('Invalid username or password');
     } finally {
       setIsLoading(false);
     }

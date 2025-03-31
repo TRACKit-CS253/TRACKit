@@ -11,7 +11,7 @@ import axios from 'axios';
 // Import the Calendar component
 import MyCalendar from '../../components/Calendar_Course_Home';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:3001';
+
 
 export default function CourseHome({ present, total, role }) {
   const { courseDetails, loading, error } = useCourse();
@@ -51,7 +51,7 @@ export default function CourseHome({ present, total, role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(
-        `${BACKEND_URL}/api/course-descriptions/course/${courseDetails.id}`,
+        `${process.env.REACT_APP_API_URL}/api/course-descriptions/course/${courseDetails.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -109,7 +109,7 @@ export default function CourseHome({ present, total, role }) {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.delete(
-        `${BACKEND_URL}/api/course-descriptions/${courseDetails.id}/${descriptionToDelete.id}`,
+        `${process.env.REACT_APP_API_URL}/api/course-descriptions/${courseDetails.id}/${descriptionToDelete.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -142,7 +142,7 @@ export default function CourseHome({ present, total, role }) {
       
       if (formType === 'create') {
         response = await axios.post(
-          `${BACKEND_URL}/api/course-descriptions`,
+          `${process.env.REACT_APP_API_URL}/api/course-descriptions`,
           {
             courseId: courseDetails.id,
             courseDescriptionEntryHeading: formData.courseDescriptionEntryHeading,
@@ -163,7 +163,7 @@ export default function CourseHome({ present, total, role }) {
         }
       } else if (formType === 'edit') {
         response = await axios.put(
-          `${BACKEND_URL}/api/course-descriptions/${courseDetails.id}/${currentDescriptionId}`,
+          `${process.env.REACT_APP_API_URL}/api/course-descriptions/${courseDetails.id}/${currentDescriptionId}`,
           {
             courseDescriptionEntryHeading: formData.courseDescriptionEntryHeading,
             courseDescriptionEntryBody: formData.courseDescriptionEntryBody

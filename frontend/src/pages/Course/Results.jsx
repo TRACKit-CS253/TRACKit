@@ -68,7 +68,7 @@ export default function Results() {
       const fetchResults = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:3001/api/result/student/${currentUser.id}/course/${courseDetails.id}`
+            `${process.env.REACT_APP_API_URL}/api/result/student/${currentUser.id}/course/${courseDetails.id}`
           );
           setResults(response.data);
         } catch (err) {
@@ -86,7 +86,7 @@ export default function Results() {
         setLoadingExams(true);
         try {
           const response = await axios.get(
-            `http://localhost:3001/api/result/course/${courseDetails.id}/exams`
+            `${process.env.REACT_APP_API_URL}/api/result/course/${courseDetails.id}/exams`
           );
           setExams(response.data || []);
         } catch (err) {
@@ -109,7 +109,7 @@ export default function Results() {
         setLoadingExamSummaries(true);
         try {
           const response = await axios.get(
-            `http://localhost:3001/api/result/course/${courseDetails.id}/exams/details`
+            `${process.env.REACT_APP_API_URL}/api/result/course/${courseDetails.id}/exams/details`
           );
           setExamSummaries(response.data || []);
         } catch (err) {
@@ -130,7 +130,7 @@ export default function Results() {
         setLoadingExamDetails(true);
         try {
           const response = await axios.get(
-            `http://localhost:3001/api/result/course/${courseDetails.id}/exam/${selectedExamId}`
+            `${process.env.REACT_APP_API_URL}/api/result/course/${courseDetails.id}/exam/${selectedExamId}`
           );
           setExamDetails(response.data);
         } catch (err) {
@@ -157,7 +157,7 @@ export default function Results() {
     
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/result/course/${courseDetails.id}/students`
+        `${process.env.REACT_APP_API_URL}/api/result/course/${courseDetails.id}/students`
       );
       const studentList = response.data;
       setStudents(studentList);
@@ -322,7 +322,7 @@ export default function Results() {
     const handleConfirmDelete = async () => {
       try {
         await axios.delete(
-          `http://localhost:3001/api/result/exam/${selectedExamId}/delete`
+          `${process.env.REACT_APP_API_URL}/api/result/exam/${selectedExamId}/delete`
         );
         
         // Show success message
@@ -479,7 +479,7 @@ export default function Results() {
       };
       
       await axios.put(
-        `http://localhost:3001/api/result/exam/${selectedExamId}/modify`,
+        `${process.env.REACT_APP_API_URL}/api/result/exam/${selectedExamId}/modify`,
         formattedData
       );
       
@@ -527,7 +527,7 @@ export default function Results() {
       };
       
       await axios.post(
-        `http://localhost:3001/api/result/course/${courseDetails.id}/publish`,
+        `${process.env.REACT_APP_API_URL}/api/result/course/${courseDetails.id}/publish`,
         formattedData
       );
       

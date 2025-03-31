@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'http://localhost:3001/api',  // Changed port to 3001
+  baseURL: '${process.env.REACT_APP_API_URL}/api',  // Changed port to 3001
   timeout: 10000,
 });
 

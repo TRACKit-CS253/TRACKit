@@ -8,7 +8,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+
 
 export default function Forum({ role }) {
   const [posts, setPosts] = useState([]);
@@ -34,7 +34,7 @@ export default function Forum({ role }) {
       const token = localStorage.getItem('token');
 
       const response = await axios.get(
-        `${BACKEND_URL}/api/forum/course/${courseDetails.id}`,
+        `${process.env.REACT_APP_API_URL}/api/forum/course/${courseDetails.id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -84,7 +84,7 @@ export default function Forum({ role }) {
       const token = localStorage.getItem('token');
 
       const response = await axios.post(
-        `${BACKEND_URL}/api/forum/course/${courseDetails.id}`,
+        `${process.env.REACT_APP_API_URL}/api/forum/course/${courseDetails.id}`,
         { query: newQuery },
         {
           headers: {
@@ -123,7 +123,7 @@ export default function Forum({ role }) {
       const token = localStorage.getItem('token');
 
       const response = await axios.delete(
-        `${BACKEND_URL}/api/forum/post/${postId}`,
+        `${process.env.REACT_APP_API_URL}/api/forum/post/${postId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -160,7 +160,7 @@ export default function Forum({ role }) {
       const token = localStorage.getItem('token');
 
       const response = await axios.post(
-        `${BACKEND_URL}/api/forum/post/${postId}/reply`,
+        `${process.env.REACT_APP_API_URL}/api/forum/post/${postId}/reply`,
         { content: replyContent },
         {
           headers: {
@@ -208,7 +208,7 @@ export default function Forum({ role }) {
       const token = localStorage.getItem('token');
 
       const response = await axios.delete(
-        `${BACKEND_URL}/api/forum/reply/${replyId}`,
+        `${process.env.REACT_APP_API_URL}/api/forum/reply/${replyId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

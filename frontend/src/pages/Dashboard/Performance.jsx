@@ -31,7 +31,7 @@ export default function Performance() {
 
           // Fetch results for each enrolled course
           const resultsPromises = courses.map(course => 
-            axios.get(`http://localhost:3001/api/result/student/${currentUser.id}/course/${course.id}`)
+            axios.get(`${process.env.REACT_APP_API_URL}/api/result/student/${currentUser.id}/course/${course.id}`)
               .then(res => ({ courseId: course.id, results: res.data }))
               .catch(err => {
                 console.error(`Error fetching results for course ${course.code}:`, err);

@@ -119,7 +119,7 @@ export default function ContactDevelopers() {
             <GoHome className='text-[1.9rem]' onClick={()=>{navigate("/Admin")}}></GoHome>
           </div>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-700">Add Faculty</h1>
+        <h1 className="text-2xl font-semibold text-gray-700">Contact Developers</h1>
       </div>
 
       {developers.map((dev, index) => (

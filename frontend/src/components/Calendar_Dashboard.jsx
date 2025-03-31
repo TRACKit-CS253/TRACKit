@@ -5,6 +5,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import Modal from 'react-modal';
 import { useEvents } from '../contexts/EventContext';
 import { useNotification } from '../contexts/NotificationContext';
+import { useAuth } from '../contexts/AuthContext'; // Import AuthContext to listen for login changes
 
 const localizer = momentLocalizer(moment);
 
@@ -13,15 +14,25 @@ Modal.setAppElement('#root');
 const MyCalendar = () => {
   const { allEvents, loading, refreshEvents } = useEvents();
   const { showNotification } = useNotification();
+  const { currentUser } = useAuth(); // Get the current user from AuthContext
 
   const [showEventModal, setShowEventModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [view, setView] = useState(Views.MONTH);
   const [date, setDate] = useState(new Date());
   const [scrollToTime, setScrollToTime] = useState(new Date());
-  const [refreshCounter, setRefreshCounter] = useState(0);
+  const [hasRefreshedOnLogin, setHasRefreshedOnLogin] = useState(false); // Track if refresh has already occurred on login
 
-  // Update scrollToTime based on first event
+  // Refresh events only when the user logs in
+  useEffect(() => {
+    if (currentUser && !hasRefreshedOnLogin) {
+      console.log('User logged in, refreshing events...');
+      refreshEvents();
+      setHasRefreshedOnLogin(true); // Prevent further refreshes
+    }
+  }, [currentUser, hasRefreshedOnLogin, refreshEvents]);
+
+  // Update scrollToTime based on the first event
   useEffect(() => {
     if (allEvents.length > 0) {
       try {
@@ -30,7 +41,7 @@ const MyCalendar = () => {
         }, allEvents[0].start);
         setScrollToTime(firstEventStart);
       } catch (err) {
-        console.warn("Error setting scroll time:", err);
+        console.warn('Error setting scroll time:', err);
       }
     }
   }, [allEvents]);
@@ -48,7 +59,6 @@ const MyCalendar = () => {
   const handleManualRefresh = () => {
     refreshEvents();
     showNotification('Refreshing calendar events...', 'info');
-    setRefreshCounter(prev => prev + 1);
   };
 
   // Custom event styling with course colors
@@ -59,7 +69,7 @@ const MyCalendar = () => {
       opacity: 0.8,
       color: 'white',
       border: '0px',
-      display: 'block'
+      display: 'block',
     };
     return { style };
   };
@@ -96,18 +106,17 @@ const MyCalendar = () => {
           Loading calendar events...
         </div>
       )}
-      
+
       <div className="flex justify-end mb-2">
-        <button 
+        <button
           onClick={handleManualRefresh}
           className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-full text-xs"
         >
           Refresh Calendar
         </button>
       </div>
-      
+
       <Calendar
-        key={`calendar-${refreshCounter}`}
         localizer={localizer}
         events={allEvents}
         startAccessor="start"
@@ -128,10 +137,10 @@ const MyCalendar = () => {
         max={new Date(0, 0, 0, 22, 0)}
         eventPropGetter={eventStyleGetter}
         components={{
-          event: EventComponent
+          event: EventComponent,
         }}
       />
-      
+
       <Modal
         isOpen={showEventModal}
         onRequestClose={() => setShowEventModal(false)}
@@ -142,25 +151,31 @@ const MyCalendar = () => {
         {selectedEvent && (
           <div>
             <h3 className="text-xl font-bold mb-3">{selectedEvent.title}</h3>
-            
+
             {/* Course information */}
             {selectedEvent.courseName && (
-              <div 
-                className="mb-3 p-2 rounded" 
-                style={{ 
+              <div
+                className="mb-3 p-2 rounded"
+                style={{
                   backgroundColor: selectedEvent.color || '#3174ad',
-                  color: 'white'
+                  color: 'white',
                 }}
               >
                 <p className="font-bold">{selectedEvent.courseCode}</p>
                 <p>{selectedEvent.courseName}</p>
               </div>
             )}
-            
-            <p className="mb-2"><strong>Start:</strong> {selectedEvent.start.toLocaleString()}</p>
-            <p className="mb-2"><strong>End:</strong> {selectedEvent.end.toLocaleString()}</p>
-            <p className="mb-4"><strong>Description:</strong> {selectedEvent.description || 'No description provided'}</p>
-            
+
+            <p className="mb-2">
+              <strong>Start:</strong> {selectedEvent.start.toLocaleString()}
+            </p>
+            <p className="mb-2">
+              <strong>End:</strong> {selectedEvent.end.toLocaleString()}
+            </p>
+            <p className="mb-4">
+              <strong>Description:</strong> {selectedEvent.description || 'No description provided'}
+            </p>
+
             <button
               onClick={() => setShowEventModal(false)}
               className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
@@ -200,32 +215,6 @@ const MyCalendar = () => {
           bottom: 0;
           background-color: rgba(0, 0, 0, 0.75);
           z-index: 100;
-        }
-
-        /* Fix for toolbar buttons spacing */
-        :global(.rbc-toolbar) {
-          flex-wrap: nowrap !important;
-          font-size: 0.9rem;
-        }
-        
-        :global(.rbc-toolbar button) {
-          padding: 5px 8px !important;
-          margin: 0 1px !important;
-        }
-        
-        :global(.rbc-btn-group) {
-          white-space: nowrap;
-          margin: 0 2px !important;
-        }
-        
-        /* Fix for potential z-index issues */
-        :global(.rbc-calendar) {
-          z-index: 1;
-        }
-        
-        /* Improve event display */
-        :global(.rbc-event) {
-          padding: 2px 3px !important;
         }
       `}</style>
     </div>

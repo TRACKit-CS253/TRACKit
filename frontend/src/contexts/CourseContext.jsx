@@ -42,7 +42,7 @@ export const CourseProvider = ({ children }) => {
         }
         
         const response = await axios.get(
-          `http://localhost:3001/api/users/${currentUser.id}/courses`,
+          `${process.env.REACT_APP_API_URL}/api/users/${currentUser.id}/courses`,
           {
             headers: {
               Authorization: `Bearer ${token}`
@@ -133,7 +133,7 @@ export const SingleCourseProvider = ({ children, courseCode }) => {
           try {
             // First try getting all courses for user to find this specific one
             const userCoursesResponse = await axios.get(
-              `http://localhost:3001/api/users/${user.id}/courses`,
+              `${process.env.REACT_APP_API_URL}/api/users/${user.id}/courses`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             
@@ -157,7 +157,7 @@ export const SingleCourseProvider = ({ children, courseCode }) => {
           // As a fallback, try the direct course endpoint
           try {
             const response = await axios.get(
-              `http://localhost:3001/api/courses/${courseCode}`,
+              `${process.env.REACT_APP_API_URL}/api/courses/${courseCode}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
             

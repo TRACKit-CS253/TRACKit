@@ -10,14 +10,16 @@ const bodyParser = require('body-parser');
 const mailer = require('./mailer'); // Import mailer.js
 const crypto = require('crypto');
 
+
 const app = express();
 
 // Security middleware
 app.use(helmet());
+app.use(express.json());
 
 // Update CORS configuration
 app.use(cors({
-  origin: 'http://localhost:3000', // or whatever port your frontend is running on
+  origin: `${process.env.FRONTEND_URL}`, // or whatever port your frontend is running on
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -58,6 +60,7 @@ app.use('/api/result', require('./routes/result.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/events', require('./routes/event.routes'));
 app.use('/api/forum', require('./routes/forum.routes'));
+app.use('/api/contact', require('./routes/mail.routes'));
 
 // Log all registered routes
 const listRoutes = (app) => {

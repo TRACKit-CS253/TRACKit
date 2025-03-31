@@ -7,7 +7,7 @@ const EventContext = createContext();
 
 export const useEvents = () => useContext(EventContext);
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_URL = process.env.REACT_APP_API_URL;
 
 // Course colors for consistent color coding
 const courseColors = [
