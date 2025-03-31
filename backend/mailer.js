@@ -1,32 +1,32 @@
 const nodemailer = require('nodemailer');
+const mailConfig = require('./config/mail.config');
 
-// Create reusable transporter 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  service: mailConfig.service,
   auth: {
-    user: 'pwdchange247@gmail.com',
-    pass: 'ujkhrsqgutoszoew'
+    user: mailConfig.email,
+    pass: mailConfig.password,
   },
 });
 
-// Function to send password reset email
-const sendPasswordResetEmail = async (email, resetToken) => {
+const sendPasswordResetEmail = async (email, otp) => {
   try {
     const mailOptions = {
-      from: 'pwdchange247@gmail.com',
+      from: mailConfig.email,
       to: email,
-      subject: 'Password Reset Request',
+      subject: 'TRACKit Password Reset OTP',
       html: `
-        <h2>Password Reset</h2>
-        <p>You requested a password reset. Click the link below to reset your password:</p>
-        <a href="http://localhost:3000/reset-password/${resetToken}">Reset Password</a>
-        <p>This link will expire in 1 hour.</p>
-        <p>If you didn't request this, please ignore this email.</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h1 style="color: #2d3748;">Password Reset OTP</h1>
+          <p>You have requested to reset your password.</p>
+          <p>Your OTP for password reset is: <strong style="font-size: 24px; color: #4a5568;">${otp}</strong></p>
+          <p>This OTP will expire in 10 minutes.</p>
+          <p>If you did not request this password reset, please ignore this email.</p>
+        </div>
       `
     };
 
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Password reset email sent successfully:', email);
+    await transporter.sendMail(mailOptions);
     return { success: true };
   } catch (error) {
     console.error('Email sending failed:', error);
@@ -34,7 +34,6 @@ const sendPasswordResetEmail = async (email, resetToken) => {
   }
 };
 
-// Only export the function
 module.exports = {
   sendPasswordResetEmail
 };

@@ -1,51 +1,54 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import loginImg from '../assets/login.png';
-import { checkUsername } from '../services/auth.service';
 
 const ForgotPassword = () => {
   const [username, setUsername] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
   
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setMessage('');
     setIsLoading(true);
     
     try {
-      const data = await checkUsername(username);
+      // First verify username exists
+      const checkResponse = await fetch('http://localhost:3001/api/auth/check-username', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username }),
+      });
       
-      if (data.success) {
-        try {
-          console.log('Sending reset email to:', data.email);
-          const response = await fetch('http://localhost:3001/api/auth/forgot-password', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ email: data.email })
+      const checkData = await checkResponse.json();
+      
+      if (checkData.success) {
+        // Send OTP
+        const otpResponse = await fetch('http://localhost:3001/api/auth/forgot-password', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ email: checkData.email }),
+        });
+        
+        const otpData = await otpResponse.json();
+        
+        if (otpData.success) {
+          navigate('/verify-otp', { 
+            state: { 
+              email: checkData.email 
+            }
           });
-
-          const result = await response.json();
-          console.log('Reset email response:', result);
-
-          if (result.success) {
-            setMessage(`Password reset instructions have been sent to ${data.email}. Please check your email inbox.`);
-            setError('');
-          } else {
-            throw new Error(result.message || 'Failed to send reset email');
-          }
-        } catch (emailError) {
-          console.error('Email error:', emailError);
-          setError('Failed to send reset email. Please try again.');
+        } else {
+          setError(otpData.message || 'Failed to send OTP');
         }
       } else {
-        setError(data.message || 'No such user exists');
+        setError(checkData.message || 'User not found');
       }
     } catch (err) {
       console.error('Error:', err);
@@ -89,7 +92,6 @@ const ForgotPassword = () => {
             {isLoading ? 'Checking...' : 'Continue'}
           </button>
           
-          {message && <p className="text-green-500 text-sm mt-2 w-full text-center">{message}</p>}
           {error && <p className="text-red-500 text-sm mt-2 w-full text-center">{error}</p>}
           
           <button 

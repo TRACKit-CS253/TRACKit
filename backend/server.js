@@ -59,39 +59,6 @@ app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/events', require('./routes/event.routes'));
 app.use('/api/forum', require('./routes/forum.routes'));
 
-// Password reset route
-app.post('/api/password-reset', async (req, res) => {
-  const { email } = req.body;
-
-  if (!email) {
-    return res.status(400).json({
-      success: false,
-      message: 'Email is required'
-    });
-  }
-
-  try {
-    const resetToken = crypto.randomBytes(32).toString('hex');
-    const result = await mailer.sendPasswordResetEmail(email, resetToken);
-
-    if (result.success) {
-      return res.status(200).json({
-        success: true,
-        message: 'Password reset instructions sent to your email'
-      });
-    } else {
-      console.error(`Failed to send reset email to ${email}:`, result.error);
-      throw new Error(result.error);
-    }
-  } catch (error) {
-    console.error('Reset email error:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error sending password reset email'
-    });
-  }
-});
-
 // Log all registered routes
 const listRoutes = (app) => {
   console.log('Registered routes:');
@@ -108,7 +75,6 @@ const listRoutes = (app) => {
   });
 };
 listRoutes(app);
-console.log("✔ Password reset route registered: POST /api/password-reset");
 
 // Initialize database and sync models
 const shouldForceSync = process.env.NODE_ENV === 'development' && process.env.FORCE_SYNC === 'true';
