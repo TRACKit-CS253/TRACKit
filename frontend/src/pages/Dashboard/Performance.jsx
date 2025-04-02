@@ -25,7 +25,7 @@ export default function Performance() {
           // Initialize expanded state for each course
           const initialExpandedState = {};
           courses.forEach(course => {
-            initialExpandedState[course.id] = true; // Default to expanded
+            initialExpandedState[course.id] = false; // Default to expanded
           });
           setExpandedCourses(initialExpandedState);
 
