@@ -6,12 +6,13 @@ import Modal from 'react-modal';
 import { useEvents } from '../contexts/EventContext';
 import { useCourse } from '../contexts/CourseContext';
 import { useNotification } from '../contexts/NotificationContext';
-
+import { useAuth } from '../contexts/AuthContext';
 const localizer = momentLocalizer(moment);
 
 Modal.setAppElement('#root');
 
 const MyCalendar = () => {
+  const { currentUser } = useAuth(); // Get the current user
   const { courseDetails } = useCourse();
   const { eventsByCourse, loading, addEvent, deleteEvent, refreshEvents } = useEvents();
   const { showNotification } = useNotification();
@@ -157,12 +158,15 @@ const MyCalendar = () => {
       )}
       
       <div className="flex justify-between items-center mb-3">
-        <button
-          onClick={() => setShowForm(true)}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Add Event
-        </button>
+      
+        { currentUser?.userType === 'faculty' && (
+          <button
+            onClick={() => setShowForm(true)}
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+          >
+            Add Event
+          </button>
+        )}
         
         <button 
           onClick={handleManualRefresh}
@@ -290,9 +294,7 @@ const MyCalendar = () => {
           margin-right: -50%;
           transform: translate(-50%, -50%);
           background: white;
-          padding: 20px;
-          border-radius: 8px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+          padding:
           z-index: 1000;
           max-width: 500px;
           width: 90%;
