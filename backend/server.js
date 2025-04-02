@@ -9,7 +9,8 @@ const fileUpload = require('express-fileupload');
 const bodyParser = require('body-parser');
 const mailer = require('./mailer'); // Import mailer.js
 const crypto = require('crypto');
-
+const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
 
@@ -47,6 +48,46 @@ app.use((req, res, next) => {
   next();
 });
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    // Create uploads directory if it doesn't exist
+    const uploadDir = path.join(__dirname, 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Create unique filename using timestamp
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Create multer upload instance with file size limits
+const upload = multer({ 
+  storage: storage,
+  limits: { 
+    fileSize: 10 * 1024 * 1024 // 10MB max file size
+  },
+  fileFilter: function (req, file, cb) {
+    // Accept csv files and common text formats that could be CSV
+    const filetypes = /csv|text|plain|excel|octet-stream/;
+    const mimetype = filetypes.test(file.mimetype);
+    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+    
+    if (mimetype || extname) {
+      return cb(null, true);
+    }
+    
+    cb(new Error('File upload only supports CSV files!'));
+  }
+});
+
+// Make upload middleware available to route handlers
+app.locals.upload = upload;
+
 // Import routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/users', require('./routes/user.routes'));
@@ -61,6 +102,12 @@ app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/events', require('./routes/event.routes'));
 app.use('/api/forum', require('./routes/forum.routes'));
 app.use('/api/contact', require('./routes/mail.routes'));
+
+// Example using the middleware in routes
+const adminController = require('./controllers/admin.controller');
+app.post('/api/admin/bulk-create-courses', upload.single('file'), adminController.bulkCreateCourses);
+app.post('/api/admin/bulk-create-students', upload.single('file'), adminController.bulkCreateStudents);
+app.post('/api/admin/bulk-create-faculty', upload.single('file'), adminController.bulkCreateFaculty);
 
 // Log all registered routes
 const listRoutes = (app) => {

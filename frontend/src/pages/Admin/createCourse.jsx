@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../../contexts/AuthContext'; // Import useAuth hook
+import { useAuth } from '../../contexts/AuthContext';
+import axiosInstance from '../../utils/axiosInstance'; // Use the enhanced axios instance
 import { 
   validateCSVFile, 
   createFileUploadFormData, 
@@ -25,7 +25,6 @@ export default function CreateCourse() {
   const navigate = useNavigate();
   const { token } = useAuth(); // Get token from auth context
   
-  // Add new state variables for API interactions
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [fileError, setFileError] = useState('');
@@ -47,7 +46,6 @@ export default function CreateCourse() {
       return;
     }
 
-    // More lenient file type checking
     const validExtensions = ['.csv', '.txt'];
     const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
     
@@ -61,7 +59,6 @@ export default function CreateCourse() {
       return;
     }
 
-    // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
       setFileError('File size too large. Maximum size is 5MB.');
       setCsvFile(null);
@@ -74,7 +71,6 @@ export default function CreateCourse() {
     console.log("Selected file:", file.name, "Size:", file.size, "Type:", file.type);
   };
 
-  // Reset form after submission
   const resetForm = () => {
     setCourseData({
       code: '',
@@ -92,7 +88,6 @@ export default function CreateCourse() {
     setMessage({ text: '', type: '' });
 
     try {
-      // Perform client-side validation
       const requiredFields = ['code', 'name', 'credits', 'semester'];
       const missingFields = requiredFields.filter(field => !courseData[field]);
       
@@ -105,7 +100,6 @@ export default function CreateCourse() {
         return;
       }
       
-      // Try different token formats and storage locations
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       const authToken = token || 
                         localStorage.getItem('token') || 
@@ -121,14 +115,13 @@ export default function CreateCourse() {
         return;
       }
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/admin/course`,
+      const response = await axiosInstance.post(
+        '/api/admin/course',
         courseData,
         {
           headers: {
             'Content-Type': 'application/json',
-            'x-access-token': authToken,
-            'Authorization': `Bearer ${authToken}` // Add alternative auth header format
+            'Authorization': `Bearer ${authToken}`
           }
         }
       );
@@ -138,7 +131,6 @@ export default function CreateCourse() {
         resetForm();
       }
     } catch (error) {
-      // Add more detailed debugging
       console.error("Full error object:", error);
       
       if (error.response) {
@@ -147,7 +139,6 @@ export default function CreateCourse() {
         console.error("Response data:", error.response.data);
       }
       
-      // Handle specific error cases
       let errorMessage = 'Error creating course';
       
       if (error.response) {
@@ -177,7 +168,6 @@ export default function CreateCourse() {
       return;
     }
 
-    // Validate the file
     const validation = validateCSVFile(csvFile);
     if (!validation.isValid) {
       setMessage({ text: validation.message, type: 'error' });
@@ -188,7 +178,6 @@ export default function CreateCourse() {
     setMessage({ text: 'Uploading file... Please wait.', type: 'info' });
 
     try {
-      // Try different token formats and storage locations
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       const authToken = token || 
                         localStorage.getItem('token') || 
@@ -201,25 +190,26 @@ export default function CreateCourse() {
         return;
       }
 
-      // Create FormData and log for debugging
-      const formData = createFileUploadFormData(csvFile);
+      const formData = new FormData();
+      formData.append('file', csvFile);
       
-      // Log important request details
       console.log("Making bulk upload request with:");
-      console.log("- Auth token present:", !!authToken);
       console.log("- File name:", csvFile.name);
       console.log("- File size:", csvFile.size);
       console.log("- Content type:", csvFile.type);
 
-      // Get upload configuration with progress tracking
-      const uploadConfig = getFileUploadConfig(authToken, (percent) => {
-        setMessage({ text: `Uploading: ${percent}% complete`, type: 'info' });
-      });
-
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/admin/bulk-courses`,
+      const response = await axiosInstance.post(
+        '/api/admin/bulk-courses',
         formData,
-        uploadConfig
+        {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
+          },
+          onUploadProgress: (progressEvent) => {
+            const percent = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setMessage({ text: `Uploading: ${percent}% complete`, type: 'info' });
+          }
+        }
       );
 
       console.log("Response received:", response.data);
@@ -230,7 +220,6 @@ export default function CreateCourse() {
           type: 'success' 
         });
         resetForm();
-        // Reset file input
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -243,39 +232,18 @@ export default function CreateCourse() {
       let errorDetails = [];
       let duplicateCodes = [];
       
-      if (error.code === 'ECONNABORTED') {
-        errorMessage = 'The request took too long to complete. Please try again with a smaller file or check your network connection.';
-      } else if (error.message && error.message.includes('Network Error')) {
-        errorMessage = 'Network error occurred. Please check your internet connection and try again.';
-      } else if (error.response) {
+      if (error.response) {
         console.error('Error response:', error.response.data);
         errorMessage = error.response.data.message || errorMessage;
         
-        // Display any debug information sent from the server
-        if (error.response.data.debug) {
-          console.log("Debug info from server:", error.response.data.debug);
-        }
-        
-        // Check for detailed validation errors
         if (error.response.data.errors && error.response.data.errors.length > 0) {
           errorDetails = error.response.data.errors;
         }
         
-        // Check for duplicate course codes
         if (error.response.data.duplicateCodes && error.response.data.duplicateCodes.length > 0) {
           duplicateCodes = error.response.data.duplicateCodes;
           errorMessage = 'These course codes already exist. Please use a different CSV file.';
         }
-        
-        if (error.response.status === 401) {
-          errorMessage = 'Authentication failed. Please log in again.';
-          setTimeout(() => navigate('/login'), 2000);
-        } else if (error.response.status === 413) {
-          errorMessage = 'The file is too large. Please try a smaller file.';
-        }
-      } else {
-        console.error('Error:', error.message);
-        errorMessage = error.message || 'An unexpected error occurred';
       }
       
       setMessage({ 
@@ -291,7 +259,6 @@ export default function CreateCourse() {
 
   return (
     <div className="bg-[#F5F5F5] min-h-screen">
-      {/* Fixed Header */}
       <div className="fixed top-0 left-0 right-0 bg-white py-7 px-8 shadow-lg z-10 flex justify-between items-center">
         <div className='flex gap-6'>
           <span
@@ -307,12 +274,10 @@ export default function CreateCourse() {
         <h1 className="text-2xl font-semibold text-gray-700">Create Course</h1>
       </div>
       
-      {/* Main Content */}
       <div className="pt-32 px-4">
         <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
           <h2 className="text-2xl font-bold mb-6 text-center">Create Course</h2>
           
-          {/* Status Message */}
           {message.text && (
             <div className={`p-3 mb-4 rounded text-sm ${
               message.type === 'success' ? 'bg-green-100 text-green-700' : 
@@ -461,7 +426,6 @@ export default function CreateCourse() {
                 
               </div>
               
-              {/* Display detailed error messages if available */}
               {message.type === 'error' && message.details && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
                   <p className="text-sm font-bold text-red-700 mb-2">Error details:</p>
@@ -473,7 +437,6 @@ export default function CreateCourse() {
                 </div>
               )}
               
-              {/* Display duplicate course codes if available */}
               {message.type === 'error' && message.duplicateCodes && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
                   <p className="text-sm font-bold text-red-700 mb-2">Duplicate course codes:</p>

@@ -814,14 +814,45 @@ exports.getAllCourses = async (req, res) => {
 
 // Bulk create courses from CSV
 exports.bulkCreateCourses = async (req, res) => {
-  // Check both req.files and req.file to support different upload libraries
+  // Log details about the incoming request for debugging
+  console.log("Request body:", req.body);
   console.log("Request files structure:", req.files ? Object.keys(req.files) : "No req.files");
   console.log("Request file structure:", req.file ? "req.file exists" : "No req.file");
+  console.log("Content type:", req.headers['content-type']);
   
-  // More flexible file detection logic
-  const uploadedFile = req.files?.file || // express-fileupload style
-                      (req.files && Object.values(req.files)[0]) || // Alternative access
-                      req.file; // multer style
+  // Enhanced file detection logic - check multiple possible field names
+  let uploadedFile = null;
+  
+  // Check for express-fileupload style
+  if (req.files) {
+    // Try common field names
+    const possibleFieldNames = ['file', 'csvFile', 'courseFile', 'csv', 'uploadFile'];
+    for (const fieldName of possibleFieldNames) {
+      if (req.files[fieldName]) {
+        uploadedFile = req.files[fieldName];
+        console.log(`Found file with field name: ${fieldName}`);
+        break;
+      }
+    }
+    
+    // If not found by name, try the first file
+    if (!uploadedFile && Object.values(req.files).length > 0) {
+      uploadedFile = Object.values(req.files)[0];
+      console.log("Using first file in req.files");
+    }
+  }
+  
+  // Check for multer style if still not found
+  if (!uploadedFile && req.file) {
+    uploadedFile = req.file;
+    console.log("Using req.file");
+  }
+  
+  // Additional check for single file array in multer
+  if (!uploadedFile && req.files && Array.isArray(req.files) && req.files.length > 0) {
+    uploadedFile = req.files[0];
+    console.log("Using first file from req.files array");
+  }
   
   if (!uploadedFile) {
     return res.status(400).json({
@@ -830,43 +861,61 @@ exports.bulkCreateCourses = async (req, res) => {
       debug: { 
         hasFiles: !!req.files,
         hasFile: !!req.file,
-        filesKeys: req.files ? Object.keys(req.files) : [],
-        contentType: req.headers['content-type'] 
+        filesKeys: req.files ? (typeof req.files === 'object' ? Object.keys(req.files) : 'Array') : [],
+        bodyKeys: Object.keys(req.body),
+        contentType: req.headers['content-type'],
+        hint: "Make sure the file field is named 'file' in your form or check server middleware configuration"
       }
     });
   }
 
   // Log file information for debugging
-  console.log("Processing file:", uploadedFile.name || uploadedFile.originalname);
-  console.log("File size:", uploadedFile.size, "bytes");
-  console.log("File type:", uploadedFile.mimetype);
+  console.log("Processing file:", uploadedFile.name || uploadedFile.originalname || "unnamed file");
+  console.log("File size:", uploadedFile.size || uploadedFile.buffer?.length || "unknown", "bytes");
+  console.log("File type:", uploadedFile.mimetype || uploadedFile.type || "unknown");
 
   const t = await db.sequelize.transaction();
   
   try {
-    // Get file data regardless of upload library
+    // More robust file data extraction
     let csvData;
     if (uploadedFile.data) {
       // For express-fileupload
       csvData = uploadedFile.data.toString('utf8');
+      console.log("Got data from uploadedFile.data");
     } else if (uploadedFile.buffer) {
       // For multer
       csvData = uploadedFile.buffer.toString('utf8');
-    } else {
-      // Try to read from the file path (less common)
+      console.log("Got data from uploadedFile.buffer");
+    } else if (typeof uploadedFile === 'object' && Buffer.isBuffer(uploadedFile)) {
+      // Direct buffer
+      csvData = uploadedFile.toString('utf8');
+      console.log("Used uploadedFile as direct buffer");
+    } else if (uploadedFile.path) {
+      // Try to read from the file path
       try {
         const fs = require('fs');
         csvData = fs.readFileSync(uploadedFile.path, 'utf8');
+        console.log("Read file from uploadedFile.path");
       } catch (readError) {
-        throw new Error('Unable to read file content');
+        console.error("Error reading from file path:", readError);
+        throw new Error('Unable to read file content from path');
       }
+    } else {
+      console.error("Couldn't determine how to get file data:", Object.keys(uploadedFile));
+      throw new Error('Unable to extract file data - unrecognized file format');
     }
     
-    console.log("CSV Data length:", csvData.length, "characters");
-    if (csvData.length === 0) {
+    console.log("CSV Data length:", csvData?.length || 0, "characters");
+    if (!csvData || csvData.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'The uploaded CSV file is empty'
+        message: 'The uploaded CSV file is empty or unreadable',
+        fileInfo: {
+          name: uploadedFile.name || uploadedFile.originalname || "unnamed",
+          size: uploadedFile.size || "unknown",
+          type: uploadedFile.mimetype || uploadedFile.type || "unknown"
+        }
       });
     }
 
