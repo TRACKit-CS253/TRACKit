@@ -78,7 +78,7 @@ const ManageCourses = () => {
   const handlegetuserIdfromRollnumber = async (rollNumber) => {
     try {
       const response = await axiosInstance.get(`/api/student/rollNumber/${rollNumber}`);
-      // console.log("Response:", response.data);
+      console.log("Response:", response.data);
       if (response.status === 200) {
         return response.data.userId; // Assuming the response contains the user ID
       } else {
@@ -128,22 +128,20 @@ const ManageCourses = () => {
 
   const handleBulkAddStudents = async (file, courseId) => {
     try {
-      const Papa = await import("papaparse"); // Dynamically import PapaParse
+      const Papa = await import("papaparse");
       Papa.parse(file, {
-        header: true, // Treat the first row as headers
-        skipEmptyLines: true, // Skip empty rows
+        header: true,
+        skipEmptyLines: true,
         complete: async (results) => {
-          const rows = results.data; // Parsed rows from the CSV file
+          const rows = results.data;
 
           for (const row of rows) {
-            let userId = row.UserId;
+            let userId = row.UserId || null;
 
-            // If userId is not provided, fetch it using rollNumber
             if (!userId && row.rollNumber) {
               userId = await handlegetuserIdfromRollnumber(row.rollNumber);
             }
 
-            // If userId is available, add the student to the course
             if (userId) {
               try {
                 await axiosInstance.post("/api/courses/add-student", {
@@ -166,7 +164,6 @@ const ManageCourses = () => {
 
           alert("Bulk students added successfully!");
 
-          // Fetch updated course details
           await fetchCourseDetails(courseId);
         },
         error: (error) => {
