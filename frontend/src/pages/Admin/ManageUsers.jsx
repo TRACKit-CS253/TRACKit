@@ -210,7 +210,7 @@ const ManageUser = () => {
             ></GoHome>
           </div>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-700">Manage Courses</h1>
+        <h1 className="text-2xl font-semibold text-gray-700">Manage Users</h1>
       </div>
 
       <div className="mt-24">
