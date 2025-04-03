@@ -16,7 +16,7 @@ const ForgotPassword = () => {
     
     try {
       // First verify username exists
-      const checkResponse = await fetch('${process.env.REACT_APP_API_URL}/api/auth/check-username', {
+      const checkResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/check-username`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,7 +28,7 @@ const ForgotPassword = () => {
       
       if (checkData.success) {
         // Send OTP
-        const otpResponse = await fetch('${process.env.REACT_APP_API_URL}/api/auth/forgot-password', {
+        const otpResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/forgot-password`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
