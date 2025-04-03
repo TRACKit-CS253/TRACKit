@@ -13,6 +13,7 @@ const ManageUser = () => {
   const [courses, setCourses] = useState([]);
   const [courseSearchTerm, setCourseSearchTerm] = useState("");
   const [showSearchBox, setShowSearchBox] = useState(false);
+  const [hasChanges, setHasChanges] = useState(false); // Track changes
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -66,6 +67,9 @@ const ManageUser = () => {
       }));
 
       setSelectedCourse("");
+      setCourseSearchTerm(""); // Clear the search term
+      setShowSearchBox(false);
+
       alert("Student added to course successfully.");
     } catch (error) {
       console.error("Error adding student to course:", error);
@@ -89,6 +93,9 @@ const ManageUser = () => {
       }));
 
       setSelectedCourse("");
+      setCourseSearchTerm(""); // Clear the search term
+      setShowSearchBox(false);
+
       alert("Faculty added to course successfully.");
     } catch (error) {
       console.error("Error adding faculty to course:", error);
@@ -102,7 +109,7 @@ const ManageUser = () => {
 
       setSelectedUser((prev) => ({
         ...prev,
-        courses: prev.courses.filter((course) => course.id !== courseId), 
+        courses: prev.courses.filter((course) => course.id !== courseId),
       }));
 
       setSelectedCourse("");
@@ -128,15 +135,43 @@ const ManageUser = () => {
     }
   };
 
+  const handleInputChange = (key, value) => {
+    setSelectedUser((prev) => {
+      const updatedUser = { ...prev, [key]: value };
+      setHasChanges(JSON.stringify(updatedUser) !== JSON.stringify(prev)); // Compare objects
+      return updatedUser;
+    });
+  };
+
+  const handleNestedInputChange = (nestedKey, key, value) => {
+    setSelectedUser((prev) => {
+      const updatedUser = {
+        ...prev,
+        [nestedKey]: { ...prev[nestedKey], [key]: value },
+      };
+      setHasChanges(JSON.stringify(updatedUser) !== JSON.stringify(prev)); // Compare objects
+      return updatedUser;
+    });
+  };
+
   const handleSaveChanges = async () => {
     try {
+      console.log("Saving user details:", selectedUser);
       await axiosInstance.put(
         `/api/admin/user/${selectedUser.id}`,
         selectedUser
       );
       alert("User details updated successfully.");
+      console.log("User details updated successfully:", selectedUser);
+
+      setUsers((prevUsers) =>
+        prevUsers.map((user) =>
+          user.id === selectedUser.id ? { ...user, ...selectedUser } : user
+        )
+      );
 
       setSelectedUser(null);
+      setHasChanges(false); // Reset changes state
     } catch (error) {
       console.error("Error updating user details:", error);
       alert("Failed to update user details.");
@@ -259,7 +294,10 @@ const ManageUser = () => {
 
       {selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-30">
-          <div className="bg-white p-8 rounded-2xl shadow-2xl w-1/3 max-h-[80vh] overflow-y-auto relative">
+          <div
+            className="bg-white p-8 rounded-2xl shadow-2xl w-1/2 max-h-[90vh] overflow-y-auto relative"
+            style={{ position: "relative" }} // Ensure the modal container is relative
+          >
             {/* Close Button */}
             <button
               onClick={() => setSelectedUser(null)}
@@ -287,12 +325,7 @@ const ManageUser = () => {
                   <input
                     type="text"
                     value={selectedUser[key]}
-                    onChange={(e) =>
-                      setSelectedUser((prev) => ({
-                        ...prev,
-                        [key]: e.target.value,
-                      }))
-                    }
+                    onChange={(e) => handleInputChange(key, e.target.value)}
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
@@ -309,13 +342,7 @@ const ManageUser = () => {
                     type="text"
                     value={selectedUser.faculty?.department || ""}
                     onChange={(e) =>
-                      setSelectedUser((prev) => ({
-                        ...prev,
-                        faculty: {
-                          ...prev.faculty,
-                          department: e.target.value,
-                        },
-                      }))
+                      handleNestedInputChange("faculty", "department", e.target.value)
                     }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -329,10 +356,7 @@ const ManageUser = () => {
                     type="text"
                     value={selectedUser.faculty?.position || ""}
                     onChange={(e) =>
-                      setSelectedUser((prev) => ({
-                        ...prev,
-                        faculty: { ...prev.faculty, position: e.target.value },
-                      }))
+                      handleNestedInputChange("faculty", "position", e.target.value)
                     }
                     className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -343,14 +367,36 @@ const ManageUser = () => {
                   <label className="block text-gray-700 font-semibold mb-1">
                     Teaching Courses
                   </label>
-                  {/* Search Bar for Teaching Courses */}
-                  <input
-                    type="text"
-                    placeholder="Search courses by name or code..."
-                    value={courseSearchTerm}
-                    onChange={(e) => setCourseSearchTerm(e.target.value)}
-                    className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
+                  {/* Search Tab with Cross Icon */}
+                  <div
+                    className={`transition-all duration-300 overflow-hidden flex items-center gap-2 ${
+                      showSearchBox ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
+                    }`}
+                  >
+                    <input
+                      type="text"
+                      placeholder="Search courses by name or code..."
+                      value={courseSearchTerm}
+                      onChange={(e) => setCourseSearchTerm(e.target.value)}
+                      className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={() => setShowSearchBox(false)}
+                      className="text-white bg-red-500 p-2 rounded-full shadow-lg hover:bg-red-600 transition-all duration-300"
+                    >
+                      <FaTimes className="text-lg" title="Close Search" />
+                    </button>
+                  </div>
+                  {/* Search Toggle Button */}
+                  {!showSearchBox && (
+                    <button
+                      onClick={() => setShowSearchBox(true)}
+                      className="text-white bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 hover:scale-105 hover:shadow-xl transition-all duration-300"
+                    >
+                      <FaSearch className="text-lg" title="Search Courses" />
+                      <span>Search Courses</span>
+                    </button>
+                  )}
                   <div className="mb-4 max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3">
                     <ul>
                       {selectedUser.courses
@@ -417,10 +463,7 @@ const ManageUser = () => {
                       type="text"
                       value={selectedUser.student?.[field] || ""}
                       onChange={(e) =>
-                        setSelectedUser((prev) => ({
-                          ...prev,
-                          student: { ...prev.student, [field]: e.target.value },
-                        }))
+                        handleNestedInputChange("student", field, e.target.value)
                       }
                       className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -432,20 +475,9 @@ const ManageUser = () => {
                   <label className="block text-gray-700 font-semibold mb-1">
                     Enrolled Courses
                   </label>
-                  {/* Search Toggle Icon */}
-                  <button
-                    onClick={() => setShowSearchBox((prev) => !prev)}
-                    className="text-blue-500 hover:text-blue-700 mb-2 flex items-center gap-2"
-                  >
-                    {showSearchBox ? (
-                      <FaTimes className="text-lg" title="Hide Search" />
-                    ) : (
-                      <FaSearch className="text-lg" title="Search Courses" />
-                    )}
-                  </button>
-                  {/* Conditionally Render Search Box with Animation */}
+                  {/* Search Tab with Cross Icon */}
                   <div
-                    className={`transition-all duration-300 overflow-hidden ${
+                    className={`transition-all duration-300 overflow-hidden flex items-center gap-2 ${
                       showSearchBox ? "max-h-40 opacity-100" : "max-h-0 opacity-0"
                     }`}
                   >
@@ -456,7 +488,23 @@ const ManageUser = () => {
                       onChange={(e) => setCourseSearchTerm(e.target.value)}
                       className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    <button
+                      onClick={() => setShowSearchBox(false)}
+                      className="text-white bg-red-500 p-2 rounded-full shadow-lg hover:bg-red-600 transition-all duration-300"
+                    >
+                      <FaTimes className="text-lg" title="Close Search" />
+                    </button>
                   </div>
+                  {/* Search Toggle Button */}
+                  {!showSearchBox && (
+                    <button
+                      onClick={() => setShowSearchBox(true)}
+                      className="text-white bg-gradient-to-r from-blue-500 to-purple-500 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2 hover:scale-105 hover:shadow-xl transition-all duration-300"
+                    >
+                      <FaSearch className="text-lg" title="Search Courses" />
+                      <span>Search Courses</span>
+                    </button>
+                  )}
                   <div className="mb-4 max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-3">
                     <ul>
                       {selectedUser.courses
@@ -510,12 +558,23 @@ const ManageUser = () => {
                 </div>
               </>
             )}
-
-            {/* Footer Buttons */}
-            <div className="flex justify-end gap-4 mt-6">
+            <div
+              className="flex justify-end gap-4 bg-white p-4 border-t border-gray-300"
+              style={{
+                position: "sticky",
+                bottom: -30,
+                left: 0,
+                width: "100%",
+                background: "white",
+                zIndex: 10, 
+              }}
+            >
               <button
                 onClick={handleSaveChanges}
-                className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600"
+                className={`bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 ${
+                  !hasChanges ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                disabled={!hasChanges}
               >
                 Save Changes
               </button>

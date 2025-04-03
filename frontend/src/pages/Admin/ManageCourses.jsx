@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTrashAlt, FaEdit, FaTimes } from "react-icons/fa";
+import { FaTrashAlt, FaEdit } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
 import { GoHome } from "react-icons/go";
 
@@ -29,8 +29,8 @@ const ManageCourses = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [studentSearchTerm, setStudentSearchTerm] = useState("");
   const [facultySearchTerm, setFacultySearchTerm] = useState("");
-  const [studentsToRemove, setStudentsToRemove] = useState([]);
-  const [facultyToRemove, setFacultyToRemove] = useState([]);
+  const [selectedStudents, setSelectedStudents] = useState([]);
+  const [selectedFaculty, setSelectedFaculty] = useState([]);
 
   // Filtered lists based on search terms
   const filteredStudents = courseDetails.Students.filter((student) =>
@@ -194,6 +194,7 @@ const ManageCourses = () => {
   };
 
   const removefacultyfromcourse = async (courseId, userId) => {
+
     try {
       const response = await axiosInstance.delete(
         `/api/courses/remove-faculty/${courseId}/${userId}`
@@ -231,59 +232,55 @@ const ManageCourses = () => {
     }
   };
 
-  // Function to toggle student removal
-  const toggleStudentRemoval = (studentId) => {
-    setStudentsToRemove((prev) =>
+  const toggleStudentSelection = (studentId) => {
+    setSelectedStudents((prev) =>
       prev.includes(studentId)
-        ? prev.filter((id) => id !== studentId) // Remove from list if already marked
-        : [...prev, studentId] // Add to list if not marked
+        ? prev.filter((id) => id !== studentId)
+        : [...prev, studentId]
     );
   };
 
-  // Function to toggle faculty removal
-  const toggleFacultyRemoval = (facultyId) => {
-    setFacultyToRemove((prev) =>
+  const toggleFacultySelection = (facultyId) => {
+    setSelectedFaculty((prev) =>
       prev.includes(facultyId)
-        ? prev.filter((id) => id !== facultyId) // Remove from list if already marked
-        : [...prev, facultyId] // Add to list if not marked
+        ? prev.filter((id) => id !== facultyId)
+        : [...prev, facultyId]
     );
   };
 
-  // Function to handle save (remove all marked users)
-  const handleSaveUserManagement = async () => {
-    if (
-      studentsToRemove.length === 0 &&
-      facultyToRemove.length === 0
-    ) {
-      alert("No users selected for removal.");
-      return;
-    }
-
-    const confirmSave = window.confirm(
-      "Are you sure you want to remove the selected users? This action cannot be undone."
+  const removeSelectedStudents = async () => {
+    const confirmRemove = window.confirm(
+      "Are you sure you want to remove the selected students from the course?"
     );
-
-    if (!confirmSave) return; // Exit if the user cancels
+    if (!confirmRemove) return;
 
     try {
-      // Remove marked students
-      for (const studentId of studentsToRemove) {
+      for (const studentId of selectedStudents) {
         await removestudentfromcourse(courseDetails.id, studentId);
       }
+      setSelectedStudents([]); // Clear selection after removal
+      alert("Selected students removed successfully.");
+    } catch (error) {
+      console.error("Error removing selected students:", error);
+      alert("Failed to remove selected students.");
+    }
+  };
 
-      // Remove marked faculty
-      for (const facultyId of facultyToRemove) {
+  const removeSelectedFaculty = async () => {
+    const confirmRemove = window.confirm(
+      "Are you sure you want to remove the selected faculty members from the course?"
+    );
+    if (!confirmRemove) return;
+
+    try {
+      for (const facultyId of selectedFaculty) {
         await removefacultyfromcourse(courseDetails.id, facultyId);
       }
-
-      // Clear the removal lists
-      setStudentsToRemove([]);
-      setFacultyToRemove([]);
-
-      alert("Selected users have been removed successfully!");
+      setSelectedFaculty([]); // Clear selection after removal
+      alert("Selected faculty removed successfully.");
     } catch (error) {
-      console.error("Error removing users:", error);
-      alert("Failed to remove some users.");
+      console.error("Error removing selected faculty:", error);
+      alert("Failed to remove selected faculty.");
     }
   };
 
@@ -381,17 +378,9 @@ const ManageCourses = () => {
         {/* Edit Course Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-20 animate-fade-in">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-[40rem] max-h-[80vh] overflow-y-auto relative">
-              {/* Close Icon */}
-              <button
-                onClick={handleCancel}
-                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-all, text-[1.5rem]"
-              >
-                ❌
-              </button>
-
+            <div className="bg-white rounded-lg shadow-lg w-[40rem] max-h-[80vh] flex flex-col">
               {/* Modal Tabs */}
-              <div className="flex justify-center mb-6">
+              <div className="flex justify-center mb-4 p-4 border-b">
                 <button
                   onClick={() => setActiveTab("edit")}
                   className={`px-6 py-2 rounded-t-lg ${
@@ -410,185 +399,207 @@ const ManageCourses = () => {
                 </button>
               </div>
 
-              {/* Tab Content */}
-              {activeTab === "edit" ? (
-                <div>
-                  {/* Edit Course Form */}
-                  <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-                    ✏️ Edit Course
-                  </h2>
-                  <div className="space-y-6">
-                    {["id", "code", "name", "description", "credits", "semester"].map(
-                      (field) => (
-                        <div key={field} className="space-y-2">
-                          <label
-                            htmlFor={field}
-                            className="block text-lg font-medium text-gray-700 capitalize"
+              {/* Modal Content (Scrollable) */}
+              <div className="flex-1 overflow-y-auto p-6">
+                {activeTab === "edit" ? (
+                  <div>
+                    {/* Edit Course Form */}
+                    <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+                      ✏️ Edit Course
+                    </h2>
+                    <div className="space-y-6">
+                      {["id", "code", "name", "description", "credits", "semester"].map(
+                        (field) => (
+                          <div key={field} className="space-y-2">
+                            <label
+                              htmlFor={field}
+                              className="block text-lg font-medium text-gray-700 capitalize"
+                            >
+                              {field}:
+                            </label>
+                            {field === "description" ? (
+                              <textarea
+                                id={field}
+                                value={newCourse[field]}
+                                onChange={(e) =>
+                                  setNewCourse({
+                                    ...newCourse,
+                                    [field]: e.target.value,
+                                  })
+                                }
+                                className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                rows="4"
+                                placeholder={`Enter course ${field}`}
+                              />
+                            ) : (
+                              <input
+                                id={field}
+                                type={field === "credits" ? "number" : "text"}
+                                value={newCourse[field]}
+                                onChange={(e) =>
+                                  setNewCourse({
+                                    ...newCourse,
+                                    [field]: e.target.value,
+                                  })
+                                }
+                                className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                placeholder={`Enter course ${field}`}
+                              />
+                            )}
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    {/* User Management Content */}
+                    <h2 className="text-3xl font-semibold text-center mb-5 text-gray-800">
+                      📖 Course Details
+                    </h2>
+                    {/* Students Enrolled Section */}
+                    <div className="mb-6 p-4 rounded-lg shadow-md bg-blue-50">
+                      <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
+                        👨‍🎓 Students Enrolled
+                      </h3>
+                      {/* Search Bar for Students */}
+                      <input
+                        type="text"
+                        placeholder="Search students by name..."
+                        value={studentSearchTerm}
+                        onChange={(e) => setStudentSearchTerm(e.target.value)}
+                        className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      {filteredStudents.length > 0 ? (
+                        <div>
+                          <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
+                            {filteredStudents.map((student) => (
+                              <li
+                                key={student.id}
+                                className={`p-3 rounded-lg shadow flex justify-between items-center transition-all duration-200 ${
+                                  selectedStudents.includes(student.id)
+                                    ? "bg-blue-100 border-2 border-blue-500"
+                                    : "bg-white"
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedStudents.includes(student.id)}
+                                    onChange={() => toggleStudentSelection(student.id)}
+                                  />
+                                  <span className="text-gray-700">{student.name}</span>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                          <button
+                            onClick={removeSelectedStudents}
+                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
                           >
-                            {field}:
-                          </label>
-                          {field === "description" ? (
-                            <textarea
-                              id={field}
-                              value={newCourse[field]}
-                              onChange={(e) =>
-                                setNewCourse({
-                                  ...newCourse,
-                                  [field]: e.target.value,
-                                })
-                              }
-                              className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              rows="4"
-                              placeholder={`Enter course ${field}`}
-                            />
-                          ) : (
-                            <input
-                              id={field}
-                              type={field === "credits" ? "number" : "text"}
-                              value={newCourse[field]}
-                              onChange={(e) =>
-                                setNewCourse({
-                                  ...newCourse,
-                                  [field]: e.target.value,
-                                })
-                              }
-                              className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                              placeholder={`Enter course ${field}`}
-                            />
-                          )}
+                            Remove Selected Students
+                          </button>
                         </div>
-                      )
-                    )}
-                  </div>
-                </div>
-              ) : activeTab === "details" && (
-                <div>
-                  {/* View Details Content */}
-                  <h2 className="text-3xl font-semibold text-center mb-5 text-gray-800">
-                    📖 Course Details
-                  </h2>
-                  {/* Students Enrolled Section */}
-                  <div className="mb-6 p-4 rounded-lg shadow-md bg-blue-50">
-                    <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
-                      👨‍🎓 Students Enrolled
-                    </h3>
-                    {/* Search Bar for Students */}
-                    <input
-                      type="text"
-                      placeholder="Search students by name..."
-                      value={studentSearchTerm}
-                      onChange={(e) => setStudentSearchTerm(e.target.value)}
-                      className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    {filteredStudents.length > 0 ? (
-                      <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
-                        {filteredStudents.map((student) => (
-                          <li
-                            key={student.id}
-                            className="bg-white p-3 rounded-lg shadow flex justify-between items-center"
+                      ) : (
+                        <p className="text-gray-600 mt-3">No students found.</p>
+                      )}
+                    </div>
+                    {/* Faculty Assigned Section */}
+                    <div className="p-4 rounded-lg shadow-md bg-green-50">
+                      <h3 className="text-xl font-semibold text-green-600 flex items-center gap-2">
+                        🎓 Faculty Assigned
+                      </h3>
+                      {/* Search Bar for Faculty */}
+                      <input
+                        type="text"
+                        placeholder="Search faculty by name..."
+                        value={facultySearchTerm}
+                        onChange={(e) => setFacultySearchTerm(e.target.value)}
+                        className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      {filteredFaculty.length > 0 ? (
+                        <div>
+                          <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
+                            {filteredFaculty.map((faculty) => (
+                              <li
+                                key={faculty.id}
+                                className={`p-3 rounded-lg shadow flex justify-between items-center transition-all duration-200 ${
+                                  selectedFaculty.includes(faculty.id)
+                                    ? "bg-green-100 border-2 border-green-500"
+                                    : "bg-white"
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedFaculty.includes(faculty.id)}
+                                    onChange={() => toggleFacultySelection(faculty.id)}
+                                  />
+                                  <span className="text-gray-700">{faculty.name}</span>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                          <button
+                            onClick={removeSelectedFaculty}
+                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
                           >
-                            <span className="text-gray-700">{student.name}</span>
-                            <button
-                              onClick={() => toggleStudentRemoval(student.id)}
-                              className={`text-red-500 hover:text-red-700 transition-all ${
-                                studentsToRemove.includes(student.id) ? "font-bold" : ""
-                              }`}
-                            >
-                              {studentsToRemove.includes(student.id) ? "Undo ❌" : "Mark ❌"}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-gray-600 mt-3">No students found.</p>
-                    )}
+                            Remove Selected Faculty
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="text-gray-600 mt-3">No faculty found.</p>
+                      )}
+                    </div>
+                    {/* Bulk Add Students Section */}
+                    <div className="mt-6 p-4 rounded-lg shadow-md bg-yellow-50">
+                      <h3 className="text-xl font-semibold text-yellow-600 flex items-center gap-2">
+                        📂 Add Students in Bulk
+                      </h3>
+                      <p className="text-gray-600 mt-2">
+                        Upload a CSV file with <strong>userId</strong> or <strong>rollNumber</strong> to add students to this course.
+                      </p>
+                      <input
+                        type="file"
+                        accept=".csv"
+                        onChange={(e) => setSelectedFile(e.target.files[0])} // Save the selected file
+                        className="mt-4 p-3 w-full border border-gray-300 rounded-lg"
+                      />
+                      <button
+                        onClick={() => {
+                          if (selectedFile) {
+                            handleBulkAddStudents(selectedFile, courseDetails.id); // Process the file on button click
+                          } else {
+                            alert("Please select a file first.");
+                          }
+                        }}
+                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                      >
+                        Upload
+                      </button>
+                    </div>
                   </div>
-                  {/* Faculty Assigned Section */}
-                  <div className="p-4 rounded-lg shadow-md bg-green-50">
-                    <h3 className="text-xl font-semibold text-green-600 flex items-center gap-2">
-                      🎓 Faculty Assigned
-                    </h3>
-                    {/* Search Bar for Faculty */}
-                    <input
-                      type="text"
-                      placeholder="Search faculty by name..."
-                      value={facultySearchTerm}
-                      onChange={(e) => setFacultySearchTerm(e.target.value)}
-                      className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    {filteredFaculty.length > 0 ? (
-                      <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
-                        {filteredFaculty.map((faculty) => (
-                          <li
-                            key={faculty.id}
-                            className="bg-white p-3 rounded-lg shadow flex justify-between items-center"
-                          >
-                            <span className="text-gray-700">{faculty.name}</span>
-                            <button
-                              onClick={() => toggleFacultyRemoval(faculty.id)}
-                              className={`text-red-500 hover:text-red-700 transition-all ${
-                                facultyToRemove.includes(faculty.id) ? "font-bold" : ""
-                              }`}
-                            >
-                              {facultyToRemove.includes(faculty.id) ? "Undo ❌" : "Mark ❌"}
-                            </button>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-gray-600 mt-3">No faculty found.</p>
-                    )}
-                  </div>
-                  {/* Bulk Add Students Section */}
-                  <div className="mt-6 p-4 rounded-lg shadow-md bg-yellow-50">
-                    <h3 className="text-xl font-semibold text-yellow-600 flex items-center gap-2">
-                      📂 Add Students in Bulk
-                    </h3>
-                    <p className="text-gray-600 mt-2">
-                      Upload a CSV file with <strong>userId</strong> or <strong>rollNumber</strong> to add students to this course.
-                    </p>
-                    <input
-                      type="file"
-                      accept=".csv"
-                      onChange={(e) => setSelectedFile(e.target.files[0])} // Save the selected file
-                      className="mt-4 p-3 w-full border border-gray-300 rounded-lg"
-                    />
-                    <button
-                      onClick={() => {
-                        if (selectedFile) {
-                          handleBulkAddStudents(selectedFile, courseDetails.id); // Process the file on button click
-                        } else {
-                          alert("Please select a file first.");
-                        }
-                      }}
-                      className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                    >
-                      Upload
-                    </button>
-                  </div>
-                  {/* Save Button */}
-                  <div className="flex justify-end gap-4 mt-6">
-                    <button
-                      onClick={handleSaveUserManagement}
-                      className="bg-blue-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                    >
-                      Save
-                    </button>
-                  </div>
-                </div>
-              )}
+                )}
 
-              {/* Modal Buttons */}
-              {activeTab === "edit" && (
-                <div className="flex justify-end gap-4 mt-6">
+              </div>
+
+              {/* Fixed Footer */}
+              <div className="p-4 border-t bg-white flex justify-end gap-4">
+                <button
+                  onClick={handleCancel}
+                  className="bg-red-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                >
+                  Close
+                </button>
+                {activeTab === "edit" && (
                   <button
                     onClick={handleSaveCourse}
                     className="bg-blue-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
                   >
                     Save
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         )}

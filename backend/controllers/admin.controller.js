@@ -678,26 +678,78 @@ exports.bulkCreateFaculty = async (req, res) => {
 
 // Update user
 exports.updateUser = async (req, res) => {
+  const t = await db.sequelize.transaction();
   try {
+    // Update the User table
     const [updated] = await User.update(req.body, {
-      where: { id: req.params.userId }
+      where: { id: req.params.userId },
+      transaction: t,
     });
-    
+
     if (updated === 0) {
+      await t.rollback();
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: 'User not found',
       });
     }
-    
+
+    // Check if the user exists and fetch user details
+    const user = await User.findByPk(req.params.userId, { transaction: t });
+    if (!user) {
+      await t.rollback();
+      return res.status(404).json({
+        success: false,
+        message: 'User not found after update',
+      });
+    }
+
+    // Update student or faculty details if applicable
+    if (user.userType === 'student' && req.body.student) {
+      const { rollNumber, enrollmentYear, major } = req.body.student;
+
+      // Validate student-specific fields
+      if (!rollNumber || !enrollmentYear || !major) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: 'Missing required student fields: rollNumber, enrollmentYear, or major',
+        });
+      }
+
+      await Student.update(
+        { rollNumber, enrollmentYear, major },
+        { where: { userId: req.params.userId }, transaction: t }
+      );
+    } else if (user.userType === 'faculty' && req.body.faculty) {
+      const { department, position } = req.body.faculty;
+
+      // Validate faculty-specific fields
+      if (!department || !position) {
+        await t.rollback();
+        return res.status(400).json({
+          success: false,
+          message: 'Missing required faculty fields: department or position',
+        });
+      }
+
+      await Faculty.update(
+        { department, position },
+        { where: { userId: req.params.userId }, transaction: t }
+      );
+    }
+
+    await t.commit();
     res.status(200).json({
       success: true,
-      message: 'User updated successfully'
+      message: 'User updated successfully',
     });
   } catch (error) {
+    await t.rollback();
+    console.error('Error updating user:', error);
     res.status(500).json({
       success: false,
-      message: error.message || 'Error updating user'
+      message: error.message || 'Error updating user',
     });
   }
 };
