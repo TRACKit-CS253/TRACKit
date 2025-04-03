@@ -33,7 +33,7 @@ const ChangePassword = () => {
       
       if (isOTPVerified) {
         // Handle password reset after OTP verification
-        response = await fetch('${process.env.REACT_APP_API_URL}/api/auth/reset-password', {
+        response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/reset-password`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
