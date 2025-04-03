@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
+import { FaTrashAlt, FaEdit, FaTimes } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
 import { GoHome } from "react-icons/go";
 
@@ -29,6 +29,8 @@ const ManageCourses = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [studentSearchTerm, setStudentSearchTerm] = useState("");
   const [facultySearchTerm, setFacultySearchTerm] = useState("");
+  const [studentsToRemove, setStudentsToRemove] = useState([]);
+  const [facultyToRemove, setFacultyToRemove] = useState([]);
 
   // Filtered lists based on search terms
   const filteredStudents = courseDetails.Students.filter((student) =>
@@ -192,11 +194,6 @@ const ManageCourses = () => {
   };
 
   const removefacultyfromcourse = async (courseId, userId) => {
-    const confirmRemove = window.confirm(
-      "Are you sure you want to remove this faculty member from the course?"
-    );
-    if (!confirmRemove) return; // Exit if the user cancels
-
     try {
       const response = await axiosInstance.delete(
         `/api/courses/remove-faculty/${courseId}/${userId}`
@@ -206,7 +203,6 @@ const ManageCourses = () => {
           ...prev,
           Faculty: prev.Faculty.filter((faculty) => faculty.id !== userId),
         }));
-        alert("Faculty removed successfully.");
       } else {
         throw new Error("Failed to remove faculty.");
       }
@@ -217,11 +213,6 @@ const ManageCourses = () => {
   };
 
   const removestudentfromcourse = async (courseId, userId) => {
-    const confirmRemove = window.confirm(
-      "Are you sure you want to remove this student from the course?"
-    );
-    if (!confirmRemove) return; // Exit if the user cancels
-
     try {
       const response = await axiosInstance.delete(
         `/api/courses/remove-student/${courseId}/${userId}`
@@ -231,13 +222,68 @@ const ManageCourses = () => {
           ...prev,
           Students: prev.Students.filter((student) => student.id !== userId),
         }));
-        alert("Student removed successfully.");
       } else {
         throw new Error("Failed to remove student.");
       }
     } catch (error) {
       console.error("Error removing student from course:", error);
       alert("Failed to remove student from course.");
+    }
+  };
+
+  // Function to toggle student removal
+  const toggleStudentRemoval = (studentId) => {
+    setStudentsToRemove((prev) =>
+      prev.includes(studentId)
+        ? prev.filter((id) => id !== studentId) // Remove from list if already marked
+        : [...prev, studentId] // Add to list if not marked
+    );
+  };
+
+  // Function to toggle faculty removal
+  const toggleFacultyRemoval = (facultyId) => {
+    setFacultyToRemove((prev) =>
+      prev.includes(facultyId)
+        ? prev.filter((id) => id !== facultyId) // Remove from list if already marked
+        : [...prev, facultyId] // Add to list if not marked
+    );
+  };
+
+  // Function to handle save (remove all marked users)
+  const handleSaveUserManagement = async () => {
+    if (
+      studentsToRemove.length === 0 &&
+      facultyToRemove.length === 0
+    ) {
+      alert("No users selected for removal.");
+      return;
+    }
+
+    const confirmSave = window.confirm(
+      "Are you sure you want to remove the selected users? This action cannot be undone."
+    );
+
+    if (!confirmSave) return; // Exit if the user cancels
+
+    try {
+      // Remove marked students
+      for (const studentId of studentsToRemove) {
+        await removestudentfromcourse(courseDetails.id, studentId);
+      }
+
+      // Remove marked faculty
+      for (const facultyId of facultyToRemove) {
+        await removefacultyfromcourse(courseDetails.id, facultyId);
+      }
+
+      // Clear the removal lists
+      setStudentsToRemove([]);
+      setFacultyToRemove([]);
+
+      alert("Selected users have been removed successfully!");
+    } catch (error) {
+      console.error("Error removing users:", error);
+      alert("Failed to remove some users.");
     }
   };
 
@@ -335,7 +381,15 @@ const ManageCourses = () => {
         {/* Edit Course Modal */}
         {showModal && (
           <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-20 animate-fade-in">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-[40rem] max-h-[80vh] overflow-y-auto">
+            <div className="bg-white p-8 rounded-lg shadow-lg w-[40rem] max-h-[80vh] overflow-y-auto relative">
+              {/* Close Icon */}
+              <button
+                onClick={handleCancel}
+                className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-all, text-[1.5rem]"
+              >
+                ❌
+              </button>
+
               {/* Modal Tabs */}
               <div className="flex justify-center mb-6">
                 <button
@@ -407,7 +461,7 @@ const ManageCourses = () => {
                     )}
                   </div>
                 </div>
-              ) : (
+              ) : activeTab === "details" && (
                 <div>
                   {/* View Details Content */}
                   <h2 className="text-3xl font-semibold text-center mb-5 text-gray-800">
@@ -435,12 +489,12 @@ const ManageCourses = () => {
                           >
                             <span className="text-gray-700">{student.name}</span>
                             <button
-                              onClick={() =>
-                                removestudentfromcourse(courseDetails.id, student.id)
-                              }
-                              className="text-red-500 hover:text-red-700 transition-all"
+                              onClick={() => toggleStudentRemoval(student.id)}
+                              className={`text-red-500 hover:text-red-700 transition-all ${
+                                studentsToRemove.includes(student.id) ? "font-bold" : ""
+                              }`}
                             >
-                              ❌
+                              {studentsToRemove.includes(student.id) ? "Undo ❌" : "Mark ❌"}
                             </button>
                           </li>
                         ))}
@@ -471,12 +525,12 @@ const ManageCourses = () => {
                           >
                             <span className="text-gray-700">{faculty.name}</span>
                             <button
-                              onClick={() =>
-                                removefacultyfromcourse(courseDetails.id, faculty.id)
-                              }
-                              className="text-red-500 hover:text-red-700 transition-all"
+                              onClick={() => toggleFacultyRemoval(faculty.id)}
+                              className={`text-red-500 hover:text-red-700 transition-all ${
+                                facultyToRemove.includes(faculty.id) ? "font-bold" : ""
+                              }`}
                             >
-                              ❌
+                              {facultyToRemove.includes(faculty.id) ? "Undo ❌" : "Mark ❌"}
                             </button>
                           </li>
                         ))}
@@ -512,26 +566,29 @@ const ManageCourses = () => {
                       Upload
                     </button>
                   </div>
+                  {/* Save Button */}
+                  <div className="flex justify-end gap-4 mt-6">
+                    <button
+                      onClick={handleSaveUserManagement}
+                      className="bg-blue-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    >
+                      Save
+                    </button>
+                  </div>
                 </div>
               )}
 
               {/* Modal Buttons */}
-              <div className="flex justify-end gap-4 mt-6">
-                <button
-                  onClick={handleCancel}
-                  className="bg-red-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                >
-                  Close
-                </button>
-                {activeTab === "edit" && (
+              {activeTab === "edit" && (
+                <div className="flex justify-end gap-4 mt-6">
                   <button
                     onClick={handleSaveCourse}
                     className="bg-blue-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
                   >
                     Save
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         )}
