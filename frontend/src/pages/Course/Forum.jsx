@@ -57,9 +57,10 @@ export default function Forum({ role }) {
             userId: reply.userId,
             userType: reply.user.userType,
             createdAt: new Date(reply.createdAt),
-          })),
+          })).sort((a, b) => b.createdAt - a.createdAt),
         }));
 
+        formattedPosts.sort((a, b) => b.createdAt - a.createdAt);
         setPosts(formattedPosts);
       } else {
         showNotification('Failed to fetch forum posts', 'error');
@@ -182,9 +183,10 @@ export default function Forum({ role }) {
 
         const updatedPosts = posts.map((post) => {
           if (post.id === postId) {
+            const updatedReplies = [newReply, ...post.replies];
             return {
               ...post,
-              replies: [...post.replies, newReply],
+              replies: updatedReplies,
             };
           }
           return post;
@@ -277,14 +279,14 @@ export default function Forum({ role }) {
       {showNewPostForm && (
         <div className="bg-white p-4 rounded-md shadow-md mb-6 w-[95%]">
           <form onSubmit={handleSubmitPost}>
-            <input
-              type="text"
+            <textarea
               className="w-full p-2 border border-gray-300 rounded-md mb-2 px-6"
               placeholder="Your Query"
               value={newQuery}
               onChange={(e) => setNewQuery(e.target.value)}
+              rows="4"
               required
-            />
+            ></textarea>
             <div className="flex justify-end">
               <button
                 className="mr-4 bg-gray-300 shadow-lg rounded-md px-4 py-2 hover:scale-95 transition-all duration-200"
