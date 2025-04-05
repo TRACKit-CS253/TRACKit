@@ -9,12 +9,37 @@ const ChangePassword = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [passStrength, setPassStrength] = useState('');
 
   const navigate = useNavigate();
   const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user'));
   const isOTPVerified = location.state?.fromOTP;
   const userId = location.state?.userId || user?.id;
+
+  const strengthCheck = (pass)=>{
+    if(pass.length<8){
+      setPassStrength('Password is too short');
+      return false;
+    }
+
+    if(!/[A-Z]/.test(pass)){
+      setPassStrength('Password must contain at least one uppercase letter');
+      return false;
+    }
+
+    if(!/[0-9]/.test(pass)){
+      setPassStrength('Password must contain at least one number');
+      return false;
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass)) {
+      setPassStrength('Password must contain at least one special character');
+      return false;
+    }
+
+    return true;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,6 +48,11 @@ const ChangePassword = () => {
 
     if (newPassword !== confirmPassword) {
       setError('New passwords do not match');
+      return;
+    }
+
+    if(!strengthCheck(newPassword)){
+      setError(passStrength);
       return;
     }
 

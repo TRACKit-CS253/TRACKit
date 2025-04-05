@@ -66,7 +66,7 @@ const VerifyOTP = () => {
             <input
               type="text"
               inputMode="numeric"
-              placeholder="○○○○"
+              placeholder="____"
               className="h-[50px] w-full bg-[#F5F5F5] rounded-lg mt-6 text-center text-3xl tracking-[1rem] font-bold"
               value={otp}
               onChange={handleOTPChange}

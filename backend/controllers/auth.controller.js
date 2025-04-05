@@ -307,6 +307,27 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
+    // Check password strength
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long'
+      });
+    }
+
+    // Check for complexity (at least one uppercase, one lowercase, one number, one special character)
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasLowerCase = /[a-z]/.test(newPassword);
+    const hasNumbers = /[0-9]/.test(newPassword);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+    if (!(hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
+      });
+    }
+
     // Update password
     const hashedPassword = bcrypt.hashSync(newPassword, 8);
     await user.update({

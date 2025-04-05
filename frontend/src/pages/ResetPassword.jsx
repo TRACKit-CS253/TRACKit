@@ -9,7 +9,30 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [searchParams] = useSearchParams();
+  const [PassStrength, setPassStrength] = useState('');
   const navigate = useNavigate();
+
+  const strengthCheck = (pass) => {
+    if (pass.length < 8) {
+      setPassStrength('Password is too short');
+      return false;
+    }
+    if (!/[A-Z]/.test(pass)) {
+      setPassStrength('Password must contain at least one uppercase letter');
+      return false;
+    }
+
+    if(!/[0-9]/.test(pass)){
+      setPassStrength('Password must contain at least one number');
+      return false;
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass)) {
+      setPassStrength('Password must contain at least one special character');
+      return false;
+    }
+    return true;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,6 +41,11 @@ const ResetPassword = () => {
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
+      return;
+    }
+
+    if (!strengthCheck(password)) {
+      setError(PassStrength);
       return;
     }
 
