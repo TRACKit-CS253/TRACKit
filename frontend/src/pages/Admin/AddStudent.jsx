@@ -5,6 +5,7 @@ import axios from 'axios';
 import { API_URL, authFetch } from '../../services/auth';
 import { useAuth } from '../../contexts/AuthContext';
 import { GoHome } from 'react-icons/go';
+import { FaEyeSlash, FaEye } from "react-icons/fa";
 
 export default function AddStudent() {
   const [activeTab, setActiveTab] = useState('manual');
@@ -19,6 +20,7 @@ export default function AddStudent() {
     major: '',
     userType: 'student'
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [csvFile, setCsvFile] = useState(null);
   const [csvFileName, setCsvFileName] = useState('');
   const [error, setError] = useState('');
@@ -33,6 +35,10 @@ export default function AddStudent() {
       ...studentData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleFileChange = (e) => {
@@ -87,15 +93,35 @@ export default function AddStudent() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // Validate password strength
+    const password = studentData.password;
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    if(!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+    if(!/[0-9]/.test(password)){
+      setError('Password must contain at least one number');
+      return;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      setError('Password must contain at least one special character');
+      return;
+    }
     
     try {
+
       const response = await axios.post(
         `${API_URL}/api/admin/student`, // Updated endpoint to use admin's addStudent
         studentData, 
         getAxiosConfig()
       );
       
-      console.log('API Response:', response);
+      // console.log('API Response:', response);
       setSuccess('Student added successfully!');
       setStudentData({
         username: '',
@@ -307,16 +333,19 @@ export default function AddStudent() {
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
-              <div className="mb-6">
+              <div className="mb-6 relative">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password:</label>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={studentData.password}
                   onChange={handleChange}
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
+                <div onClick={togglePasswordVisibility} className='absolute right-3 top-[2.5rem]'>
+                  {showPassword?(<FaEye></FaEye>):(<FaEyeSlash></FaEyeSlash>)}
+                </div>
               </div>
               <button
                 type="submit"
@@ -326,6 +355,7 @@ export default function AddStudent() {
                 Add Student
               </button>
             </form>
+            
           ) : (
             <form onSubmit={handleBulkSubmit} encType="multipart/form-data">
               <div className="mb-6">

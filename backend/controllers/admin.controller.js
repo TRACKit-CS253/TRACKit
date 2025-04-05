@@ -1,6 +1,7 @@
 const db = require('../models');
 const bcrypt = require('bcryptjs');
 const { parse } = require('csv-parse/sync');
+const { password } = require('../config/mail.config');
 const User = db.User;
 const Admin = db.Admin;
 const Faculty = db.Faculty;
@@ -165,6 +166,27 @@ exports.addFaculty = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Username or email already exists'
+      });
+    }
+
+    // Check password strength
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long'
+      });
+    }
+
+    // Check for complexity (at least one uppercase, one lowercase, one number, one special character)
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!(hasUpperCase && hasLowerCase && hasNumbers && hasSpecialChar)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'
       });
     }
     

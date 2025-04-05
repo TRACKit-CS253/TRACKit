@@ -5,9 +5,11 @@ import axios from 'axios';
 import { API_URL } from '../../services/auth';
 import { useAuth } from '../../contexts/AuthContext';
 import { GoHome } from "react-icons/go";
+import {FaEye, FaEyeSlash} from 'react-icons/fa';
 
 export default function AddFaculty() {
   const [activeTab, setActiveTab] = useState('manual');
+  const [showPassword, setShowPassword] = useState(false);
   const [facultyData, setFacultyData] = useState({
     username: '',
     email: '',
@@ -32,6 +34,10 @@ export default function AddFaculty() {
       ...facultyData,
       [e.target.name]: e.target.value
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleFileChange = (e) => {
@@ -86,6 +92,24 @@ export default function AddFaculty() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    const password = facultyData.password;
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    if(!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+    if(!/[0-9]/.test(password)){
+      setError('Password must contain at least one number');
+      return;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      setError('Password must contain at least one special character');
+      return;
+    }
     
     try {
       const response = await axios.post(
@@ -292,16 +316,19 @@ export default function AddFaculty() {
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
               </div>
-              <div className="mb-6">
+              <div className="mb-6 relative">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password:</label>
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   value={facultyData.password}
                   onChange={handleChange}
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
+                <div onClick={togglePasswordVisibility} className='absolute right-3 top-[2.45rem]'>
+                  {showPassword?(<FaEye></FaEye>):(<FaEyeSlash></FaEyeSlash>)}
+                </div>
               </div>
               <button
                 type="submit"
