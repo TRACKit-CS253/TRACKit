@@ -2,6 +2,8 @@ const express = require('express');
 const nodemailer = require('nodemailer');
 const router = express.Router();
 require('dotenv').config();
+const mailConfig = require('../config/mail.config');
+
 
 router.post('/send-email', async (req, res) => {
   const { subject, message, userEmail } = req.body;
@@ -11,8 +13,8 @@ router.post('/send-email', async (req, res) => {
     const transporter = nodemailer.createTransport({
       service: 'gmail', // Use your email service (e.g., Gmail, Outlook)
       auth: {
-        user: process.env.EMAIL, // Replace with your email
-        pass: process.env.PASS, // Replace with your email password or app password
+        user: mailConfig.email, // Replace with your email
+        pass: mailConfig.password, // Replace with your email password or app password
       },
     });
 
