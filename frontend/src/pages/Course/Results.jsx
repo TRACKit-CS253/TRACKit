@@ -1,14 +1,3 @@
-/*
-import React from 'react'
-
-export default function Results() {
-  return (
-    <div>
-      Results
-    </div>
-  )
-}
-*/
 import { NavLink } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
 import * as XLSX from 'xlsx';
@@ -565,17 +554,49 @@ export default function Results() {
     return (
       <div className="w-full min-h-screen bg-gray-50 pb-12">
         {/* Sticky header with consistent styling */}
-          <div className='flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-10'>
-            <div>
-              <p className='text-[32px] uppercase font-semibold m-4'>Results</p>
-              <p className='text-gray-600 ml-4 -mt-3'>
-                {courseDetails?.code || 'Loading...'} • {courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}
-              </p>
+        <div className="sticky top-0 z-50 bg-white bg-opacity-95 backdrop-blur-md shadow-sm border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center py-4">
+              <div className="flex items-center gap-3">
+                <div className="bg-blue-100 p-2 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">Results</h1>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded">{courseDetails?.code || 'Loading...'}</span>
+                    <span className="text-gray-500 text-sm">{courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4">
+                {currentUser?.userType === 'faculty' && !showAddResultForm && (
+                  <button
+                    onClick={handleShowAddResultForm}
+                    disabled={loadingExams}
+                    className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg transition-colors hover:from-blue-700 hover:to-blue-800"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Result
+                  </button>
+                )}
+                
+                <NavLink 
+                  to="/dashboard/profile"
+                  className="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all flex items-center justify-center"
+                  title="View Profile"
+                >
+                  <CgProfile className="text-xl text-gray-700" />
+                </NavLink>
+              </div>
             </div>
-            <NavLink to="/dashboard/profile">
-              <CgProfile className='text-[40px] cursor-pointer' />
-            </NavLink>
           </div>
+        </div>
 
       <div className="p-6 overflow-y-auto">  
         
@@ -652,7 +673,7 @@ export default function Results() {
             </select>
           </div>
           
-          {!showAddResultForm && (
+          {/* {!showAddResultForm && (
             <button
               onClick={handleShowAddResultForm}
               disabled={loadingExams}
@@ -660,7 +681,7 @@ export default function Results() {
             >
               Add Result
             </button>
-          )}
+          )} */}
         </div>
 
         {/* Loading State */}
@@ -1267,14 +1288,48 @@ export default function Results() {
   return (
     <div className="w-full min-h-screen bg-gray-50 pb-12">
     {/* Sticky header with consistent styling */}
-    <div className='flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-10'>
-      <div>
-        <p className='text-[32px] uppercase font-semibold m-4'>Results</p>
-        <p className='text-gray-600 ml-4 -mt-3'>{courseDetails.code} • {courseDetails.credits} Credits • {courseDetails.semester}</p>
+    <div className="sticky top-0 z-50 bg-white bg-opacity-95 backdrop-blur-md shadow-sm border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center py-4">
+          <div className="flex items-center gap-3">
+            <div className="bg-blue-100 p-2 rounded-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800">Results</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded">{courseDetails?.code || 'Loading...'}</span>
+                <span className="text-gray-500 text-sm">{courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            {currentUser?.userType === 'faculty' && !showAddResultForm && (
+              <button
+                onClick={handleShowAddResultForm}
+                disabled={loadingExams}
+                className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg transition-colors hover:from-blue-700 hover:to-blue-800"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Result
+              </button>
+            )}
+            
+            <NavLink 
+              to="/dashboard/profile"
+              className="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all flex items-center justify-center"
+              title="View Profile"
+            >
+              <CgProfile className="text-xl text-gray-700" />
+            </NavLink>
+          </div>
+        </div>
       </div>
-      <NavLink to="/dashboard/profile">
-        <CgProfile className='text-[40px] cursor-pointer' />
-      </NavLink>
     </div>
 
     {/* Content container */}
