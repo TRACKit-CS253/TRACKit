@@ -554,7 +554,7 @@ export default function Results() {
     return (
       <div className="w-full min-h-screen bg-gray-50 pb-12">
         {/* Sticky header with consistent styling */}
-        <div className="sticky top-0 z-50 bg-white bg-opacity-95 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div className="sticky top-0 z-50 bg-white  shadow-sm border-b border-gray-100">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center py-4">
               <div className="flex items-center gap-3">
