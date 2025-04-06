@@ -103,8 +103,18 @@ const developers = [
     id: 10,
     name: "Rahul Ahriwar",
     role: "DevOps Engineer",
+    phone: "+91-9302008834",
+    email: "rahula22@iitk.ac.in",
+    linkedin: "https://www.linkedin.com/in/rahul-a-6b2853252/",
+    instagram: "https://www.google.com",
+    github:"https://github.com/Rahula-22"
+  },
+  {
+    id: 11,
+    name: "Akash Verma",
+    role: "DevOps Engineer",
     phone: "+91-98765-4324",
-    email: "rahul@example.com",
+    email: "akash@example.com",
     linkedin: "https://www.google.com",
     instagram: "https://www.google.com",
     github:"#"
