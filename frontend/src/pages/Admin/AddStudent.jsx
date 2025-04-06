@@ -229,7 +229,7 @@ export default function AddStudent() {
           </div>
           <motion.button 
             className='flex items-center gap-2 border rounded-full px-5 py-2 shadow-sm bg-white hover:bg-red-50 transition-all duration-200'
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 0.95 }}
             whileTap={{ scale: 0.95 }}
             onClick={logout}
           >
