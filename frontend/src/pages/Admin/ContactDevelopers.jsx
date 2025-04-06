@@ -165,7 +165,7 @@ export default function ContactDevelopers() {
             <motion.span
               className="text-4xl font-semibold cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text"
               onClick={() => navigate("/Admin")}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.95 }}
             >
               TRACKit 
@@ -250,7 +250,7 @@ export default function ContactDevelopers() {
                   
                   {/* Developer info */}
                   <h3 className="text-xl font-bold text-gray-800 mt-2 text-center">{dev.name}</h3>
-                  <span className={`inline-block px-3 py-1 rounded-full text-xs font-medium mt-1 bg-gradient-to-r ${getRoleStyle(dev.role)} text-white`}>
+                  <span className={`inline-block font-semibold px-3 py-1 rounded-full text-xs mt-1 bg-gradient-to-r ${getRoleStyle(dev.role)} text-white`}>
                     {dev.role}
                   </span>
                   
@@ -312,7 +312,7 @@ export default function ContactDevelopers() {
                 <div className="px-6 pb-6">
                   <motion.button
                     onClick={() => handleContactClick(dev.email)}
-                    className={`w-full py-2.5 rounded-xl bg-gradient-to-r ${getRoleStyle(dev.role)} text-white font-medium`}
+                    className={`w-full py-2.5 rounded-xl font-semibold bg-gradient-to-r ${getRoleStyle(dev.role)} text-white font-medium`}
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                   >
