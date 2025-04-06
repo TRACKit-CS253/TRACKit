@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { CgProfile } from 'react-icons/cg';
 import { IoIosArrowDropdown } from "react-icons/io";
-import { FaPlus } from "react-icons/fa";
-import { FaRegEdit } from "react-icons/fa";
+import { FaPlus, FaRegEdit, FaCalendarAlt, FaChalkboardTeacher } from "react-icons/fa";
 import { AiOutlineDelete } from "react-icons/ai";
 import { NavLink } from 'react-router-dom';
 import { useCourse } from '../../contexts/CourseContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
-// Import the Calendar component
 import MyCalendar from '../../components/Calendar_Course_Home';
+import { TbPercentage } from "react-icons/tb";
+import { MdOutlineDescription } from "react-icons/md";
+import { BsInfoCircle } from "react-icons/bs";
 
 export default function CourseHome({ role }) {
   const { courseDetails, loading, error } = useCourse();
@@ -272,15 +273,6 @@ export default function CourseHome({ role }) {
       }
     }
     
-    // // If no specific course found, return the overall attendance
-    // if (attendanceData.percentage !== undefined) {
-    //   return {
-    //     percentage: attendanceData.percentage,
-    //     present_classes: attendanceData.present_classes,
-    //     total_classes: attendanceData.total_classes
-    //   };
-    // }
-    
     return null;
   };
   
@@ -288,8 +280,14 @@ export default function CourseHome({ role }) {
   
   if (loading) {
     return (
-      <div className='w-full h-screen flex items-center justify-center'>
-        <div className="animate-pulse text-xl">Loading course details...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <div className="flex justify-center mb-6">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+          </div>
+          <h2 className="text-xl font-semibold text-gray-800">Loading course details...</h2>
+          <p className="text-gray-500 mt-2">Please wait while we fetch the latest information</p>
+        </div>
       </div>
     );
   }
@@ -300,167 +298,270 @@ export default function CourseHome({ role }) {
     const courseCodeFromUrl = urlParts[1]; // Get the course code from URL
     
     return (
-      <div className='w-full p-6'>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p>Error loading course details: {error}</p>
-          <p className="mt-2 text-sm">
-            Try navigating back to the <NavLink to="/dashboard/courses" className="underline font-medium">dashboard</NavLink> and selecting the course again.
-          </p>
-        </div>
-        
-        {courseCodeFromUrl && (
-          <div className="bg-white shadow-md rounded p-6 mt-4">
-            <h2 className="text-2xl font-bold uppercase mb-2">Course: {courseCodeFromUrl}</h2>
-            <p className="text-gray-500 mb-4">Limited view due to data loading error</p>
-            
-            <div className="mt-4">
-              <p className="font-medium">Available actions:</p>
-              <ul className="list-disc pl-5 mt-2">
-                <li className="mb-1">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 shadow-md mb-4">
+            <div className="flex items-start gap-4">
+              <div className="bg-red-100 p-3 rounded-full">
+                <BsInfoCircle className="text-red-600 text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-red-700 mb-2">Error Loading Course</h3>
+                <p className="text-red-600 mb-4">{error}</p>
+                <div className="flex gap-4">
                   <button 
                     onClick={() => window.location.reload()} 
-                    className="text-blue-500 underline"
+                    className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
                   >
-                    Retry loading course
+                    Retry Loading
                   </button>
-                </li>
-                <li>
-                  <NavLink to="/dashboard/courses" className="text-blue-500 underline">
-                    Return to courses dashboard
+                  <NavLink to="/dashboard/courses" className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                    Back to Dashboard
                   </NavLink>
-                </li>
-              </ul>
+                </div>
+              </div>
             </div>
           </div>
-        )}
+          
+          {courseCodeFromUrl && (
+            <div className="bg-white rounded-xl shadow-md p-6 mt-4">
+              <h2 className="text-2xl font-bold mb-2">{courseCodeFromUrl}</h2>
+              <p className="text-gray-500 mb-4">Limited view available due to data loading error</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
   
   if (!courseDetails) {
     return (
-      <div className='w-full p-4'>
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          <p>No course details available</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 shadow-md">
+            <div className="flex items-start gap-4">
+              <div className="bg-yellow-100 p-3 rounded-full">
+                <BsInfoCircle className="text-yellow-600 text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-yellow-700 mb-2">No Course Details</h3>
+                <p className="text-yellow-600 mb-4">No course information is available at this time.</p>
+                <NavLink to="/dashboard/courses" className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors inline-block text-sm">
+                  Back to Courses
+                </NavLink>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
   
   return (
-    <div className='w-full h-full'>
-      <div className='flex justify-between py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-lg z-50'>
-        <div>
-          <p className='text-[32px] uppercase font-semibold m-4'>{courseDetails.name}</p>
-          <p className='text-gray-600 ml-4 -mt-3'>{courseDetails.code} • {courseDetails.credits} Credits • {courseDetails.semester} • {JSON.parse(localStorage.getItem('user')).userType}</p>
-        </div>
-        <NavLink to="/dashboard/profile">
-          <CgProfile className='text-[40px] cursor-pointer hover:scale-95 duration-200 transition-all hover:text-blue-500' />
-        </NavLink>
-      </div>
-
-      {/* Calendar and Attendance Section */}
-      <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 md:p-6'>
-        {/* Calendar section - takes up full width on small screens, 2/3 on large */}
-        <div className='lg:col-span-2 ml-4'>
-          <p className='font-semibold text-[25px] mb-2 mt-4'>New Events</p>
-          <div className='shadow-xl border rounded-lg p-4 bg-white w-full h-[450px] md:h-[500px]'>
-            <MyCalendar />
-          </div>
-        </div>
-
-        {/* Attendance section - takes up full width on small screens, 1/3 on large */}
-        {role === "student" && (
-          <div className='border px-6 py-8 rounded-lg shadow-lg flex flex-col justify-center lg:h-[300px] mt-10 lg:mt-20 w-full'>
-            <p className='font-semibold text-[22px] mb-4'>Your Attendance</p>
-            
-            {attendanceLoading ? (
-              <div className='flex justify-center items-center h-24'>
-                <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500'></div>
-              </div>
-            ) : attendanceError ? (
-              <div className='text-red-500 text-center'>
-                <p>{attendanceError}</p>
-                <button 
-                  onClick={fetchAttendanceData}
-                  className='mt-2 text-blue-500 underline'
-                >
-                  Retry
-                </button>
-              </div>
-            ) : courseAttendance ? (
-              <div className='flex flex-col gap-2'>
-                <p className='text-[45px] text-black-600 font-bold'>
-                  {courseAttendance.percentage.toFixed(0)}%
-                </p>
-                <p className='text-[18px]'>
-                  You have attended: <br /> 
-                  <span className='font-semibold'>
-                    {courseAttendance.present_classes}/{courseAttendance.total_classes}
-                  </span> classes
-                </p>
-              </div>
-            ) : (
-              <div className='text-gray-500 text-center'>
-                <p>There is no attendance policy in this course 😊</p>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div className='p-4 mb-10 px-8'>
-        <div className='flex justify-between items-center mb-4 pr-6'>
-        <h2 className="text-[25px] font-bold ml-2">Course Details</h2>
-        {
-          role!=="student" &&
-          <button 
-            onClick={addSectionHandler}
-            className='bg-blue-500 shadow-xl text-white py-2 px-4 mt-4 ml-6 flex justify-center items-center gap-2 hover:bg-green-600 hover:scale-95 transition-all duration-200 rounded'
-          >
-            <FaPlus className='text-[18px]'></FaPlus>
-            <p>Add Section</p>
-          </button>
-        }
-        </div>
-        
-        {courseDescriptions.length > 0 ? (
-          courseDescriptions.map((item, index) => (
-            <div key={item.id} className='mb-2' onClick={() => toggleExpand(index)}>
-              <div className='w-full py-3 border-2 flex flex-col m-2 px-6 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200'>
-                <div className='flex justify-between w-full font-semibold'>
-                  <span className='text-lg'>{item.courseDescriptionEntryHeading}</span>
-                  <div className='flex gap-8 items-center'>
-                  {
-                    role !== "student" && (
-                      <div className='flex gap-2 items-center'>
-                        <button onClick={(e) => handleEditClick(e, item)}>
-                          <FaRegEdit className='text-[22px] hover:scale-105 transition-all duration-200 hover:shadow-lg'></FaRegEdit>
-                        </button>
-                        <button onClick={(e) => handleDeleteClick(e, item)}>
-                          <AiOutlineDelete className='text-[22px] text-red-600 hover:scale-105 duration-200 transition-all hover:shadow-lg'></AiOutlineDelete>
-                        </button>
-                      </div>
-                    )
-                  }
-                  <IoIosArrowDropdown 
-                    className={`text-[25px] transform transition-transform hover:scale-105 duration-500 ${expandedIndices[index] ? 'rotate-180' : ''}`}
-                  />
-                  </div>
-                </div>
-                <div 
-                  className={`overflow-hidden transition-all duration-300 ${expandedIndices[index] ? 'max-h-96 opacity-100 py-3' : 'max-h-0 opacity-0'}`}
-                >
-                  {item.courseDescriptionEntryBody}
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Header */}
+      <div className="bg-white shadow-md sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-800 uppercase">{courseDetails.name}</h1>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded">{courseDetails.code}</span>
+                <span className="text-gray-500 text-sm">{courseDetails.credits} Credits • {courseDetails.semester}</span>
+                <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded capitalize">{JSON.parse(localStorage.getItem('user')).userType}</span>
               </div>
             </div>
-          ))
-        ) : (
-          <div className="text-center py-10 text-gray-500">
-            No course descriptions available for this course.
+            
+            <NavLink 
+              to="/dashboard/profile"
+              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+              title="View Profile"
+            >
+              <CgProfile className="text-2xl text-gray-700" />
+            </NavLink>
           </div>
-        )}
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Calendar and Attendance Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          {/* Calendar section */}
+          <div className="lg:col-span-2">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <FaCalendarAlt className="text-blue-600 text-xl" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">Course Schedule</h2>
+            </div>
+            <div className="bg-white rounded-xl shadow-md p-5 border border-gray-100 h-[500px]">
+              <MyCalendar />
+            </div>
+          </div>
+
+          {/* Attendance section */}
+          {role === "student" && (
+            <div className="lg:col-span-1">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-indigo-100 rounded-lg">
+                  <TbPercentage className="text-indigo-600 text-xl" />
+                </div>
+                <h2 className="text-xl font-semibold text-gray-800">Attendance</h2>
+              </div>
+              <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 h-[80%]">
+                {attendanceLoading ? (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
+                    <p className="text-gray-500">Loading attendance data...</p>
+                  </div>
+                ) : attendanceError ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="bg-red-100 p-3 rounded-full mb-3">
+                      <BsInfoCircle className="text-red-500 text-xl" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">Attendance Error</h3>
+                    <p className="text-gray-600 mb-4">{attendanceError}</p>
+                    <button 
+                      onClick={fetchAttendanceData}
+                      className="px-4 py-2 bg-indigo-100 text-indigo-700 rounded-lg hover:bg-indigo-200 transition-colors text-sm"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                ) : courseAttendance ? (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    {/* Attendance percentage circle */}
+                    <div className="relative mb-6">
+                      <svg className="w-40 h-40">
+                        <circle 
+                          cx="80" 
+                          cy="80" 
+                          r="60" 
+                          fill="none" 
+                          stroke="#E5E7EB" 
+                          strokeWidth="16"
+                        />
+                        <circle 
+                          cx="80" 
+                          cy="80" 
+                          r="60" 
+                          fill="none" 
+                          stroke={courseAttendance.percentage >= 75 ? "#10B981" : courseAttendance.percentage >= 65 ? "#FBBF24" : "#EF4444"} 
+                          strokeWidth="16"
+                          strokeDasharray={`${(courseAttendance.percentage / 100) * 377} 377`}
+                          strokeDashoffset="0"
+                          strokeLinecap="round"
+                          transform="rotate(-90 80 80)"
+                        />
+                        <text 
+                          x="80" 
+                          y="85" 
+                          textAnchor="middle" 
+                          fontSize="30"
+                          fontWeight="bold"
+                          fill={courseAttendance.percentage >= 75 ? "#10B981" : courseAttendance.percentage >= 65 ? "#FBBF24" : "#EF4444"}
+                        >
+                          {courseAttendance.percentage.toFixed(0)}%
+                        </text>
+                      </svg>
+                    </div>
+                    <p className="text-gray-700 text-lg text-center">
+                      You have attended <span className="font-semibold">{courseAttendance.present_classes}</span> out of <span className="font-semibold">{courseAttendance.total_classes}</span> classes
+                    </p>
+                    {courseAttendance.percentage < 75 && (
+                      <p className="mt-3 text-red-600 text-sm text-center font-medium">
+                        <BsInfoCircle className="inline mr-1" />
+                        Attendance below minimum requirement of 75%
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <div className="bg-blue-100 p-3 rounded-full mb-3">
+                      <FaChalkboardTeacher className="text-blue-500 text-xl" />
+                    </div>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">No Attendance Policy</h3>
+                    <p className="text-gray-600">This course doesn't have a mandatory attendance policy.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Course Descriptions Section */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-100 rounded-lg">
+                <MdOutlineDescription className="text-green-600 text-xl" />
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800">Course Details</h2>
+            </div>
+            
+            {role !== "student" && (
+              <button 
+                onClick={addSectionHandler}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-sm hover:shadow transition-all duration-200"
+              >
+                <FaPlus className="text-sm" />
+                <span>Add Section</span>
+              </button>
+            )}
+          </div>
+          
+          {courseDescriptions.length > 0 ? (
+            <div className="space-y-3">
+              {courseDescriptions.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  onClick={() => toggleExpand(index)}
+                  className="bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 transition-all duration-200"
+                >
+                  <div className="px-6 py-4 flex items-center justify-between cursor-pointer">
+                    <h3 className="text-lg font-medium text-gray-800">{item.courseDescriptionEntryHeading}</h3>
+                    <div className="flex items-center gap-4">
+                      {role !== "student" && (
+                        <>
+                          <button 
+                            onClick={(e) => handleEditClick(e, item)}
+                            className="p-2 hover:bg-gray-100 rounded-md transition-colors"
+                          >
+                            <FaRegEdit className="text-blue-600" />
+                          </button>
+                          <button 
+                            onClick={(e) => handleDeleteClick(e, item)}
+                            className="p-2 hover:bg-red-50 rounded-md transition-colors"
+                          >
+                            <AiOutlineDelete className="text-red-600" />
+                          </button>
+                        </>
+                      )}
+                      <div className={`transform transition-transform duration-300 ${expandedIndices[index] ? 'rotate-180' : ''}`}>
+                        <IoIosArrowDropdown className="text-gray-500 text-xl" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div 
+                    className={`px-6 pb-4 transition-all duration-300 overflow-hidden ${
+                      expandedIndices[index] 
+                        ? 'max-h-[500px] opacity-100' 
+                        : 'max-h-0 opacity-0'
+                    }`}
+                    style={{ maxHeight: expandedIndices[index] ? '500px' : '0', opacity: expandedIndices[index] ? 1 : 0 }}
+                  >
+                    <p className="text-gray-600">{item.courseDescriptionEntryBody}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-gray-500">
+              No course descriptions available for this course.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Delete Confirmation Modal */}
