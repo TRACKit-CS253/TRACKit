@@ -1,38 +1,43 @@
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import profilePic from "../../assets/icon-7797704.png";
-import { FaLinkedin, FaWhatsapp, FaEnvelope, FaPhone, FaRegUser, FaGithub } from "react-icons/fa";
+import { FaLinkedin, FaInstagram, FaEnvelope, FaPhone, FaRegUser, FaGithub } from "react-icons/fa";
 import { GoHome } from "react-icons/go";
 import { motion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
+import ved from "../../assets/ved.png";
 
 const developers = [
   {
-    id: 3,
-    name: "Ved Prakash Vishwakarma",
+    id: 1,
+    image:ved,
+    name: "Ved Prakash",
     role: "Full Stack Engineer",
-    phone: "+91-98765-4323",
-    email: "pved@example.com",
-    linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    phone: "+91-8009090434",
+    email: "vedprakash22@iitk.ac.in",
+    linkedin: "https://www.linkedin.com/in/ved-prakash-vishwakarma-7a0a2223a/",
+    instagram: "https://www.instagram.com/vedprakash_226/",
+    github:"https://github.com/vedprakash226"
   },
   {
-    id: 1,
+    id: 2,
     name: "Aditya Gautam",
     role: "UI Designer",
     phone: "+91-98765-4321",
     email: "gaditiya@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
   {
-    id: 2,
+    id: 3,
     name: "Sharique Ahmad",
     role: "Backend Developer",
     phone: "+91-98765-4322",
     email: "asharique@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
   {
     id: 4,
@@ -41,7 +46,8 @@ const developers = [
     phone: "+91-98765-4324",
     email: "vdhruv@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
   {
     id: 5,
@@ -50,7 +56,8 @@ const developers = [
     phone: "+91-98765-4324",
     email: "rdhruv@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
   {
     id: 6,
@@ -59,7 +66,8 @@ const developers = [
     phone: "+91-98765-4324",
     email: "mayur@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
   {
     id: 7,
@@ -68,7 +76,8 @@ const developers = [
     phone: "+91-98765-4324",
     email: "abhijeet@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
   {
     id: 8,
@@ -77,7 +86,8 @@ const developers = [
     phone: "+91-98765-4324",
     email: "aayush@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
   {
     id: 9,
@@ -86,7 +96,8 @@ const developers = [
     phone: "+91-98765-4324",
     email: "aryan@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:""
   },
   {
     id: 10,
@@ -95,7 +106,8 @@ const developers = [
     phone: "+91-98765-4324",
     email: "rahul@example.com",
     linkedin: "https://www.google.com",
-    whatsapp: "https://www.google.com"
+    instagram: "https://www.google.com",
+    github:"#"
   },
 ];
 
@@ -112,14 +124,14 @@ export default function ContactDevelopers() {
   const getRoleStyle = (role) => {
     switch(role.toLowerCase()) {
       case "ui designer":
-        return "from-purple-500 to-pink-500";
+        return "from-blue-500 to-indigo-600";
       case "backend developer":
-        return "from-green-500 to-teal-500";
+        return "from-blue-500 to-indigo-600";
       case "full stack engineer":
         return "from-blue-500 to-indigo-600";
       case "devops engineer":
       default:
-        return "from-amber-500 to-orange-500";
+        return "from-blue-500 to-indigo-600";
     }
   };
 
@@ -228,7 +240,7 @@ export default function ContactDevelopers() {
                   <div className="absolute -top-10 rounded-full p-1 bg-white shadow-md">
                     <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white">
                       <motion.img 
-                        src={profilePic} 
+                        src={dev.image || profilePic} 
                         alt={dev.name} 
                         className="w-full h-full object-cover"
                         whileHover={{ scale: 1.1 }}
@@ -273,18 +285,18 @@ export default function ContactDevelopers() {
                     </motion.a>
                     
                     <motion.a 
-                      href={dev.whatsapp} 
+                      href={dev.instagram} 
                       target="_blank" 
                       rel="noopener noreferrer"
-                      className="bg-green-100 p-2.5 rounded-full text-green-600"
-                      whileHover={{ scale: 1.15, backgroundColor: "#dcfce7" }}
+                      className="bg-red-100 p-2.5 font-semibold rounded-full text-red-400"
+                      whileHover={{ scale: 1.15 }}
                       whileTap={{ scale: 0.95 }}
                     >
-                      <FaWhatsapp size={18} />
+                      <FaInstagram size={18} />
                     </motion.a>
                     
                     <motion.a 
-                      href="#" 
+                      href={dev.github} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="bg-gray-100 p-2.5 rounded-full text-gray-700"
