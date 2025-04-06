@@ -101,7 +101,7 @@ const developers = [
   },
   {
     id: 10,
-    name: "Rahul Ahriwar",
+    name: "Rahul Ahirwar",
     role: "DevOps Engineer",
     phone: "+91-9302008834",
     email: "rahula22@iitk.ac.in",
