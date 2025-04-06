@@ -102,6 +102,7 @@ app.use('/api/admin', require('./routes/admin.routes'));
 app.use('/api/events', require('./routes/event.routes'));
 app.use('/api/forum', require('./routes/forum.routes'));
 app.use('/api/contact', require('./routes/mail.routes'));
+app.use('/api', require('./routes/proxyRoutes'));
 
 // Example using the middleware in routes
 const adminController = require('./controllers/admin.controller');

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { CgProfile } from 'react-icons/cg'
+import React, { useState, useEffect } from 'react';
+import { CgProfile } from 'react-icons/cg';
 import { IoIosArrowDropdown } from "react-icons/io";
 import { FaPlus } from "react-icons/fa";
 import { FaRegEdit } from "react-icons/fa";
@@ -11,9 +11,7 @@ import axios from 'axios';
 // Import the Calendar component
 import MyCalendar from '../../components/Calendar_Course_Home';
 
-
-
-export default function CourseHome({ present, total, role }) {
+export default function CourseHome({ role }) {
   const { courseDetails, loading, error } = useCourse();
   const { showNotification } = useNotification();
   const [expandedIndices, setExpandedIndices] = useState({});
@@ -29,6 +27,57 @@ export default function CourseHome({ present, total, role }) {
   const [currentDescriptionId, setCurrentDescriptionId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Attendance data state
+  const [attendanceData, setAttendanceData] = useState(null);
+  const [attendanceLoading, setAttendanceLoading] = useState(false);
+  const [attendanceError, setAttendanceError] = useState(null);
+  
+  // Get user data from localStorage
+  const userData = JSON.parse(localStorage.getItem('user')) || {};
+  const userType = userData?.userType || '';
+  const rollNumber = userData?.rollNumber || userData?.student?.rollNumber;
+
+  useEffect(() => {
+    if (courseDetails?.id && courseDetails?.code && role === "student" && rollNumber) {
+      fetchAttendanceData();
+    }
+  }, [courseDetails, role, rollNumber]);
+  
+  const fetchAttendanceData = async () => {
+    if (!rollNumber) {
+      setAttendanceError("Roll number not available");
+      return;
+    }
+    
+    setAttendanceLoading(true);
+    setAttendanceError(null);
+    
+    try {
+      const proxyUrl = `${process.env.REACT_APP_API_URL}/api/proxy/attendance`;
+      const response = await axios.post(proxyUrl, {
+        roll_number: parseInt(rollNumber),
+        start_date: "04/01/2025",
+        end_date: "today"
+      },{
+        headers:{
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      const courseCode= `${courseDetails.code} (G-1)`
+      console.log("Course Code:", courseCode);
+      console.log("Attendance API response:", response.data);
+      setAttendanceData(response.data);
+      
+    } catch (err) {
+      console.error("Error fetching attendance data:", err);
+      setAttendanceError("Failed to load attendance data");
+      showNotification("Failed to load attendance data", "error");
+    } finally {
+      setAttendanceLoading(false);
+    }
+  };
+  
   // Debug logs
   useEffect(() => {
     console.log("CourseHome rendering with:", { 
@@ -36,10 +85,9 @@ export default function CourseHome({ present, total, role }) {
       loading, 
       error,
       role,
-      present,
-      total
+      attendanceData
     });
-  }, [courseDetails, loading, error, role, present, total]);
+  }, [courseDetails, loading, error, role, attendanceData]);
   
   useEffect(() => {
     if (courseDetails?.id) {
@@ -208,6 +256,36 @@ export default function CourseHome({ present, total, role }) {
     }
   };
   
+  const getCourseAttendance = () => {
+    if (!attendanceData || !courseDetails?.code) return null;
+    
+    // Loop through the attendance data to find the matching course code
+    // The API returns keys like "EE340 (G-1)" but our courseCode might be just "EE340"
+    // So we need to check if the key starts with our course code
+    for (const key in attendanceData) {
+      if (key === "percentage" || key === "present_classes" || key === "total_classes") {
+        continue; // Skip the summary fields
+      }
+      
+      if (key.startsWith(courseDetails.code)) {
+        return attendanceData[key];
+      }
+    }
+    
+    // // If no specific course found, return the overall attendance
+    // if (attendanceData.percentage !== undefined) {
+    //   return {
+    //     percentage: attendanceData.percentage,
+    //     present_classes: attendanceData.present_classes,
+    //     total_classes: attendanceData.total_classes
+    //   };
+    // }
+    
+    return null;
+  };
+  
+  const courseAttendance = getCourseAttendance();
+  
   if (loading) {
     return (
       <div className='w-full h-screen flex items-center justify-center'>
@@ -281,7 +359,7 @@ export default function CourseHome({ present, total, role }) {
         </NavLink>
       </div>
 
-      {/* Replace this entire <div className='flex justify-evenly items-center'> section */}
+      {/* Calendar and Attendance Section */}
       <div className='grid grid-cols-1 lg:grid-cols-3 gap-6 p-4 md:p-6'>
         {/* Calendar section - takes up full width on small screens, 2/3 on large */}
         <div className='lg:col-span-2 ml-4'>
@@ -295,13 +373,38 @@ export default function CourseHome({ present, total, role }) {
         {role === "student" && (
           <div className='border px-6 py-8 rounded-lg shadow-lg flex flex-col justify-center lg:h-[300px] mt-10 lg:mt-20 w-full'>
             <p className='font-semibold text-[22px] mb-4'>Your Attendance</p>
-            <div className='flex flex-col gap-2'>
-              <p className='text-[45px] text-black-600 font-bold'>{(present/total*100).toFixed(0)}%</p>
-              <p className='text-[18px]'>
-                You have attended: <br /> 
-                <span className='font-semibold'>{present}/{total}</span> classes
-              </p>
-            </div>
+            
+            {attendanceLoading ? (
+              <div className='flex justify-center items-center h-24'>
+                <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500'></div>
+              </div>
+            ) : attendanceError ? (
+              <div className='text-red-500 text-center'>
+                <p>{attendanceError}</p>
+                <button 
+                  onClick={fetchAttendanceData}
+                  className='mt-2 text-blue-500 underline'
+                >
+                  Retry
+                </button>
+              </div>
+            ) : courseAttendance ? (
+              <div className='flex flex-col gap-2'>
+                <p className='text-[45px] text-black-600 font-bold'>
+                  {courseAttendance.percentage.toFixed(0)}%
+                </p>
+                <p className='text-[18px]'>
+                  You have attended: <br /> 
+                  <span className='font-semibold'>
+                    {courseAttendance.present_classes}/{courseAttendance.total_classes}
+                  </span> classes
+                </p>
+              </div>
+            ) : (
+              <div className='text-gray-500 text-center'>
+                <p>There is no attendance policy in this course 😊</p>
+              </div>
+            )}
           </div>
         )}
       </div>
