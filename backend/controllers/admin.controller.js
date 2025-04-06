@@ -169,6 +169,8 @@ exports.addFaculty = async (req, res) => {
       });
     }
 
+    const password = req.body.password;
+
     // Check password strength
     if (password.length < 8) {
       return res.status(400).json({
@@ -178,18 +180,18 @@ exports.addFaculty = async (req, res) => {
     }
 
     // Check for complexity (at least one uppercase, one lowercase, one number, one special character)
-    // const hasUpperCase = /[A-Z]/.test(password);
-    // const hasNumbers = /[0-9]/.test(password);
-    // const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasNumbers = /[0-9]/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
-    // if (!(hasUpperCase && hasNumbers && hasSpecialChar)) {
-    //   return res.status(400).json({
-    //     success: false,
-    //     message: 'Password must contain at least one uppercase letter, one number, and one special character'
-    //   });
-    // }
+    if (!(hasUpperCase && hasNumbers && hasSpecialChar)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must contain at least one uppercase letter, one number, and one special character'
+      });
+    }
     
-    const hashedPassword = bcrypt.hashSync(req.body.password, 8);
+    const hashedPassword = bcrypt.hashSync(password, 8);
     
     const user = await User.create({
       username: req.body.username,
