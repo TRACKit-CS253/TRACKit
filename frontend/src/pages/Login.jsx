@@ -84,7 +84,7 @@ const Login = () => {
               onClick={togglePasswordVisibility}
               className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none"
             >
-              {showPassword ? <FaEyeSlash size={18} /> : <FaEye size={18} />}
+              {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
             </button>
           </div>
           <button 
@@ -97,7 +97,7 @@ const Login = () => {
           <button 
             type="submit" 
             disabled={isLoading}
-            className='bg-black text-white w-full mt-5 h-[40px] rounded-lg transition-all duration-200 hover:scale-95 disabled:opacity-50'
+            className='bg-black text-white font-semibold w-full mt-5 h-[40px] rounded-lg transition-all shadow duration-200 hover:bg-gray-800 hover:scale-[97%] disabled:opacity-50'
           >
             {isLoading ? 'Signing in...' : 'Continue'}
           </button>

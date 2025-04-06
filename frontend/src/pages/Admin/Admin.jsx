@@ -1,68 +1,55 @@
 import React from 'react';
-import { FiLogOut } from "react-icons/fi"; // Logout icon
-import student from '../../assets/student.png';
-import faculty from '../../assets/faculty.png';
-import addCourse from "../../assets/addCourse.png";
-import cntDev from "../../assets/ContactDeveloper.png";
-import manageUser from "../../assets/manageUsers.png";
-import manageCourse from "../../assets/manageCourse.png";
+import { FaUserGraduate, FaUsersCog, FaRegUser  } from "react-icons/fa";
+import { GiSpellBook, GiTeacher, GiNotebook } from "react-icons/gi";
+import { MdOutlineEngineering } from "react-icons/md";
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 export default function Admin() {
   const navigate = useNavigate();
-  const { logout } = useAuth(); // Assuming logout function is available
+  const { logout } = useAuth(); 
 
   const adminOptions = [
-    { id: 1, title: "Add Student", image: student, path: '/admin/add-student' },
-    { id: 2, title: "Add Faculty", image: faculty, path: '/admin/add-faculty' },
-    { id: 3, title: "Create Courses", image: addCourse, path: '/admin/create-course' },
-    { id: 4, title: "Manage Courses", image: manageCourse, path: '/admin/manage-courses' },
-    { id: 5, title: "Manage Users", image: manageUser, path: '/admin/manage-users' },
-    { id: 6, title: "Contact Developers", image: cntDev, path: '/admin/contact-developers' }
+    { id: 1, title: "Add Student", image: <FaUserGraduate size={100} className='text-orange-500'/>, path: '/admin/add-student' },
+    { id: 2, title: "Add Faculty", image: <GiTeacher size={100} className='text-gray-700'/>, path: '/admin/add-faculty' },
+    { id: 3, title: "Create Courses", image: <GiSpellBook size={100} className='text-blue-700'/>, path: '/admin/create-course' },
+    { id: 4, title: "Manage Courses", image: <GiNotebook size={100} className='text-yellow-500'/>, path: '/admin/manage-courses' },
+    { id: 5, title: "Manage Users", image: <FaUsersCog size={100} className='text-violet-600'/>, path: '/admin/manage-users' },
+    { id: 6, title: "Contact Developers", image: <MdOutlineEngineering size={100} className='text-red-800'/>, path: '/admin/contact-developers' }
   ];
 
-  const handleNavigation = (path) => {
-    navigate(path);
-  };
-
   return (
-    <div className='bg-[#F5F5F5] h-screen w-full'>
-      {/* Header */}
-      <div className="fixed top-0 left-0 right-0 bg-white p-8 shadow-lg z-10 flex justify-between items-center">
-        <span 
-          className="text-4xl font-semibold cursor-pointer" 
-          onClick={() => navigate("/admin")}
-        >
-          TRACKit
-        </span>
-        <h1 className="text-2xl font-semibold text-gray-700">Welcome System Admin</h1>
-        <div className="flex items-center gap-6">
-          <FiLogOut 
-            className="text-[35px] text-red-500 cursor-pointer hover:text-red-600 transition-all" 
-            onClick={logout} 
-          />
-        </div>
+    <div className='w-screen h-screen bg-gradient-to-br from-pink-100 via-white to-indigo-100 p-6 overflow-y-auto'>
+      <div className='max-w-[1200px] m-auto'>
+      <header className="flex items-center justify-between px-4">
+        <div className="text-[3rem] font-bold text-slate-900">TRACKit</div>
+        <button className='flex items-center gap-2 border rounded-full px-4 py-1 shadow-lg hover:scale-95 transition-all duration-200'>
+          <span>
+            <FaRegUser size={20} className='text-red-600'></FaRegUser>
+          </span>
+          <span className='text-xl' onClick={logout}>Sign Out</span>
+        </button>
+      </header>
+
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-bold text-gray-800">Welcome System Admin</h2>
       </div>
 
-      {/* Add padding to the main content to prevent overlap with the fixed header */}
-      <div className="pt-[100px]">
-        {/* Main Content */}
+      <div>
         <div className='w-full'>
-          <div className='w-10/12 m-auto grid grid-cols-3'>
+          <div className='w-10/12 m-auto grid lg:grid-cols-3 md:grid-cols-2'>
             {adminOptions.map((option) => (
-              <div key={option.id} className='m-auto my-8'>
-                <img src={option.image} alt={option.title} className="cursor-pointer" />
-                <p 
-                  className='bg-[#D9D9D9] w-11/12 m-auto text-center py-[12px] font-semibold mt-2 rounded-md hover:bg-[#3B82F6] hover:text-white transition-all duration-200 cursor-pointer hover:scale-95'
-                  onClick={() => handleNavigation(option.path)}
-                >
-                  {option.title}
-                </p>
+              <div key={option.id} className='m-auto gap-4 flex flex-col items-center justify-center rounded-xl my-8 shadow-xl
+               border h-[200px] aspect-square hover:scale-[98%] duration-200 transition-all' onClick={() => navigate(option.path)}>
+                <div>
+                  {option.image}
+                </div>
+                <div>{option.title}</div>
               </div>
             ))}
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

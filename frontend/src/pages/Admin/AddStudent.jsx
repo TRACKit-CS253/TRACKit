@@ -343,7 +343,7 @@ export default function AddStudent() {
                   required
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 />
-                <div onClick={togglePasswordVisibility} className='absolute right-3 top-[2.5rem]'>
+                <div onClick={togglePasswordVisibility} className='absolute right-3 top-[2.45rem]'>
                   {showPassword?(<FaEye></FaEye>):(<FaEyeSlash></FaEyeSlash>)}
                 </div>
               </div>
