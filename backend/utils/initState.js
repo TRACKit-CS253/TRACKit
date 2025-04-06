@@ -117,43 +117,43 @@ async function createCourses() {
       code: 'EE321',
       name: 'Communication Systems',
       description: 'Introduction to signals and systems, discrete-time signals, linear time-invariant systems, z-transforms, Fourier analysis, and other aspects of communication systems.',
-      credits: 4,
-      semester: 'Fall 2023'
+      credits: 11,
+      semester: 'Fall 2025'
     },
     {
       code: 'CS253',
       name: 'Software Development',
       description: 'Software development methodologies, design patterns, testing strategies, version control systems, and project management.',
-      credits: 3,
-      semester: 'Fall 2023'
+      credits: 12,
+      semester: 'Fall 2025'
     },
     {
-      code: 'PHI452',
-      name: 'Philosophy of Mind',
+      code: 'EE360',
+      name: 'Power Electronics',
       description: 'Exploration of consciousness, intentionality, mental causation, and the relationship between mind and brain.',
-      credits: 3,
-      semester: 'Fall 2023'
+      credits: 9,
+      semester: 'Fall 2025'
     },
     {
-      code: 'EE210',
+      code: 'EE340',
       name: 'Digital Electronics',
       description: 'Introduction to digital logic, Boolean algebra, combinational and sequential circuits, and digital system design.',
       credits: 4,
       semester: 'Fall 2023'
     },
     {
-      code: 'EE200',
-      name: 'Circuit Theory',
+      code: 'EE381',
+      name: 'Electrical Engineering Lab II',
       description: 'Fundamentals of electric circuits, network theorems, transient and steady-state analysis of RLC circuits.',
-      credits: 4,
-      semester: 'Fall 2023'
+      credits: 12,
+      semester: 'Fall 2025'
     },
     {
-      code: 'ECO111',
-      name: 'Principles of Economics',
+      code: 'CS771',
+      name: 'Machine Learning',
       description: 'Introduction to microeconomics and macroeconomics, supply and demand, market structures, and economic policy.',
-      credits: 3,
-      semester: 'Fall 2023'
+      credits: 9,
+      semester: 'Fall 2025'
     }
   ];
   
@@ -283,13 +283,13 @@ async function createFaculty(courses) {
 async function createStudents(courses) {
   const studentData = [
     {
-      username: 'student1',
-      password: 'student123',
-      email: 'student1@trackit.com',
-      firstName: 'Alice',
-      lastName: 'Johnson',
-      rollNumber: 'EE19B001',
-      enrollmentYear: 2019,
+      username: 'ved226',
+      password: 'Ved@80090',
+      email: 'vedprakash22@iitk.ac.in',
+      firstName: 'Ved',
+      lastName: 'Prakash',
+      rollNumber: '221180',
+      enrollmentYear: 2022,
       major: 'Electrical Engineering',
       courseIndices: [0, 1, 2, 3, 4, 5] // All courses
     },
