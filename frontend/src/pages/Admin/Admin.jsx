@@ -23,11 +23,11 @@ export default function Admin() {
       <div className='max-w-[1200px] m-auto'>
       <header className="flex items-center justify-between px-4">
         <div className="text-[3rem] font-bold text-slate-900">TRACKit</div>
-        <button className='flex items-center gap-2 border rounded-full px-4 py-1 shadow-lg hover:scale-95 transition-all duration-200'>
+        <button className='flex items-center gap-2 border rounded-full  px-4 py-1 shadow-lg hover:scale-[97%] transition-all duration-200'>
           <span>
             <FaRegUser size={20} className='text-red-600'></FaRegUser>
           </span>
-          <span className='text-xl' onClick={logout}>Sign Out</span>
+          <span className='text-lg font-semibold' onClick={logout}>Sign Out</span>
         </button>
       </header>
 
@@ -44,7 +44,7 @@ export default function Admin() {
                 <div>
                   {option.image}
                 </div>
-                <div>{option.title}</div>
+                <div className='font-semibold text-lg'>{option.title}</div>
               </div>
             ))}
           </div>
