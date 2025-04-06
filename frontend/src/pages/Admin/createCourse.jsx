@@ -1,14 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import axiosInstance from '../../utils/axiosInstance'; // Use the enhanced axios instance
+import axiosInstance from '../../utils/axiosInstance';
 import { 
   validateCSVFile, 
   createFileUploadFormData, 
   getFileUploadConfig 
 } from '../../utils/fileUpload';
-
 import { GoHome } from "react-icons/go";
+import { FaRegUser, FaCloudUploadAlt, FaBook } from "react-icons/fa";
+import { motion } from 'framer-motion';
 
 export default function CreateCourse() {
   const [activeTab, setActiveTab] = useState('manual');
@@ -23,7 +24,7 @@ export default function CreateCourse() {
   const [csvFileName, setCsvFileName] = useState('');
   const fileInputRef = useRef(null);
   const navigate = useNavigate();
-  const { token } = useAuth(); // Get token from auth context
+  const { token, logout } = useAuth();
   
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
@@ -258,210 +259,337 @@ export default function CreateCourse() {
   };
 
   return (
-    <div className="bg-[#F5F5F5] min-h-screen">
-      <div className="fixed top-0 left-0 right-0 bg-white py-7 px-8 shadow-lg z-10 flex justify-between items-center">
-        <div className='flex gap-6'>
-          <span
-            className="text-4xl font-semibold cursor-pointer"
-            onClick={() => navigate("/Admin")}
+    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen pb-16">
+      {/* Fixed Header - Updated with glass effect */}
+      <div className="fixed top-0 left-0 right-0 py-5 px-8 m-auto z-10 backdrop-blur-md bg-white/70 border-b border-gray-100 shadow-sm">
+        <div className='flex justify-between items-center'>
+          <div className='flex gap-6 items-center'>
+            <motion.span
+              className="text-4xl font-semibold cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text"
+              onClick={() => navigate("/Admin")}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-            TRACKit
-          </span>
-          <div className='cursor-pointer hover:scale-95 duration-200 transition-all rounded-full hover:bg-gray-100 p-2'>
-            <GoHome className='text-[1.9rem]' onClick={()=>{navigate("/Admin")}}></GoHome>
+              TRACKit 
+            </motion.span>
+            <motion.div 
+              className='cursor-pointer rounded-full bg-gray-50 hover:bg-gray-100 p-3 shadow-sm'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={()=>{navigate("/Admin")}}
+            >
+              <GoHome className='text-[1.5rem] text-gray-700'></GoHome>
+            </motion.div>
           </div>
+          <motion.button 
+            className='flex items-center gap-2 border rounded-full px-5 py-2 shadow-sm bg-white hover:bg-red-50 transition-all duration-200'
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={logout}
+          >
+            <span>
+              <FaRegUser size={18} className='text-red-500'></FaRegUser>
+            </span>
+            <span className='font-medium'>Sign Out</span>
+          </motion.button>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-700">Create Course</h1>
       </div>
       
-      <div className="pt-32 px-4">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold mb-6 text-center">Create Course</h2>
-          
-          {message.text && (
-            <div className={`p-3 mb-4 rounded text-sm ${
-              message.type === 'success' ? 'bg-green-100 text-green-700' : 
-              message.type === 'info' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'
-            }`}>
-              {message.text}
-            </div>
-          )}
-          
-          <div className="flex mb-6">
-            <button
-              className={`flex-1 py-2 ${activeTab === 'manual' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => setActiveTab('manual')}
-            >
-              Manual Entry
-            </button>
-            <button
-              className={`flex-1 py-2 ${activeTab === 'bulk' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => setActiveTab('bulk')}
-            >
-              Bulk Upload
-            </button>
+      {/* Main Content */}
+      <div className="pt-28 px-4">
+        <motion.div 
+          className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Form Header */}
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 py-6 px-6">
+            <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center gap-3">
+              <FaBook size={24} />
+              <span>Create Course</span>
+            </h2>
           </div>
+          
+          <div className="p-6">
+            {/* Show error/success/info messages */}
+            {message.text && (
+              <motion.div 
+                className={`mb-6 p-4 rounded-md ${
+                  message.type === 'success' ? 'bg-green-50 border-l-4 border-green-500 text-green-700' : 
+                  message.type === 'info' ? 'bg-blue-50 border-l-4 border-blue-500 text-blue-700' : 
+                  'bg-red-50 border-l-4 border-red-500 text-red-700'
+                }`}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                {message.text}
+              </motion.div>
+            )}
+            
+            {/* Tab Navigation */}
+            <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
+              <button
+                className={`flex-1 py-2.5 rounded-md font-medium text-sm transition-all duration-200 ${
+                  activeTab === 'manual' 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+                onClick={() => setActiveTab('manual')}
+              >
+                Manual Entry
+              </button>
+              <button
+                className={`flex-1 py-2.5 rounded-md font-medium text-sm transition-all duration-200 ${
+                  activeTab === 'bulk' 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+                onClick={() => setActiveTab('bulk')}
+              >
+                Bulk Upload
+              </button>
+            </div>
 
-          {activeTab === 'manual' ? (
-            <form onSubmit={handleManualSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Course Code:</label>
-                <input
-                  type="text"
-                  name="code"
-                  value={courseData.code}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Course Name:</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={courseData.name}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Description:</label>
-                <textarea
-                  name="description"
-                  value={courseData.description}
-                  onChange={handleChange}
-                  rows="3"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Credits:</label>
-                <input
-                  type="number"
-                  name="credits"
-                  value={courseData.credits}
-                  onChange={handleChange}
-                  min="1"
-                  max="20"
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Semester:</label>
-                <select
-                  name="semester"
-                  value={courseData.semester}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                >
-                  <option value="">Select Semester</option>
-                  <option value="Fall">Fall</option>
-                  <option value="Spring">Spring</option>
-                  <option value="Summer">Summer</option>
-                </select>
-              </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`w-full ${loading ? 'bg-gray-400' : 'bg-blue-500 hover:bg-blue-700'} text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline
-                hover:scale-95 transition-all duration-200`}
-              >
-                {loading ? "Creating..." : "Create Course"}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleBulkSubmit} encType="multipart/form-data">
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Upload CSV File:</label>
-                <div className="flex items-center">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    required
-                    className="hidden"
-                    id="csv-file-input"
-                  />
-                  <label 
-                    htmlFor="csv-file-input"
-                    className="cursor-pointer bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded flex-grow text-center"
-                  >
-                    {csvFileName || "Choose a CSV file"}
-                  </label>
-                  {csvFileName && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCsvFile(null);
-                        setCsvFileName('');
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = '';
-                        }
-                      }}
-                      className="ml-2 text-red-500 hover:text-red-700"
-                    >
-                      ✕
-                    </button>
-                  )}
-                </div>
-                {fileError && (
-                  <p className="text-red-500 text-xs mt-1">{fileError}</p>
-                )}
-                <div className="text-sm text-gray-500 mt-2">
-                  <p className="font-bold">CSV file must include these columns:</p>
-                  <ul className="list-disc pl-5 mt-1">
-                    <li><span className="font-medium">course code</span>: Course code (required)</li>
-                    <li><span className="font-medium">course name</span>: Course name (required)</li>
-                    <li><span className="font-medium">credits</span>: Course credits (required, 2-14)</li>
-                    <li><span className="font-medium">semester</span>: Fall/Spring/Summer (required)</li>
-                    <li><span className="font-medium">description</span>: Course description (optional)</li>
-                  </ul>
-                  <p className="mt-2 text-amber-600 font-medium">Important: Make sure your CSV file uses commas (,) as separators and includes a header row.</p>
-                </div>
-                
-              </div>
-              
-              {message.type === 'error' && message.details && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
-                  <p className="text-sm font-bold text-red-700 mb-2">Error details:</p>
-                  <ul className="text-xs text-red-600 ml-2 list-disc pl-3">
-                    {message.details.map((detail, index) => (
-                      <li key={index} className="mb-1">{detail}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              
-              {message.type === 'error' && message.duplicateCodes && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
-                  <p className="text-sm font-bold text-red-700 mb-2">Duplicate course codes:</p>
-                  <div className="text-xs text-red-600 flex flex-wrap gap-1">
-                    {message.duplicateCodes.map((code, index) => (
-                      <span key={index} className="bg-red-100 px-1 py-0.5 rounded">{code}</span>
-                    ))}
+            {activeTab === 'manual' ? (
+              <form onSubmit={handleManualSubmit}>
+                <div className="space-y-5">
+                  <div className="relative">
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Course Code</label>
+                    <input
+                      type="text"
+                      name="code"
+                      value={courseData.code}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      placeholder="e.g., CS101"
+                    />
                   </div>
-                  <p className="text-xs mt-2 text-red-600">
-                    Please remove these courses from your CSV file or use different course codes.
-                  </p>
+                  
+                  <div className="relative">
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Course Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={courseData.name}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      placeholder="e.g., Introduction to Computer Science"
+                    />
+                  </div>
+                  
+                  <div className="relative">
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Description</label>
+                    <textarea
+                      name="description"
+                      value={courseData.description}
+                      onChange={handleChange}
+                      rows="3"
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      placeholder="Course description (optional)"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <label className="block text-gray-700 text-sm font-medium mb-2">Credits</label>
+                      <input
+                        type="number"
+                        name="credits"
+                        value={courseData.credits}
+                        onChange={handleChange}
+                        min="1"
+                        max="20"
+                        required
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                        placeholder="9"
+                      />
+                    </div>
+                    <div className="relative">
+                      <label className="block text-gray-700 text-sm font-medium mb-2">Semester</label>
+                      <select
+                        name="semester"
+                        value={courseData.semester}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      >
+                        <option value="">Select Semester</option>
+                        <option value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <motion.button
+                    type="submit"
+                    disabled={loading}
+                    className={`w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium py-3 px-4 rounded-lg focus:outline-none transition-all duration-200 ${
+                      loading ? 'opacity-70 cursor-not-allowed' : 'hover:from-blue-700 hover:to-purple-700'
+                    }`}
+                    whileHover={!loading ? { scale: 1.02 } : {}}
+                    whileTap={!loading ? { scale: 0.98 } : {}}
+                  >
+                    {loading ? "Creating..." : "Create Course"}
+                  </motion.button>
                 </div>
-              )}
-              
-              <button
-                type="submit"
-                disabled={loading || !csvFile}
-                className={`w-full ${loading || !csvFile ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700 cursor-pointer'} text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline
-                hover:scale-95 transition-all duration-200`}
-              >
-                {loading ? "Uploading..." : "Upload and Create Courses"}
-              </button>
-            </form>
-          )}
-        </div>
+              </form>
+            ) : (
+              <form onSubmit={handleBulkSubmit} encType="multipart/form-data">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-3">Upload CSV File</label>
+                    <motion.div 
+                      className={`mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg 
+                        transition-all duration-200 cursor-pointer hover:bg-blue-50
+                        ${csvFile ? 'border-blue-400 bg-blue-50/40' : 'border-gray-300'}`}
+                      onClick={() => fileInputRef.current.click()}
+                      whileHover={{ scale: 1.01, boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)" }}
+                      whileTap={{ scale: 0.99 }}
+                    >
+                      <div className="space-y-3 text-center">
+                        <motion.div 
+                          className="mx-auto h-14 w-14"
+                          animate={{ 
+                            y: [0, -5, 0],
+                            transition: { repeat: Infinity, duration: 2 }
+                          }}
+                        >
+                          <FaCloudUploadAlt size={48} className={`mx-auto ${csvFile ? 'text-blue-600' : 'text-blue-500'}`} />
+                        </motion.div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-medium text-gray-700">
+                            {csvFileName ? (
+                              <motion.div 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                className="flex items-center justify-center gap-2"
+                              >
+                                <span className="text-blue-600">{csvFileName}</span>
+                              </motion.div>
+                            ) : (
+                              "Drag and drop a CSV file here"
+                            )}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            or <span className="text-blue-600 font-medium">browse files</span>
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">CSV up to 5MB</p>
+                        
+                        <input
+                          id="csv-file-input"
+                          name="file"
+                          type="file"
+                          accept=".csv"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          required
+                          className="sr-only"
+                        />
+                      </div>
+                    </motion.div>
+                    
+                    {fileError && (
+                      <motion.p 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-2 text-sm text-red-600"
+                      >
+                        {fileError}
+                      </motion.p>
+                    )}
+                    
+                    {csvFile && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 flex justify-end"
+                      >
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCsvFile(null);
+                            setCsvFileName('');
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }}
+                          className="text-sm text-red-500 hover:text-red-700 transition-colors"
+                        >
+                          Remove file
+                        </button>
+                      </motion.div>
+                    )}
+                    
+                    <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                      <h4 className="text-sm font-semibold text-blue-700 mb-2">CSV File Requirements</h4>
+                      <ul className="space-y-1 text-xs text-gray-700">
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>course code</b>: Course code (required)</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>course name</b>: Course name (required)</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>credits</b>: Course credits (required, 2-14)</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>semester</b>: Fall/Spring/Summer (required)</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>description</b>: Course description (optional)</li>
+                      </ul>
+                      <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
+                        Ensure your CSV file uses commas as separators and includes a header row.
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {message.type === 'error' && message.details && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-red-50 border border-red-200 rounded-lg"
+                    >
+                      <p className="text-sm font-medium text-red-700 mb-2">Error details:</p>
+                      <ul className="text-xs text-red-600 ml-2 list-disc pl-3">
+                        {message.details.map((detail, index) => (
+                          <li key={index} className="mb-1">{detail}</li>
+                        ))}
+                      </ul>
+                    </motion.div>
+                  )}
+                  
+                  {message.type === 'error' && message.duplicateCodes && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-red-50 border border-red-200 rounded-lg"
+                    >
+                      <p className="text-sm font-medium text-red-700 mb-2">Duplicate course codes:</p>
+                      <div className="text-xs text-red-600 flex flex-wrap gap-1">
+                        {message.duplicateCodes.map((code, index) => (
+                          <span key={index} className="bg-red-100 px-1.5 py-0.5 rounded">{code}</span>
+                        ))}
+                      </div>
+                      <p className="text-xs mt-2 text-red-600">
+                        Please remove these courses from your CSV file or use different course codes.
+                      </p>
+                    </motion.div>
+                  )}
+                  
+                  <motion.button
+                    type="submit"
+                    disabled={loading || !csvFile}
+                    className={`w-full py-3 px-4 rounded-lg font-medium focus:outline-none transition-all duration-200 ${
+                      loading || !csvFile 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                    }`}
+                    whileHover={!loading && csvFile ? { scale: 1.02 } : {}}
+                    whileTap={!loading && csvFile ? { scale: 0.98 } : {}}
+                  >
+                    {loading ? "Uploading..." : "Upload and Create Courses"}
+                  </motion.button>
+                </div>
+              </form>
+            )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
