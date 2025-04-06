@@ -6,11 +6,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCourses } from '../../contexts/CourseContext';
 import { Bar } from 'react-chartjs-2';
 import { IoIosArrowDropdown } from "react-icons/io";
+import { IoStatsChart, IoWarning, IoSchool } from "react-icons/io5";
+import { HiOutlineDocumentReport } from "react-icons/hi";
+import { FaChartLine, FaRegChartBar, FaBookOpen } from "react-icons/fa";
 import 'chart.js/auto';
 
 export default function Performance() {
   const { currentUser } = useAuth();
-  // Use the useCourses hook instead of managing courses state directly
   const { courses, loading: coursesLoading, error: coursesError } = useCourses();
   const [courseResults, setCourseResults] = useState({});
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,7 @@ export default function Performance() {
           // Initialize expanded state for each course
           const initialExpandedState = {};
           courses.forEach(course => {
-            initialExpandedState[course.id] = false; // Default to expanded
+            initialExpandedState[course.id] = false; // Default to collapsed
           });
           setExpandedCourses(initialExpandedState);
 
@@ -95,32 +97,32 @@ export default function Performance() {
         {
           label: 'Obtained Marks',
           data: obtainedMarks,
-          backgroundColor: 'rgba(75, 192, 192, 0.6)',
-          borderColor: 'rgba(75, 192, 192, 1)',
+          backgroundColor: 'rgba(59, 130, 246, 0.6)',
+          borderColor: 'rgba(59, 130, 246, 1)',
           borderWidth: 1,
           stack: 'Marks',
         },
         {
           label: 'Remaining Marks',
           data: unobtainedMarks,
-          backgroundColor: 'rgba(200, 200, 200, 0.6)',
-          borderColor: 'rgba(200, 200, 200, 1)',
+          backgroundColor: 'rgba(229, 231, 235, 0.6)',
+          borderColor: 'rgba(229, 231, 235, 1)',
           borderWidth: 1,
           stack: 'Marks',
         },
         {
           label: 'Obtained Weightage',
           data: obtainedWeightage,
-          backgroundColor: 'rgba(153, 102, 255, 0.6)',
-          borderColor: 'rgba(153, 102, 255, 1)',
+          backgroundColor: 'rgba(139, 92, 246, 0.6)',
+          borderColor: 'rgba(139, 92, 246, 1)',
           borderWidth: 1,
           stack: 'Weightage',
         },
         {
           label: 'Remaining Weightage',
           data: unobtainedWeightage,
-          backgroundColor: 'rgba(230, 230, 230, 0.6)',
-          borderColor: 'rgba(230, 230, 230, 1)',
+          backgroundColor: 'rgba(243, 244, 246, 0.6)',
+          borderColor: 'rgba(243, 244, 246, 1)',
           borderWidth: 1,
           stack: 'Weightage',
         },
@@ -128,7 +130,7 @@ export default function Performance() {
     };
   };
 
-  // Chart options - same as in Results.jsx
+  // Modern chart options
   const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
@@ -136,28 +138,81 @@ export default function Performance() {
       legend: {
         position: 'top',
         labels: {
+          usePointStyle: true,
+          boxWidth: 6,
+          font: {
+            size: 12
+          },
           filter: (legendItem) =>
             legendItem.text !== 'Remaining Marks' && legendItem.text !== 'Remaining Weightage',
         },
       },
+      tooltip: {
+        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+        titleColor: '#1f2937',
+        bodyColor: '#4b5563',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        padding: 12,
+        boxPadding: 6,
+        usePointStyle: true,
+        titleFont: {
+          size: 14,
+          weight: 'bold'
+        },
+        bodyFont: {
+          size: 12
+        }
+      }
     },
     scales: {
       x: {
         title: {
           display: true,
           text: 'Exams',
+          font: {
+            size: 14,
+            weight: 'bold'
+          }
         },
         stacked: true,
+        grid: {
+          display: false,
+          drawBorder: false
+        },
+        ticks: {
+          font: {
+            size: 12
+          }
+        }
       },
       y: {
         title: {
           display: true,
           text: 'Marks / Weightage',
+          font: {
+            size: 14,
+            weight: 'bold'
+          }
         },
         beginAtZero: true,
         stacked: true,
+        grid: {
+          color: 'rgba(243, 244, 246, 0.8)',
+          borderDash: [3, 3]
+        },
+        ticks: {
+          font: {
+            size: 12
+          }
+        }
       },
     },
+    elements: {
+      bar: {
+        borderRadius: 4
+      }
+    }
   };
 
   // Calculate overall course performance
@@ -204,166 +259,341 @@ export default function Performance() {
     return totalWeightedDiff / totalWeightage;
   };
 
+  // Get a performance grade based on overall performance
+  const getPerformanceGrade = () => {
+    const score = calculateOverallPerformance();
+    
+    if (score >= 90) return { grade: 'A+', color: 'text-green-600' };
+    if (score >= 80) return { grade: 'A', color: 'text-green-500' };
+    if (score >= 70) return { grade: 'B+', color: 'text-blue-600' };
+    if (score >= 60) return { grade: 'B', color: 'text-blue-500' };
+    if (score >= 50) return { grade: 'C', color: 'text-yellow-600' };
+    if (score >= 40) return { grade: 'D', color: 'text-orange-500' };
+    return { grade: 'F', color: 'text-red-500' };
+  };
+
   if (coursesLoading || loading) {
     return (
-      <div className='w-full h-full flex flex-col items-center justify-center'>
-        <p className='text-xl'>Loading your performance data...</p>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 px-4'>
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center h-[70vh]">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-600 mb-4"></div>
+          <p className='text-xl font-medium text-gray-700'>Loading your performance data...</p>
+        </div>
       </div>
     );
   }
 
   if (coursesError || error) {
     return (
-      <div className='w-full h-full flex flex-col items-center justify-center'>
-        <p className='text-xl text-red-500'>{coursesError || error}</p>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 px-4'>
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center h-[70vh]">
+          <div className="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md w-full text-center">
+            <IoWarning className="text-red-500 text-5xl mx-auto mb-4" />
+            <p className='text-xl font-medium text-red-700 mb-2'>Error</p>
+            <p className="text-red-600">{coursesError || error}</p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!currentUser || currentUser.userType !== 'student') {
     return (
-      <div className='w-full h-full flex flex-col items-center justify-center'>
-        <p className='text-xl text-red-500'>This page is only accessible to students.</p>
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 px-4'>
+        <div className="max-w-7xl mx-auto flex flex-col items-center justify-center h-[70vh]">
+          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 max-w-md w-full text-center">
+            <IoWarning className="text-amber-500 text-5xl mx-auto mb-4" />
+            <p className='text-xl font-medium text-amber-700 mb-2'>Access Restricted</p>
+            <p className="text-amber-600">This page is only accessible to students.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div className='w-full  h-full flex flex-col items-start justify-start'>
-      <div className='flex justify-between w-full py-2 px-4 items-center sticky top-0 bg-[#F5F5F5] z-10'>
-        <p className='text-[35px] font-bold mt-2 self-start'>Your Performance</p>
-        <NavLink to="/dashboard/profile">
-          <CgProfile className='text-[40px] cursor-pointer hover:text-blue-500 transition-colors duration-200 hover:scale-95' />
-        </NavLink>
-      </div>
+  const performanceGrade = getPerformanceGrade();
 
-      <div className='w-full p-3'>
-        {/* Overall Performance Summary */}
-        <div className="w-full bg-white rounded-lg shadow-md p-4 my-4">
-          <h2 className="text-xl font-bold mb-2">Overall Performance</h2>
-          <div className="flex flex-wrap gap-4">
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-500">Courses Enrolled</p>
-              <p className="text-xl font-semibold">{courses.length}</p>
+  return (
+    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 px-4'>
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className='flex justify-between items-center mb-8'>
+          <div>
+            <h1 className='text-3xl font-bold text-gray-800'>Academic Performance</h1>
+            <p className="text-gray-600 mt-1">Track your progress across all courses</p>
+          </div>
+          
+          <NavLink 
+            to="/dashboard/profile"
+            className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
+          >
+            <CgProfile className='text-blue-600 text-xl' />
+            <span className="text-sm font-medium">View Profile</span>
+          </NavLink>
+        </div>
+
+        {/* Performance Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          {/* Overall Grade Card */}
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Overall Grade</p>
+                <p className={`text-4xl font-bold ${performanceGrade.color}`}>
+                  {performanceGrade.grade}
+                </p>
+              </div>
+              <div className="bg-blue-50 p-3 rounded-full">
+                <IoStatsChart className="text-blue-600 text-xl" />
+              </div>
             </div>
-            <div className="bg-green-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-500">Average Performance</p>
-              <p className="text-xl font-semibold">
-                {courses.length > 0 ? `${calculateOverallPerformance().toFixed(1)}%` : 'N/A'}
-              </p>
+            <p className="text-sm text-gray-600 mt-4">
+              {calculateOverallPerformance().toFixed(1)}% average across all subjects
+            </p>
+          </div>
+          
+          {/* Course Enrollment Card */}
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Courses Enrolled</p>
+                <p className="text-4xl font-bold text-gray-800">{courses.length}</p>
+              </div>
+              <div className="bg-purple-50 p-3 rounded-full">
+                <FaBookOpen className="text-purple-600 text-xl" />
+              </div>
             </div>
-            <div className="bg-yellow-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-500">Relative to Median</p>
-              <p className="text-xl font-semibold">
-                {courses.length > 0 && Object.keys(courseResults).length > 0 ? (
-                  calculateMedianPerformance() > 0 ? 
-                    <span className="text-green-600">{Math.abs(calculateMedianPerformance()).toFixed(1)}% better than median</span> : 
-                    <span className="text-red-600">{Math.abs(calculateMedianPerformance()).toFixed(1)}% below median</span>
-                ) : 'N/A'}
-              </p>
+            <p className="text-sm text-gray-600 mt-4">
+              {courses.length === 1 ? '1 active course' : `${courses.length} active courses`} this semester
+            </p>
+          </div>
+          
+          {/* Relative Performance Card */}
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Relative Performance</p>
+                <p className={`text-4xl font-bold ${calculateMedianPerformance() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {Math.abs(calculateMedianPerformance()).toFixed(1)}%
+                </p>
+              </div>
+              <div className="bg-green-50 p-3 rounded-full">
+                <FaChartLine className="text-green-600 text-xl" />
+              </div>
             </div>
+            <p className="text-sm text-gray-600 mt-4">
+              {calculateMedianPerformance() >= 0 
+                ? 'Above class median' 
+                : 'Below class median'}
+            </p>
+          </div>
+          
+          {/* Completed Assessments Card */}
+          <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Assessments</p>
+                <p className="text-4xl font-bold text-gray-800">
+                  {Object.values(courseResults).reduce((acc, results) => acc + results.length, 0)}
+                </p>
+              </div>
+              <div className="bg-amber-50 p-3 rounded-full">
+                <HiOutlineDocumentReport className="text-amber-600 text-xl" />
+              </div>
+            </div>
+            <p className="text-sm text-gray-600 mt-4">
+              Total assessments across all courses
+            </p>
           </div>
         </div>
 
+        {/* Course Performance Section */}
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+          <IoSchool className="text-blue-600" />
+          Course Performance
+        </h2>
+
         {!courses || courses.length === 0 ? (
-          <div className="w-full bg-white rounded-lg shadow-md p-6 my-4 text-center">
-            <p className="text-lg">You are not enrolled in any courses yet.</p>
+          <div className="bg-white rounded-xl shadow-md p-8 my-4 text-center border border-gray-100">
+            <div className="bg-blue-50 p-4 rounded-full inline-block mb-4">
+              <FaBookOpen className="text-blue-500 text-3xl" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-800 mb-2">No Courses Found</h3>
+            <p className="text-gray-600">You are not enrolled in any courses yet.</p>
           </div>
         ) : (
-          courses.map((course) => (
-            <div key={course.id} className="w-full bg-white rounded-lg shadow-md p-4 px-6 my-3">
-              {/* Course Header - Clickable to expand/collapse */}
-              <div 
-                className="flex justify-between items-center cursor-pointer" 
-                onClick={() => toggleCourseExpand(course.id)}
-              >
-                <h2 className="text-xl font-semibold">
-                  {course.code}: {course.name}
-                </h2>
-                <div className="flex items-center">
-                  <span className="text-gray-600 mr-2">{course.credits} Credits </span>
-                  <span className={`text-blue-500 transform transition-transform duration-500 ease-in-out ${
-                    expandedCourses[course.id] ? 'rotate-180' : 'rotate-0'
-                  }`}>
-                    <IoIosArrowDropdown className='text-[25px]'/>
-                  </span>
+          <div className="space-y-6">
+            {courses.map((course) => (
+              <div key={course.id} className="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+                {/* Course Header - Clickable to expand/collapse */}
+                <div 
+                  className="p-6 flex justify-between items-center cursor-pointer border-b border-gray-100" 
+                  onClick={() => toggleCourseExpand(course.id)}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-lg ${expandedCourses[course.id] ? 'bg-blue-600 text-white' : 'bg-blue-50 text-blue-600'} transition-all duration-300`}>
+                      <FaRegChartBar className="text-xl" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        {course.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        {course.code} • {course.credits} Credits
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center">
+                    {courseResults[course.id] && courseResults[course.id].length > 0 && (
+                      <span className={`mr-4 px-3 py-1 rounded-full text-sm ${
+                        calculateCourseScore(course.id) >= 70 ? 'bg-green-50 text-green-700' : 
+                        calculateCourseScore(course.id) >= 50 ? 'bg-yellow-50 text-yellow-700' : 
+                        'bg-red-50 text-red-700'
+                      }`}>
+                        {calculateCourseScore(course.id).toFixed(1)}%
+                      </span>
+                    )}
+                    <span className={`text-blue-500 transform transition-transform duration-300 ${
+                      expandedCourses[course.id] ? 'rotate-180' : 'rotate-0'
+                    }`}>
+                      <IoIosArrowDropdown className='text-2xl'/>
+                    </span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Course Content - With smooth height transition */}
-              <div 
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                  expandedCourses[course.id] 
-                    ? 'max-h-[2000px] opacity-100 mt-4' 
-                    : 'max-h-0 opacity-0 mt-0'
-                }`}
-              >
-                <div className="mb-4">
-                  {/* Results Data */}
-                  {(!courseResults[course.id] || courseResults[course.id].length === 0) ? (
-                    <p className="text-gray-500 p-4 text-center">Results are not yet released.</p>
-                  ) : (
-                    <>
-                      {/* Graph Section */}
-                      <div className="w-full h-80 mb-6">
-                        <Bar data={getChartData(course.id)} options={chartOptions} />
+                {/* Course Content - With smooth height transition */}
+                <div 
+                  className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                    expandedCourses[course.id] 
+                      ? 'max-h-[2000px] opacity-100' 
+                      : 'max-h-0 opacity-0'
+                  }`}
+                >
+                  <div className="p-6">
+                    {/* Results Data */}
+                    {(!courseResults[course.id] || courseResults[course.id].length === 0) ? (
+                      <div className="text-center py-8">
+                        <div className="bg-gray-50 p-4 rounded-full inline-block mb-3">
+                          <HiOutlineDocumentReport className="text-gray-400 text-3xl" />
+                        </div>
+                        <p className="text-gray-600 font-medium">No results have been released yet.</p>
+                        <p className="text-sm text-gray-500 mt-1">Check back later for assessment data.</p>
                       </div>
-                      
-                      {/* Table Section */}
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full bg-white border border-gray-300">
-                          <thead>
-                            <tr>
-                              <th className="py-2 px-4 border-b text-center">Exam Name</th>
-                              <th className="py-2 px-4 border-b text-center">Weightage</th>
-                              <th className="py-2 px-4 border-b text-center">Total Marks</th>
-                              <th className="py-2 px-4 border-b text-center">Obtained Marks</th>
-                              <th className="py-2 px-4 border-b text-center">Mean</th>
-                              <th className="py-2 px-4 border-b text-center">Median</th>
-                              <th className="py-2 px-4 border-b text-center">Max</th>
-                              <th className="py-2 px-4 border-b text-center">Deviation</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {courseResults[course.id].map((result, index) => (
-                              <tr key={index} className={index % 2 === 0 ? "bg-gray-50" : ""}>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.examName}
-                                </td>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.weightage}
-                                </td>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.totalMarks}
-                                </td>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.obtainedMarks !== null ? result.obtainedMarks : 'N/A'}
-                                </td>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.mean?.toFixed(1) || 'N/A'}
-                                </td>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.median !== null && result.median !== undefined ? result.median : 'N/A'}
-                                </td>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.max !== null && result.max !== undefined ? result.max : 'N/A'}
-                                </td>
-                                <td className="py-2 px-4 border-b text-center">
-                                  {result.deviation !== null && result.deviation !== undefined ? result.deviation.toFixed(1) : 'N/A'}
-                                </td>
+                    ) : (
+                      <>
+                        {/* Graph Section */}
+                        <div className="w-full h-80 mb-6 bg-white p-4 rounded-xl border border-gray-100">
+                          <Bar data={getChartData(course.id)} options={chartOptions} />
+                        </div>
+                        
+                        {/* Table Section */}
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  Assessment
+                                </th>
+                                <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  Weightage
+                                </th>
+                                <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  Total
+                                </th>
+                                <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  Score
+                                </th>
+                                <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  Mean
+                                </th>
+                                <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  Median
+                                </th>
+                                <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  Max
+                                </th>
+                                <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                                  SD
+                                </th>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </>
-                  )}
+                            </thead>
+                            <tbody className="divide-y divide-gray-200">
+                              {courseResults[course.id].map((result, index) => {
+                                // Calculate percentage for highlighting
+                                const percentage = result.obtainedMarks !== null ? 
+                                  (result.obtainedMarks / result.totalMarks) * 100 : null;
+                                
+                                let scoreColor = 'text-gray-800';
+                                if (percentage !== null) {
+                                  if (percentage >= 80) scoreColor = 'text-green-600 font-medium';
+                                  else if (percentage >= 60) scoreColor = 'text-blue-600';
+                                  else if (percentage >= 40) scoreColor = 'text-yellow-600';
+                                  else scoreColor = 'text-red-600';
+                                }
+                                
+                                return (
+                                  <tr key={index} className="hover:bg-gray-50 transition-colors">
+                                    <td className="py-3 px-4 text-sm font-medium text-gray-900">
+                                      {result.examName}
+                                    </td>
+                                    <td className="py-3 px-4 text-sm text-gray-700 text-center">
+                                      {result.weightage}%
+                                    </td>
+                                    <td className="py-3 px-4 text-sm text-gray-700 text-center">
+                                      {result.totalMarks}
+                                    </td>
+                                    <td className={`py-3 px-4 text-sm text-center ${scoreColor}`}>
+                                      {result.obtainedMarks !== null ? 
+                                        `${result.obtainedMarks} (${percentage.toFixed(1)}%)` : 
+                                        'N/A'}
+                                    </td>
+                                    <td className="py-3 px-4 text-sm text-gray-700 text-center">
+                                      {result.mean?.toFixed(1) || 'N/A'}
+                                    </td>
+                                    <td className="py-3 px-4 text-sm text-gray-700 text-center">
+                                      {result.median !== null && result.median !== undefined ? result.median : 'N/A'}
+                                    </td>
+                                    <td className="py-3 px-4 text-sm text-gray-700 text-center">
+                                      {result.max !== null && result.max !== undefined ? result.max : 'N/A'}
+                                    </td>
+                                    <td className="py-3 px-4 text-sm text-gray-700 text-center">
+                                      {result.deviation !== null && result.deviation !== undefined ? 
+                                        result.deviation.toFixed(1) : 'N/A'}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            ))}
+          </div>
         )}
       </div>
     </div>
   );
+  
+  // Helper function to calculate score for a specific course
+  function calculateCourseScore(courseId) {
+    const results = courseResults[courseId] || [];
+    let totalWeightedMarks = 0;
+    let totalWeightage = 0;
+    
+    results.forEach(result => {
+      if (result.obtainedMarks !== null && result.totalMarks > 0) {
+        const weightedMark = (result.obtainedMarks / result.totalMarks) * result.weightage;
+        totalWeightedMarks += weightedMark;
+        totalWeightage += result.weightage;
+      }
+    });
+    
+    if (totalWeightage === 0) return 0;
+    return (totalWeightedMarks / totalWeightage) * 100;
+  }
 }

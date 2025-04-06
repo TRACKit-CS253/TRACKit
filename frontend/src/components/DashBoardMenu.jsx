@@ -139,7 +139,7 @@ export default function DashBoardMenu() {
           </nav>
           
           {/* Recent courses section - only for students */}
-          {userData.userType === 'student' && (
+          {/* {userData.userType === 'student' && (
             <div className="mt-8">
               <p className="text-xs font-medium text-gray-400 uppercase tracking-wider px-3 mb-2">Recent Courses</p>
               
@@ -155,7 +155,7 @@ export default function DashBoardMenu() {
                 ))}
               </div>
             </div>
-          )}
+          )} */}
         </div>
         
         {/* Footer with logout */}
