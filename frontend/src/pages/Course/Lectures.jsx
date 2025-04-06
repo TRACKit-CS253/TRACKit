@@ -1,17 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { CgProfile } from 'react-icons/cg';
 import { IoIosArrowDropdown } from "react-icons/io";
-import { FaRegEdit, FaDownload, FaFilePdf } from "react-icons/fa";
-import { AiOutlineDelete } from "react-icons/ai";
+import { FaRegEdit, FaDownload, FaFilePdf, FaPlus, FaAngleDown, FaEdit, FaTrashAlt, FaYoutube, FaFile } from "react-icons/fa";
+import { AiOutlineDelete, AiOutlineYoutube } from "react-icons/ai";
+import { IoBook, IoBookmark } from "react-icons/io5";
 import { NavLink } from 'react-router-dom';
 import { useCourse } from '../../contexts/CourseContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
 
-
-
 export default function Lectures({ role }) {
-  const { courseDetails, loading } = useCourse(); // Ensure loading state is used
+  const { courseDetails, loading } = useCourse();
   const { showNotification } = useNotification();
 
   const [lectures, setLectures] = useState([]);
@@ -19,21 +18,21 @@ export default function Lectures({ role }) {
   const [showForm, setShowForm] = useState(false);
   const [formType, setFormType] = useState('create');
   const [formData, setFormData] = useState({
-    heading: '', // Updated from week
-    subheading: '', // Updated from topicTitle
+    heading: '',
+    subheading: '',
     lectureTitle: '',
     lectureDescription: '',
     pdfUrl: '',
-    youtubeLink: '' // Add YouTube link field
+    youtubeLink: ''
   });
   const [currentLectureId, setCurrentLectureId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [lectureToDelete, setLectureToDelete] = useState(null);
-  const [pdfFiles, setPdfFiles] = useState([]); // Updated state for multiple PDF files
+  const [pdfFiles, setPdfFiles] = useState([]);
   const [showHeadingForm, setShowHeadingForm] = useState(false);
   const [showSubheadingForm, setShowSubheadingForm] = useState({});
-  const [newHeadingData, setNewHeadingData] = useState({ // Replace newHeading with newHeadingData object
+  const [newHeadingData, setNewHeadingData] = useState({
     heading: '',
     subheading: ''
   });
@@ -41,11 +40,11 @@ export default function Lectures({ role }) {
     heading: '',
     subheading: '',
   });
-  const [showSubsectionForm, setShowSubsectionForm] = useState(false); // New state for subsection modal
+  const [showSubsectionForm, setShowSubsectionForm] = useState(false);
   const [subsectionFormData, setSubsectionFormData] = useState({
     heading: '',
     subheading: '',
-  }); // New state for subsection form data
+  });
   const [showSubheadingDeleteConfirm, setShowSubheadingDeleteConfirm] = useState(false);
   const [subheadingToDelete, setSubheadingToDelete] = useState(null);
 
@@ -53,7 +52,7 @@ export default function Lectures({ role }) {
     if (courseDetails?.id) {
       fetchLectures();
     }
-  }, [courseDetails]); // Removed 'fetchLectures' from dependency array
+  }, [courseDetails]);
 
   const fetchLectures = async () => {
     try {
@@ -92,11 +91,9 @@ export default function Lectures({ role }) {
   const handleEditClick = (e, lecture) => {
     e.stopPropagation();
     
-    // We need to find which heading and subheading this lecture belongs to
     let foundHeading = '';
     let foundSubheading = '';
     
-    // Loop through lectures structure to find the heading and subheading
     Object.entries(lectures).forEach(([heading, topics]) => {
       Object.entries(topics).forEach(([subheading, lectureList]) => {
         lectureList.forEach(item => {
@@ -110,8 +107,8 @@ export default function Lectures({ role }) {
     
     setFormType('edit');
     setFormData({
-      heading: foundHeading, // Use the found heading
-      subheading: foundSubheading, // Use the found subheading
+      heading: foundHeading,
+      subheading: foundSubheading,
       lectureTitle: lecture.lectureTitle,
       lectureDescription: lecture.lectureDescription,
       pdfUrl: lecture.pdfUrl,
@@ -129,9 +126,7 @@ export default function Lectures({ role }) {
 
   const downloadHandler = (e, fileUrls) => {
     e.stopPropagation();
-    console.log('Download handler called with fileUrls:', fileUrls); // Add debug log
     if (!fileUrls || fileUrls.length === 0) {
-      console.error('No files available');
       showNotification('No files available for download', 'error');
       return;
     }
@@ -142,17 +137,15 @@ export default function Lectures({ role }) {
       type: file.type,
     }));
   
-    // Create the overlay container
     const overlay = document.createElement('div');
     overlay.style.position = 'fixed';
-    overlay.style.top = '80px'; // Changed from '0' to '80px' to bring it down from top
+    overlay.style.top = '80px';
     overlay.style.left = '0';
     overlay.style.width = '100%';
     overlay.style.zIndex = '1000';
     overlay.style.transform = 'translateY(-100%)';
     overlay.style.transition = 'transform 0.3s ease-in-out';
     
-    // Create the content box
     const contentBox = document.createElement('div');
     contentBox.style.backgroundColor = '#ffffff';
     contentBox.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
@@ -163,7 +156,6 @@ export default function Lectures({ role }) {
     contentBox.style.margin = '0 auto';
     contentBox.style.position = 'relative';
     
-    // Create header with title and close button
     const header = document.createElement('div');
     header.style.display = 'flex';
     header.style.justifyContent = 'space-between';
@@ -189,7 +181,6 @@ export default function Lectures({ role }) {
     header.appendChild(title);
     header.appendChild(closeButton);
     
-    // Create file links list
     const linksList = document.createElement('div');
     linksList.style.display = 'flex';
     linksList.style.flexWrap = 'wrap';
@@ -206,8 +197,8 @@ export default function Lectures({ role }) {
   
       const fileIcon = document.createElement('span');
       fileIcon.innerHTML = file.type.includes('pdf')
-        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #EF4444;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>' // PDF iconon
-        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #4B5563;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>'; // Generic file iconon
+        ? '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #EF4444;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>'
+        : '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: #4B5563;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>';
   
       const link = document.createElement('a');
       link.href = file.url;
@@ -223,29 +214,24 @@ export default function Lectures({ role }) {
       linksList.appendChild(linkContainer);
     });
     
-    // Assemble everything
     contentBox.appendChild(header);
     contentBox.appendChild(linksList);
     overlay.appendChild(contentBox);
     document.body.appendChild(overlay);
     
-    // Force reflow for animation
-    void overlay.offsetHeight; // Use void operator to avoid unused expression error
+    void overlay.offsetHeight;
     
-    // Show the overlay with animation
     overlay.style.transform = 'translateY(0)';
     
-    // Close handlers
     const closeOverlay = () => {
       overlay.style.transform = 'translateY(-100%)';
       setTimeout(() => {
         document.body.removeChild(overlay);
-      }, 300); // Match the transition duration
+      }, 300);
     };
     
     closeButton.addEventListener('click', closeOverlay);
     
-    // Close when clicking outside the content box (optional)
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
         closeOverlay();
@@ -268,7 +254,7 @@ export default function Lectures({ role }) {
       formDataToSend.append('lectureDescription', formData.lectureDescription);
       formDataToSend.append('youtubeLink', formData.youtubeLink || '');
 
-      pdfFiles.forEach((file) => formDataToSend.append('files', file)); // Updated to handle all file types
+      pdfFiles.forEach((file) => formDataToSend.append('files', file));
 
       const url = formType === 'create'
         ? `${process.env.REACT_APP_API_URL}/api/lectures`
@@ -316,7 +302,7 @@ export default function Lectures({ role }) {
       if (response.data.success) {
         showNotification('Lecture deleted successfully', 'success');
         setShowDeleteConfirm(false);
-        fetchLectures(); // Refresh the lectures list
+        fetchLectures();
       } else {
         showNotification(response.data.message || 'Failed to delete lecture', 'error');
       }
@@ -334,12 +320,7 @@ export default function Lectures({ role }) {
 
     try {
       const token = localStorage.getItem('token');
-      console.log('Sending heading data:', {
-        courseId: courseDetails.id,
-        heading: newHeadingData.heading,
-      });
       
-      // Create heading without requiring subheading
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/lectures/heading`,
         { 
@@ -351,7 +332,7 @@ export default function Lectures({ role }) {
 
       if (response.data.success) {
         showNotification('Module added successfully', 'success');
-        fetchLectures(); // Refresh the lectures list
+        fetchLectures();
       } else {
         showNotification(response.data.message || 'Failed to add module', 'error');
       }
@@ -367,19 +348,19 @@ export default function Lectures({ role }) {
   const handleAddLecture = (heading, subheading) => {
     setFormType('create');
     setFormData({
-      heading, // Pass the heading directly
-      subheading, // Pass the subheading directly
+      heading,
+      subheading,
       lectureTitle: '',
       lectureDescription: '',
       pdfUrl: '',
-      youtubeLink: '' // Add YouTube link field
+      youtubeLink: ''
     });
     setShowForm(true);
   };
 
   const handleAddSubsectionClick = (heading) => {
-    setSubsectionFormData({ heading, subheading: '' }); // Initialize form data with the heading
-    setShowSubsectionForm(true); // Open the modal
+    setSubsectionFormData({ heading, subheading: '' });
+    setShowSubsectionForm(true);
   };
 
   const handleSubsectionFormSubmit = async (e) => {
@@ -403,7 +384,7 @@ export default function Lectures({ role }) {
 
       if (response.data.success) {
         showNotification('Subsection added successfully', 'success');
-        fetchLectures(); // Refresh the lectures list
+        fetchLectures();
       } else {
         showNotification(response.data.message || 'Failed to add subsection', 'error');
       }
@@ -411,17 +392,16 @@ export default function Lectures({ role }) {
       console.error('Error adding subsection:', err);
       showNotification('Error adding subsection', 'error');
     } finally {
-      setShowSubsectionForm(false); // Close the modal
-      setSubsectionFormData({ heading: '', subheading: '' }); // Reset form data
+      setShowSubsectionForm(false);
+      setSubsectionFormData({ heading: '', subheading: '' });
     }
   };
 
   const handleEditSubheadingClick = (heading, subheading) => {
-    // Store both the heading and subheading information
     setSubheadingFormData({ 
-      heading: heading, // Store the heading (module name)
+      heading: heading,
       subheading: subheading,
-      currentSubheading: subheading // Store the original subheading value
+      currentSubheading: subheading
     });
     setShowSubheadingForm((prev) => ({ ...prev, [`${heading}-${subheading}`]: true }));
   };
@@ -438,16 +418,16 @@ export default function Lectures({ role }) {
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/lectures/${courseDetails.id}/subheading`,
         {
-          heading: subheadingFormData.heading, // Include the heading (module name)
-          currentSubheading: subheadingFormData.currentSubheading || subheadingFormData.subheading, // Use stored original subheading
-          newSubheading: subheadingFormData.subheading  // New subheading value
+          heading: subheadingFormData.heading,
+          currentSubheading: subheadingFormData.currentSubheading || subheadingFormData.subheading,
+          newSubheading: subheadingFormData.subheading
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.success) {
         showNotification('Subheading updated successfully', 'success');
-        fetchLectures(); // Refresh the lectures list
+        fetchLectures();
       } else {
         showNotification(response.data.message || 'Failed to update subheading', 'error');
       }
@@ -455,7 +435,6 @@ export default function Lectures({ role }) {
       console.error('Error updating subheading:', err);
       showNotification('Error updating subheading', 'error');
     } finally {
-      // Use the same key format when closing the form
       setShowSubheadingForm((prev) => ({ ...prev, [`${heading}-${subheadingFormData.currentSubheading || subheadingFormData.subheading}`]: false }));
       setSubheadingFormData({ heading: '', subheading: '', currentSubheading: '' });
     }
@@ -485,7 +464,7 @@ export default function Lectures({ role }) {
 
       if (response.data.success) {
         showNotification('Section deleted successfully', 'success');
-        fetchLectures(); // Refresh the lectures list
+        fetchLectures();
       } else {
         showNotification(response.data.message || 'Failed to delete section', 'error');
       }
@@ -498,225 +477,328 @@ export default function Lectures({ role }) {
     }
   };
 
-  // Show loading indicator while fetching course details
   if (loading) {
     return (
-      <div className='w-full h-screen flex items-center justify-center'>
-        <div className="animate-pulse text-xl">Loading course details...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-blue-600"></div>
+          <p className="text-xl font-medium text-gray-700">Loading course materials...</p>
+        </div>
       </div>
     );
   }
 
-  // Handle case where courseDetails is null or undefined
   if (!courseDetails) {
     return (
-      <div className='w-full p-4'>
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
-          <p>Course details not available. Please try again later.</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-2 text-blue-500 underline"
-          >
-            Reload page
-          </button>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 shadow-md">
+            <div className="flex items-start gap-4">
+              <div className="bg-yellow-100 p-3 rounded-full">
+                <IoBook className="text-yellow-600 text-xl" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-yellow-700 mb-2">Course Not Found</h3>
+                <p className="text-yellow-600 mb-4">The course details could not be loaded at this time.</p>
+                <div className="flex gap-3">
+                  <button 
+                    onClick={() => window.location.reload()} 
+                    className="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm"
+                  >
+                    Reload Page
+                  </button>
+                  <NavLink to="/dashboard/courses" className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm">
+                    Back to Courses
+                  </NavLink>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Safely access courseDetails properties
   return (
-    <div className='w-full h-screen overflow-y-auto'>
-      {/* Header */}
-      <div className='flex justify-between py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-md z-50'>
-        <div>
-          <p className='text-[32px] uppercase font-semibold m-4'>Lectures</p>
-          <p className='text-gray-600 ml-4 -mt-3'>
-            {courseDetails.code} • {courseDetails.credits} Credits • {courseDetails.semester}
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Modern Header */}
+      <div className="bg-white shadow-md sticky top-0 z-50 backdrop-blur-sm bg-opacity-90">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div>
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <IoBook className="text-blue-600 text-xl" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">Lecture Materials</h1>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded">{courseDetails.code}</span>
+                    <span className="text-gray-500 text-sm">{courseDetails.credits} Credits • {courseDetails.semester}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <NavLink 
+              to="/dashboard/profile"
+              className="p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+              title="View Profile"
+            >
+              <CgProfile className="text-2xl text-gray-700" />
+            </NavLink>
+          </div>
         </div>
-        <NavLink to="/dashboard/profile">
-          <CgProfile className='text-[40px] cursor-pointer hover:text-blue-500 duration-200 transition-all' />
-        </NavLink>
       </div>
 
-      {/* Add Section Button */}
-      {role !== "student" && (
-        <div className='flex justify-start py-2 px-8'> {/* Reduced padding from py-4 to py-2 */}
-          <button
-            className='bg-black text-white py-2 px-4 flex justify-center items-center gap-2 hover:bg-gray-800 transition-all duration-200 rounded-full'
-            onClick={() => setShowHeadingForm(true)}
-          >
-            <p>Add Module</p>
-          </button>
-        </div>
-      )}
-
-      {/* Lecture Content */}
-      <div className='p-4 md:p-6'>
-        {Object.keys(lectures).length > 0 ? (
-          Object.entries(lectures).map(([heading, topics]) => (
-            <div key={heading} className='mb-3'>
-              {/* Heading Header */}
-              <div
-                className='w-full md:w-[98%] py-3 mx-auto md:ml-6 border-2 flex flex-col px-4 md:px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200 relative'
-                onClick={() => toggleWeek(heading)}
-              >
-                <div className='flex justify-between w-full font-semibold items-center flex-wrap gap-2'>
-            <span className='text-lg break-words max-w-[70%]'>{heading}</span>
-            <div className='flex items-center gap-2 flex-wrap'>
-              {role !== "student" && (
-                <button
-                  className='bg-black text-white py-1 px-2 rounded-full hover:bg-gray-800 transition-all duration-200 text-sm whitespace-nowrap'
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleAddSubsectionClick(heading);
-                  }}
-                >
-                  Add Section
-                </button>
-              )}
-              <IoIosArrowDropdown
-                className={`text-[25px] transform transition-transform duration-500 ${
-                  expandedWeeks[heading] ? 'rotate-180' : ''
-                }`}
-              />
-            </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Admin Controls */}
+        {role !== "student" && (
+          <div className="mb-6">
+            <button
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-sm hover:shadow transition-all duration-200"
+              onClick={() => setShowHeadingForm(true)}
+            >
+              <FaPlus className="text-sm" />
+              <span>Add Module</span>
+            </button>
           </div>
+        )}
 
-                {/* Expanded content - better responsive layout */}
-          <div
-            className={`overflow-hidden transition-all duration-300 ${
-              expandedWeeks[heading] ? 'max-h-[1000px] opacity-100 py-3' : 'max-h-0 opacity-0'
-            }`}
-          >
-            {Object.entries(topics).map(([subheading, lectures]) => (
-              <div key={subheading} className="mb-4">
-                <div className="flex justify-between items-center flex-wrap gap-2">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="font-medium text-lg mb-2 break-words">{subheading}</h3>
-                    {role !== "student" && (
-                      <div className="flex items-center gap-1">
-                        <button
-                          className='bg-gray-200 p-1 rounded-full hover:bg-gray-300 transition-all duration-200'
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditSubheadingClick(heading, subheading);
-                          }}
-                        >
-                          <FaRegEdit className='text-[14px]' />
-                        </button>
-                        <button
-                          className='bg-gray-200 p-1 rounded-full hover:bg-gray-300 transition-all duration-200'
-                          onClick={(e) => handleDeleteSubheadingClick(e, heading, subheading)}
-                        >
-                          <AiOutlineDelete className='text-[14px] text-red-600' />
-                        </button>
-                      </div>
-                    )}
+        {/* Lecture Content */}
+        {Object.keys(lectures).length > 0 ? (
+          <div className="space-y-5">
+            {Object.entries(lectures).map(([heading, topics]) => (
+              <div key={heading} className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-100">
+                {/* Module Header */}
+                <div
+                  className="flex justify-between items-center p-5 cursor-pointer hover:bg-gray-50 transition-all duration-200 border-b border-gray-100"
+                  onClick={() => toggleWeek(heading)}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="bg-blue-50 p-3 rounded-full">
+                      <IoBookmark className="text-blue-600" />
+                    </div>
+                    <h3 className="font-semibold text-xl text-gray-800">{heading}</h3>
                   </div>
-                  {role !== "student" && (
-                    <button
-                      className='bg-black text-white py-1 px-2 rounded-full hover:bg-gray-800 transition-all duration-200 text-sm whitespace-nowrap'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddLecture(heading, subheading);
-                      }}
-                    >
-                      Add Lecture
-                    </button>
-                  )}
-                </div>
-
-                {/* Individual lectures with better responsiveness */}
-                {lectures.map((lecture) => (
-                  <div
-                    key={lecture.id}
-                    className="ml-2 md:ml-4 mb-2 flex flex-col md:flex-row justify-between items-start md:items-center p-3 border rounded-lg hover:bg-gray-50 gap-2"
-                  >
-                    <a
-                      href={lecture.youtubeLink || '#'}
-                      target={lecture.youtubeLink ? "_blank" : "_self"}
-                      rel="noopener noreferrer"
-                      className={`text-blue-600 hover:underline break-words ${!lecture.youtubeLink && 'cursor-not-allowed'}`}
-                      onClick={(e) => {
-                        if (!lecture.youtubeLink || lecture.youtubeLink === "null") {
-                          e.preventDefault();
-                          showNotification('No video lecture uploaded', 'error');
-                        }
-                      }}
-                    >
-                      {lecture.lectureTitle}
-                    </a>
-
-                    <div className='flex gap-4 items-center'>
+                  
+                  <div className="flex items-center gap-3">
+                    {role !== "student" && (
                       <button
-                        onClick={(e) => downloadHandler(e, lecture.fileUrls)}
-                        className="flex items-center gap-1 text-gray-600 hover:text-blue-600 hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddSubsectionClick(heading);
+                        }}
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-700 rounded-lg border border-gray-200 transition-all text-sm"
                       >
-                        <FaFilePdf className="text-red-500" />
-                        <FaDownload className="text-[14px]" />
+                        <FaPlus className="text-xs" />
+                        <span>Add Section</span>
                       </button>
-
-                      {role !== "student" && (
-                        <div className='flex gap-2 items-center'>
-                          <button onClick={(e) => handleEditClick(e, lecture)}>
-                            <FaRegEdit className='text-[18px]' />
-                          </button>
-                          <button onClick={(e) => handleDeleteClick(e, lecture)}>
-                            <AiOutlineDelete className='text-[18px] text-red-600' />
-                          </button>
-                        </div>
-                      )}
+                    )}
+                    <div className={`p-1 rounded-full bg-gray-100 transform transition-transform duration-300 ${expandedWeeks[heading] ? 'rotate-180' : ''}`}>
+                      <FaAngleDown className="text-gray-500" />
                     </div>
                   </div>
-                ))}
+                </div>
+
+                {/* Module Content */}
+                <div className={`transition-all duration-300 overflow-hidden bg-gray-50 ${
+                  expandedWeeks[heading] ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'
+                }`}>
+                  <div className="p-5 space-y-6">
+                    {Object.entries(topics).map(([subheading, lectures]) => (
+                      <div key={subheading} className="bg-white rounded-lg shadow-sm border border-gray-100">
+                        <div className="p-4 border-b border-gray-100 flex justify-between items-center flex-wrap gap-2">
+                          <div className="flex items-center gap-2">
+                            <h4 className="font-medium text-gray-800">{subheading}</h4>
+                            
+                            {role !== "student" && (
+                              <div className="flex items-center gap-1">
+                                <button
+                                  className="p-1.5 hover:bg-gray-100 rounded-full transition-all"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEditSubheadingClick(heading, subheading);
+                                  }}
+                                  title="Edit Section"
+                                >
+                                  <FaEdit className="text-blue-500 text-sm" />
+                                </button>
+                                <button
+                                  className="p-1.5 hover:bg-red-50 rounded-full transition-all"
+                                  onClick={(e) => handleDeleteSubheadingClick(e, heading, subheading)}
+                                  title="Delete Section"
+                                >
+                                  <FaTrashAlt className="text-red-500 text-sm" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          
+                          {role !== "student" && (
+                            <button
+                              className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-all"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddLecture(heading, subheading);
+                              }}
+                            >
+                              <FaPlus className="text-xs" />
+                              <span>Add Lecture</span>
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Lectures */}
+                        <div className="divide-y divide-gray-100">
+                          {lectures.length > 0 ? (
+                            lectures.map((lecture) => (
+                              <div
+                                key={lecture.id}
+                                className="p-4 hover:bg-gray-50 transition-all"
+                              >
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                  <div className="flex items-start gap-3">
+                                    <div className={`p-2 rounded-lg ${lecture.youtubeLink ? 'bg-red-50' : 'bg-blue-50'} mt-0.5`}>
+                                      {lecture.youtubeLink ? (
+                                        <FaYoutube className={`${lecture.youtubeLink ? 'text-red-500' : 'text-blue-500'}`} />
+                                      ) : (
+                                        <FaFile className="text-blue-500" />
+                                      )}
+                                    </div>
+                                    <div>
+                                      <a
+                                        href={lecture.youtubeLink || '#'}
+                                        target={lecture.youtubeLink ? "_blank" : "_self"}
+                                        rel="noopener noreferrer"
+                                        className={`text-gray-800 font-medium hover:text-blue-600 break-words ${!lecture.youtubeLink && 'cursor-default hover:text-gray-800'}`}
+                                        onClick={(e) => {
+                                          if (!lecture.youtubeLink) {
+                                            e.preventDefault();
+                                          }
+                                        }}
+                                      >
+                                        {lecture.lectureTitle}
+                                      </a>
+                                      {lecture.lectureDescription && (
+                                        <p className="text-gray-500 text-sm mt-1 line-clamp-2">
+                                          {lecture.lectureDescription}
+                                        </p>
+                                      )}
+                                    </div>
+                                  </div>
+
+                                  <div className="flex gap-3 items-center ml-auto">
+                                    {lecture.fileUrls && lecture.fileUrls.length > 0 ? (
+                                      <button
+                                        onClick={(e) => downloadHandler(e, lecture.fileUrls)}
+                                        className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm transition-all"
+                                      >
+                                        <FaFilePdf className="text-red-500" />
+                                        <span>View Files</span>
+                                      </button>
+                                    ) : (
+                                      <span className="text-sm text-gray-400 italic mr-2">No files</span>
+                                    )}
+
+                                    {role !== "student" && (
+                                      <div className='flex gap-2 items-center'>
+                                        <button 
+                                          onClick={(e) => handleEditClick(e, lecture)}
+                                          className="p-1.5 hover:bg-gray-100 rounded-full transition-all"
+                                          title="Edit Lecture"
+                                        >
+                                          <FaEdit className="text-blue-500 text-sm" />
+                                        </button>
+                                        <button 
+                                          onClick={(e) => handleDeleteClick(e, lecture)}
+                                          className="p-1.5 hover:bg-red-50 rounded-full transition-all"
+                                          title="Delete Lecture"
+                                        >
+                                          <FaTrashAlt className="text-red-500 text-sm" />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="py-6 text-center text-gray-500">
+                              <p>No lectures in this section yet.</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        ) : (
+          <div className="bg-white rounded-xl shadow-md p-12 text-center border border-gray-100">
+            <div className="bg-blue-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <IoBook className="text-blue-500 text-3xl" />
+            </div>
+            <h3 className="text-xl font-medium text-gray-800 mb-3">No Content Available Yet</h3>
+            <p className="text-gray-600 max-w-md mx-auto">
+              {role === "student" 
+                ? "Your instructor hasn't added any lecture materials yet. Check back later." 
+                : "Start adding modules and lectures to provide content for your students."}
+            </p>
+            {role !== "student" && (
+              <button
+                onClick={() => setShowHeadingForm(true)}
+                className="mt-6 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all inline-flex items-center gap-2"
+              >
+                <FaPlus />
+                Add Your First Module
+              </button>
+            )}
+          </div>
+        )}
       </div>
-    ))
-  ) : (
-    <div className='text-center text-gray-600 p-10 bg-gray-50 rounded-lg shadow-sm'>
-      No lectures available. {role !== "student" && "Use the Add Module button to get started."}
-    </div>
-  )}
-</div>
+
+      {/* Modal Backgrounds */}
+      {(showHeadingForm || showForm || showDeleteConfirm || showSubsectionForm || 
+        Object.values(showSubheadingForm).some(value => value) || 
+        showSubheadingDeleteConfirm) && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40"></div>
+      )}
 
       {/* Heading Form Modal */}
       {showHeadingForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-[90%] max-w-md">
-            <h2 className="text-xl font-bold mb-4">Add New Module</h2>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">Add New Module</h2>
             <div className="space-y-4">
               <div>
-                <label className="block mb-1 text-sm font-medium">Module Name <span className="text-red-500">*</span></label>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Module Name <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  placeholder="Module Name"
+                  placeholder="Enter module name"
                   value={newHeadingData.heading}
                   onChange={(e) => setNewHeadingData({...newHeadingData, heading: e.target.value})}
-                  className="w-full p-2 border rounded"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   required
                 />
               </div>
-              {/* Removed subheading input field */}
             </div>
-            <div className="mt-6 flex justify-end gap-4">
+            <div className="mt-8 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowHeadingForm(false)}
-                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleAddHeading}
-                className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-sm hover:shadow transition-all"
               >
-                Save Module
+                Add Module
               </button>
             </div>
           </div>
@@ -725,127 +807,164 @@ export default function Lectures({ role }) {
 
       {/* Lecture Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-[90%] max-w-2xl">
-            <h2 className="text-xl font-bold mb-4">
-              {formType === 'create' ? 'Add Lecture' : 'Edit Lecture'}
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full p-6 animate-modal-in overflow-y-auto max-h-[90vh]">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">
+              {formType === 'create' ? 'Add Lecture Material' : 'Edit Lecture Material'}
             </h2>
-            <form onSubmit={handleFormSubmit}>
-              <div className="space-y-4">
-                {formType === 'edit' && (
-                  <>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">Module</label>
-                      <input
-                        type="text"
-                        value={formData.heading}
-                        readOnly
-                        className="w-full p-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                    <div>
-                      <label className="block mb-1 text-sm font-medium">Section</label>
-                      <input
-                        type="text"
-                        value={formData.subheading}
-                        readOnly
-                        className="w-full p-2 border rounded bg-gray-100"
-                      />
-                    </div>
-                  </>
-                )}
+            
+            <form onSubmit={handleFormSubmit} className="space-y-6">
+              {formType === 'edit' && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Module</label>
+                    <input
+                      type="text"
+                      value={formData.heading}
+                      readOnly
+                      className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-700"
+                    />
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Section</label>
+                    <input
+                      type="text"
+                      value={formData.subheading}
+                      readOnly
+                      className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-700"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Lecture Title <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  placeholder="Lecture Title"
+                  placeholder="Enter lecture title"
                   value={formData.lectureTitle}
                   onChange={(e) => setFormData({ ...formData, lectureTitle: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   required
                 />
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Description</label>
                 <textarea
-                  placeholder="Lecture Description"
+                  placeholder="Enter lecture description"
                   value={formData.lectureDescription}
                   onChange={(e) => setFormData({ ...formData, lectureDescription: e.target.value })}
-                  className="w-full p-2 border rounded"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   rows="4"
                   required
-                />
-                
-                <div className="w-full">
-                  <label className="block mb-2 text-sm font-medium text-gray-700">
-                    Upload Files
-                  </label>
+                ></textarea>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">YouTube Link (Optional)</label>
+                <div className="flex">
+                  <div className="flex items-center justify-center px-4 py-3 bg-gray-50 border border-r-0 border-gray-300 rounded-l-lg">
+                    <AiOutlineYoutube className="text-red-600 text-xl" />
+                  </div>
+                  <input
+                    type="url"
+                    placeholder="https://youtube.com/watch?v=..."
+                    value={formData.youtubeLink}
+                    onChange={(e) => setFormData({ ...formData, youtubeLink: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">
+                  Upload Supplementary Files
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 bg-gray-50">
                   <input
                     type="file"
                     multiple
-                    onChange={(e) => setPdfFiles(Array.from(e.target.files))} // Updated to handle all file types
-                    className="w-full p-2 border rounded"
+                    onChange={(e) => setPdfFiles(Array.from(e.target.files))}
+                    className="hidden"
                     id="fileInput"
-                    style={{ display: 'block' }}
                   />
+                  <label 
+                    htmlFor="fileInput" 
+                    className="flex flex-col items-center justify-center cursor-pointer"
+                  >
+                    <FaFile className="text-gray-400 text-3xl mb-3" />
+                    <span className="text-gray-700 font-medium">Drag files here or click to browse</span>
+                    <span className="text-gray-500 text-sm mt-1">PDF, DOCX, PPT, and other files supported</span>
+                  </label>
+                  
                   {pdfFiles.length > 0 && (
-                    <div className="mt-2 p-2 bg-gray-50 rounded border">
-                      <p className="text-sm font-medium text-gray-700 mb-1">Selected files:</p>
-                      <ul className="max-h-24 overflow-y-auto">
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
+                      <p className="text-sm font-medium text-blue-700 mb-2">Selected files ({pdfFiles.length})</p>
+                      <ul className="max-h-32 overflow-y-auto">
                         {pdfFiles.map((file, index) => (
-                          <li key={index} className="text-sm text-gray-600 flex items-center gap-1 mb-1">
-                            <span className="text-gray-500">{file.name}</span>
+                          <li key={index} className="text-sm text-gray-700 flex items-center gap-2 py-1">
+                            {file.type.includes('pdf') ? (
+                              <FaFilePdf className="text-red-500" />
+                            ) : (
+                              <FaFile className="text-blue-500" />
+                            )}
+                            <span className="truncate">{file.name}</span>
+                            <span className="text-gray-500 text-xs ml-auto">
+                              {(file.size / 1024).toFixed(1)} KB
+                            </span>
                           </li>
                         ))}
                       </ul>
                     </div>
                   )}
                 </div>
-                
-                <input
-                  type="url"
-                  placeholder="YouTube Link"
-                  value={formData.youtubeLink}
-                  onChange={(e) => setFormData({ ...formData, youtubeLink: e.target.value })}
-                  className="w-full p-2 border rounded"
-                />
               </div>
-              <div className="mt-6 flex justify-end gap-4">
+              
+              <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowForm(false)}
-                  className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-sm hover:shadow transition-all flex items-center gap-2"
                 >
-                  {isSubmitting ? 'Submitting...' : 'Submit'}
+                  {isSubmitting && (
+                    <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                  )}
+                  {isSubmitting ? 'Submitting...' : formType === 'create' ? 'Add Lecture' : 'Update Lecture'}
                 </button>
               </div>
-            </form> {/* Properly closed the <form> tag */}
+            </form>
           </div>
         </div>
       )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-[90%] max-w-md">
-            <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
-            <p>Are you sure you want to delete this lecture?</p>
-            <div className="mt-6 flex justify-end gap-4">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Confirm Delete</h2>
+            <p className="text-gray-600 mb-6">Are you sure you want to delete this lecture? This action cannot be undone.</p>
+            <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(false)}
-                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteConfirm}
-                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all"
               >
-                Delete
+                Delete Lecture
               </button>
             </div>
           </div>
@@ -854,41 +973,45 @@ export default function Lectures({ role }) {
 
       {/* Subsection Form Modal */}
       {showSubsectionForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-[90%] max-w-md">
-            <h2 className="text-xl font-bold mb-4">Add Section</h2>
-            <form onSubmit={handleSubsectionFormSubmit}>
-              <div className="space-y-4">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">Add New Section</h2>
+            <form onSubmit={handleSubsectionFormSubmit} className="space-y-4">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Module</label>
                 <input
                   type="text"
                   value={subsectionFormData.heading}
                   readOnly
-                  className="w-full p-2 border rounded bg-gray-100"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-700"
                 />
+              </div>
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Section Title <span className="text-red-500">*</span></label>
                 <input
                   type="text"
-                  placeholder="Section Title"
+                  placeholder="Enter section title"
                   value={subsectionFormData.subheading}
                   onChange={(e) =>
                     setSubsectionFormData({ ...subsectionFormData, subheading: e.target.value })
                   }
-                  className="w-full p-2 border rounded"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                   required
                 />
               </div>
-              <div className="mt-6 flex justify-end gap-4">
+              <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
                 <button
                   type="button"
                   onClick={() => setShowSubsectionForm(false)}
-                  className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-sm hover:shadow transition-all"
                 >
-                  Save Section
+                  Add Section
                 </button>
               </div>
             </form>
@@ -896,40 +1019,37 @@ export default function Lectures({ role }) {
         </div>
       )}
 
-      {/* Add the Edit Subheading Modal */}
+      {/* Edit Subheading Modal */}
       {Object.entries(showSubheadingForm).some(([key, value]) => value === true) && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[90%] max-w-md">
-            <h2 className="text-xl font-bold mb-4">Edit Section</h2>
-            <form onSubmit={(e) => handleEditSubheadingSubmit(e, subheadingFormData.heading)}>
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-1 text-sm font-medium">Module Name</label>
-                  <input
-                    type="text"
-                    value={subheadingFormData.heading}
-                    readOnly
-                    className="w-full p-2 border rounded bg-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-1 text-sm font-medium">Section Name</label>
-                  <input
-                    type="text"
-                    placeholder="Edit Section Name"
-                    value={subheadingFormData.subheading}
-                    onChange={(e) => setSubheadingFormData({ ...subheadingFormData, subheading: e.target.value })}
-                    className="w-full p-2 border rounded"
-                    required
-                  />
-                </div>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in">
+            <h2 className="text-xl font-bold text-gray-800 mb-6">Edit Section</h2>
+            <form onSubmit={(e) => handleEditSubheadingSubmit(e, subheadingFormData.heading)} className="space-y-4">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Module</label>
+                <input
+                  type="text"
+                  value={subheadingFormData.heading}
+                  readOnly
+                  className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 text-gray-700"
+                />
               </div>
-              <div className="mt-6 flex justify-end gap-4">
+              <div>
+                <label className="block mb-2 text-sm font-medium text-gray-700">Section Name <span className="text-red-500">*</span></label>
+                <input
+                  type="text"
+                  placeholder="Edit section name"
+                  value={subheadingFormData.subheading}
+                  onChange={(e) => setSubheadingFormData({ ...subheadingFormData, subheading: e.target.value })}
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                  required
+                />
+              </div>
+              <div className="pt-6 border-t border-gray-100 flex justify-end gap-3">
                 <button
                   type="button"
-                  className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
                   onClick={() => {
-                    // Close all subheading forms
                     const updatedForms = {};
                     Object.keys(showSubheadingForm).forEach(key => {
                       updatedForms[key] = false;
@@ -937,12 +1057,12 @@ export default function Lectures({ role }) {
                     setShowSubheadingForm(updatedForms);
                     setSubheadingFormData({ heading: '', subheading: '', currentSubheading: '' });
                   }}
-                > 
+                >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600"
+                  className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white rounded-lg shadow-sm hover:shadow transition-all"
                 >
                   Save Changes
                 </button>
@@ -952,34 +1072,54 @@ export default function Lectures({ role }) {
         </div>
       )}
 
-      {/* Add Subheading Delete Confirmation Modal */}
+      {/* Subheading Delete Confirmation Modal */}
       {showSubheadingDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-lg w-[90%] max-w-md">
-            <h2 className="text-xl font-bold mb-4">Confirm Section Deletion</h2>
-            <p>Are you sure you want to delete the section "{subheadingToDelete?.subheading}"?</p>
-            <p className="text-red-600 mt-2">
-              Warning: This will delete all lectures in this section.
-            </p>
-            <div className="mt-6 flex justify-end gap-4">
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">Confirm Section Deletion</h2>
+            <p className="text-gray-600 mb-3">Are you sure you want to delete the section "{subheadingToDelete?.subheading}"?</p>
+            <div className="bg-red-50 border border-red-100 rounded-lg p-4 mb-6">
+              <p className="text-red-600 font-medium flex items-start gap-2">
+                <span className="mt-0.5">⚠️</span>
+                <span>Warning: This will delete all lectures in this section. This action cannot be undone.</span>
+              </p>
+            </div>
+            <div className="flex justify-end gap-3">
               <button
                 type="button"
                 onClick={() => setShowSubheadingDeleteConfirm(false)}
-                className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+                className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDeleteSubheadingConfirm}
-                className="bg-red-500 text-white py-2 px-4 rounded hover:bg-red-600"
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-all"
               >
-                Delete
+                Delete Section
               </button>
             </div>
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        .animate-modal-in {
+          animation: modalIn 0.3s ease-out forwards;
+        }
+
+        @keyframes modalIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+      `}</style>
     </div>
   );
 }

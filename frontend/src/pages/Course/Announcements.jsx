@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react'
-import { CgProfile } from 'react-icons/cg'
-import { IoIosArrowDropdown } from "react-icons/io";
-import { FaPlus } from "react-icons/fa";
-import { FaRegEdit } from "react-icons/fa";
+import React, { useState, useEffect } from 'react';
+import { CgProfile } from 'react-icons/cg';
+import { IoIosArrowDropdown, IoMdMegaphone } from "react-icons/io";
+import { FaPlus, FaRegEdit, FaCalendarAlt } from "react-icons/fa";
 import { AiOutlineDelete } from "react-icons/ai";
+import { BiMessageDetail } from "react-icons/bi";
+import { BsPersonCircle, BsPinAngleFill } from "react-icons/bs";
 import { NavLink } from 'react-router-dom';
 import { useCourse } from '../../contexts/CourseContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
-
 
 export default function Announcements({ role }) {
   const [expandedIndices, setExpandedIndices] = useState({});
@@ -29,8 +29,6 @@ export default function Announcements({ role }) {
   const toggleExpand = (index) => {
     setExpandedIndices(prev => ({ ...prev, [index]: !prev[index] }));
   };
-
-
   
   useEffect(() => {
     if (courseDetails?.id) {
@@ -182,183 +180,383 @@ export default function Announcements({ role }) {
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    return date.toLocaleString();
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(date);
+  };
+
+  // Get time elapsed since post
+  const getTimeElapsed = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // difference in seconds
+    
+    if (diff < 60) {
+      return 'Just now';
+    } else if (diff < 3600) {
+      const minutes = Math.floor(diff / 60);
+      return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+    } else if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    } else if (diff < 2592000) {
+      const days = Math.floor(diff / 86400);
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+    } else {
+      return formatDate(dateString);
+    }
+  };
+
+  // Function to determine if announcement is recent (less than 24 hours)
+  const isRecent = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // difference in seconds
+    return diff < 86400; // 24 hours in seconds
   };
 
   return (
-    <div className='w-full h-screen overflow-y-auto'>
-      {/* Show loading state while course details are loading */}
-        {loading ? (
-          <div className="w-full min-h-screen bg-gray-50 p-6 flex items-center justify-center">
-            Loading course details...
-          </div>
-        ) : (
-      <>
-        <div className='flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-50'>
-          <div>
-            <p className='text-[32px] uppercase font-semibold m-4'>Announcements</p>
-            <p className='text-gray-600 ml-4 -mt-3'>
-              {courseDetails?.code || 'Loading...'} • {courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}
-            </p>
-          </div>
-          <div className='flex items-center gap-4'>
-            {role !== "student" && (
-              <button 
-                className='bg-blue-500 shadow-xl text-white py-2 px-4 flex justify-center items-center gap-2 hover:bg-green-600 hover:scale-95 transition-all duration-200 rounded'
-                onClick={() => {
-                  setFormType('create');
-                  setFormData({ announcementHeading: '', announcementBody: '' });
-                  setShowForm(true);
-                }}
-              >
-                <FaPlus className='text-[18px]' />
-                <p>Add Announcement</p>
-              </button>
-            )}
-            <NavLink to="/dashboard/profile">
-              <CgProfile className='text-[40px] cursor-pointer' />
-            </NavLink>
-          </div>
-        </div>
-
-      <div className='p-6'> 
-        {announcements.length > 0 ? (
-          announcements.map((announcement, index) => (
-            <div key={announcement.id} className='mb-2'>
-              <div className='w-[98%] ml-6 py-3 border-2 flex flex-col px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200' onClick={() => toggleExpand(index)}>
-                <div className='flex justify-between w-full font-semibold'>
-                  <span className='text-lg'>{announcement.announcementHeading}</span>
-                  <div className='flex gap-8 items-center'>
-                    {role !== "student" && (
-                      <div className='flex gap-2 items-center'>
-                        <button onClick={(e) => handleEditClick(e, announcement)}>
-                          <FaRegEdit className='text-[22px]' />
-                        </button>
-                        <button onClick={(e) => handleDeleteClick(e, announcement)}>
-                          <AiOutlineDelete className='text-[22px] text-red-600' />
-                        </button>
-                      </div>
-                    )}
-                    <IoIosArrowDropdown 
-                      className={`text-[25px] transform transition-transform duration-500 ${
-                        expandedIndices[index] ? 'rotate-180' : ''
-                      }`}
-                    />
-                  </div>
-                </div>
-                <div 
-                  className={`overflow-hidden transition-all duration-300 ${expandedIndices[index] ? 'max-h-96 opacity-100 py-3' : 'max-h-0 opacity-0'}`}
-                >
-                  <div>{announcement.announcementBody}</div>
-                  <hr className="my-2 border-gray-300" />
-                  <div className="text-xs text-gray-600">
-                    <p>Posted by: {announcement.faculty.user.firstName} {announcement.faculty.user.lastName} ({announcement.faculty.user.username})</p>
-                    <p>Created: {formatDate(announcement.createdAt)}</p>
-                    {announcement.createdAt !== announcement.updatedAt &&
-                      Math.abs(new Date(announcement.updatedAt) - new Date(announcement.createdAt)) >= 1000 && (
-                        <p>Updated: {formatDate(announcement.updatedAt)}</p>
-                    )}
-                    {/* {announcement.createdAt !== announcement.updatedAt && (
-                      <p>Updated: {formatDate(announcement.updatedAt)}</p>
-                    )} */}
-                  </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* Modern Glassy Header */}
+      <div className="sticky top-0 z-50 backdrop-blur-md bg-white bg-opacity-70 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center gap-3">
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <IoMdMegaphone className="text-blue-600 text-xl" />
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">Announcements</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded">{courseDetails?.code || 'Loading...'}</span>
+                  <span className="text-gray-500 text-sm">{courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}</span>
                 </div>
               </div>
             </div>
-          ))
-        ) : (
-          <div className="text-center py-10 text-gray-500">
-            No announcements available for this course.
+            
+            <div className="flex items-center gap-4">
+              {role !== "student" && (
+                <button 
+                  onClick={() => {
+                    setFormType('create');
+                    setFormData({ announcementHeading: '', announcementBody: '' });
+                    setShowForm(true);
+                  }}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                >
+                  <FaPlus /> New Announcement
+                </button>
+              )}
+              
+              <NavLink 
+                to="/dashboard/profile"
+                className="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+                title="View Profile"
+              >
+                <CgProfile className="text-2xl text-gray-700" />
+              </NavLink>
+            </div>
           </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+            <p className="mt-4 text-gray-600">Loading announcements...</p>
+          </div>
+        ) : (
+          <>
+            {announcements.length > 0 ? (
+              <div className="space-y-5">
+                {announcements.map((announcement, index) => (
+                  <div key={announcement.id}
+                    className="backdrop-blur-lg bg-white bg-opacity-70 border border-gray-100 rounded-xl overflow-hidden hover:shadow-md transition-all duration-200"
+                  >
+                    <div 
+                      onClick={() => toggleExpand(index)}
+                      className="flex justify-between items-center p-5 cursor-pointer"
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Indicator for recent announcements */}
+                        {isRecent(announcement.createdAt) && (
+                          <div className="min-w-fit h-fit bg-blue-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">NEW</div>
+                        )}
+                        <h3 className="font-semibold text-lg text-gray-800 line-clamp-2">
+                          {announcement.announcementHeading}
+                        </h3>
+                      </div>
+                      
+                      <div className="flex gap-4 items-center">
+                        {role !== "student" && (
+                          <div className="flex gap-2">
+                            <button 
+                              onClick={(e) => handleEditClick(e, announcement)}
+                              className="p-1.5 hover:bg-blue-50 rounded-full transition-all"
+                              title="Edit Announcement"
+                            >
+                              <FaRegEdit className="text-blue-600" />
+                            </button>
+                            <button 
+                              onClick={(e) => handleDeleteClick(e, announcement)}
+                              className="p-1.5 hover:bg-red-50 rounded-full transition-all"
+                              title="Delete Announcement"
+                            >
+                              <AiOutlineDelete className="text-red-500" />
+                            </button>
+                          </div>
+                        )}
+                        <div className={`transform transition-transform duration-300 ${expandedIndices[index] ? 'rotate-180' : ''}`}>
+                          <IoIosArrowDropdown className="text-gray-500 text-2xl" />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={`transition-all duration-300 ease-in-out overflow-hidden ${
+                      expandedIndices[index] ? 'max-h-[2000px] opacity-100' : 'max-h-0 opacity-0'
+                    }`}>
+                      <div className="px-5 pb-5">
+                        {/* Glassy separator */}
+                        <div className="border-t border-gray-200 mb-4"></div>
+                        
+                        {/* Announcement body with proper formatting */}
+                        <div className="prose prose-sm max-w-none text-gray-700 mb-4 whitespace-pre-line">
+                          {announcement.announcementBody}
+                        </div>
+                        
+                        {/* Meta information in a glassy card */}
+                        <div className="bg-white bg-opacity-50 backdrop-blur-md rounded-lg border border-gray-100 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <div className="bg-blue-100 rounded-full p-2">
+                              <BsPersonCircle className="text-blue-600" />
+                            </div>
+                            <span className="text-sm text-gray-700">
+                              {announcement.faculty.user.firstName} {announcement.faculty.user.lastName} 
+                              <span className="text-gray-500 text-xs ml-1">({announcement.faculty.user.username})</span>
+                            </span>
+                          </div>
+                          
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-center text-xs text-gray-500">
+                              <FaCalendarAlt className="mr-1" />
+                              <span title={formatDate(announcement.createdAt)}>
+                                {getTimeElapsed(announcement.createdAt)}
+                              </span>
+                            </div>
+                            
+                            {announcement.createdAt !== announcement.updatedAt && 
+                             Math.abs(new Date(announcement.updatedAt) - new Date(announcement.createdAt)) >= 1000 && (
+                              <div className="text-xs text-gray-500">
+                                <span title={formatDate(announcement.updatedAt)}>
+                                  Updated {getTimeElapsed(announcement.updatedAt)}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="backdrop-blur-lg bg-white bg-opacity-60 rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+                <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BiMessageDetail className="text-blue-500 text-3xl" />
+                </div>
+                <h3 className="text-xl font-medium text-gray-800 mb-2">No Announcements Yet</h3>
+                <p className="text-gray-600 max-w-md mx-auto">
+                  {role === "student" 
+                    ? "There are no announcements for this course yet. Check back later." 
+                    : "Start communicating with your students by creating your first announcement."}
+                </p>
+                {role !== "student" && (
+                  <button 
+                    onClick={() => {
+                      setFormType('create');
+                      setFormData({ announcementHeading: '', announcementBody: '' });
+                      setShowForm(true);
+                    }}
+                    className="mt-6 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all inline-flex items-center gap-2"
+                  >
+                    <FaPlus />
+                    Create First Announcement
+                  </button>
+                )}
+              </div>
+            )}
+          </>
         )}
       </div>
-      </>
-        )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
-            <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
-            <p>Are you sure you want to delete this announcement?</p>
-            <div className="flex justify-end gap-4 mt-6">
-              <button 
-                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                onClick={() => {
-                  setShowDeleteConfirm(false);
-                  setAnnouncementToDelete(null);
-                }}
-              >
-                Cancel
-              </button>
-              <button 
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                onClick={confirmDelete}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Create/Edit Announcement Form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
-            <h3 className="text-lg font-bold mb-4">
-              {formType === 'create' ? 'Create New Announcement' : 'Edit Announcement'}
-            </h3>
-            <form onSubmit={handleFormSubmit}>
-              <div className="mb-4">
-                <label htmlFor="heading" className="block text-sm font-medium text-gray-700 mb-1">
-                  Announcement Heading
-                </label>
-                <input
-                  id="heading"
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  value={formData.announcementHeading}
-                  onChange={(e) => setFormData({...formData, announcementHeading: e.target.value})}
-                  required
-                />
+        <>
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm z-40"></div>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-xl shadow-xl max-w-md w-full p-6 border border-gray-100">
+              <div className="flex items-start gap-4 mb-4">
+                <div className="bg-red-100 p-3 rounded-full">
+                  <AiOutlineDelete className="text-red-600 text-xl" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">Delete Announcement</h3>
+                  <p className="text-gray-600">Are you sure you want to delete this announcement? This action cannot be undone.</p>
+                </div>
               </div>
-              <div className="mb-6">
-                <label htmlFor="body" className="block text-sm font-medium text-gray-700 mb-1">
-                  Announcement Body
-                </label>
-                <textarea
-                  id="body"
-                  className="w-full p-2 border border-gray-300 rounded h-40"
-                  value={formData.announcementBody}
-                  onChange={(e) => setFormData({...formData, announcementBody: e.target.value})}
-                  required
-                ></textarea>
-              </div>
-              <div className="flex justify-end gap-4">
+              <div className="flex justify-end gap-3 mt-6">
                 <button 
-                  type="button"
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
                   onClick={() => {
-                    setShowForm(false);
-                    setFormData({ announcementHeading: '', announcementBody: '' });
+                    setShowDeleteConfirm(false);
+                    setAnnouncementToDelete(null);
                   }}
                 >
                   Cancel
                 </button>
                 <button 
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  disabled={isSubmitting}
+                  className="px-5 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all"
+                  onClick={confirmDelete}
                 >
-                  {isSubmitting ? 'Submitting...' : formType === 'create' ? 'Post Announcement' : 'Update Announcement'}
+                  Delete
                 </button>
               </div>
-            </form>
+            </div>
           </div>
-        </div>
+        </>
       )}
-    </div>
 
+      {/* Create/Edit Announcement Form */}
+      {showForm && (
+        <>
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm z-40"></div>
+          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+            <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-xl shadow-xl max-w-3xl w-full p-6 border border-gray-100">
+              <div className="flex items-start gap-4 mb-6">
+                <div className={`bg-${formType === 'create' ? 'blue' : 'green'}-100 p-3 rounded-full`}>
+                  {formType === 'create' ? 
+                    <FaPlus className="text-blue-600 text-xl" /> : 
+                    <FaRegEdit className="text-green-600 text-xl" />
+                  }
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800 mb-1">
+                    {formType === 'create' ? 'Create New Announcement' : 'Edit Announcement'}
+                  </h3>
+                  <p className="text-gray-500 text-sm">
+                    {formType === 'create' ? 
+                      'Create a new announcement to inform your students' : 
+                      'Update the existing announcement content'
+                    }
+                  </p>
+                </div>
+              </div>
+              
+              <form onSubmit={handleFormSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="heading" className="block text-sm font-medium text-gray-700 mb-2">
+                    Announcement Title
+                  </label>
+                  <input
+                    id="heading"
+                    type="text"
+                    className="w-full px-4 py-3 bg-white bg-opacity-80 backdrop-blur-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    value={formData.announcementHeading}
+                    onChange={(e) => setFormData({...formData, announcementHeading: e.target.value})}
+                    placeholder="Enter a clear, descriptive title"
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="body" className="block text-sm font-medium text-gray-700 mb-2">
+                    Announcement Content
+                  </label>
+                  <textarea
+                    id="body"
+                    className="w-full px-4 py-3 bg-white bg-opacity-80 backdrop-blur-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all min-h-[200px]"
+                    value={formData.announcementBody}
+                    onChange={(e) => setFormData({...formData, announcementBody: e.target.value})}
+                    placeholder="Enter the announcement details here..."
+                    required
+                  ></textarea>
+                </div>
+                
+                <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                  <button 
+                    type="button"
+                    className="px-5 py-2.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
+                    onClick={() => {
+                      setShowForm(false);
+                      setFormData({ announcementHeading: '', announcementBody: '' });
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    type="submit"
+                    className={`px-5 py-2.5 bg-gradient-to-r ${
+                      formType === 'create' 
+                        ? 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700' 
+                        : 'from-green-500 to-green-600 hover:from-green-600 hover:to-green-700'
+                    } text-white rounded-lg shadow-md hover:shadow-lg transition-all flex items-center gap-2`}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting && (
+                      <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                    )}
+                    {isSubmitting 
+                      ? 'Submitting...' 
+                      : formType === 'create' 
+                        ? 'Post Announcement' 
+                        : 'Update Announcement'
+                    }
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </>
+      )}
+      
+      {/* Add glassmorphism styles */}
+      <style jsx global>{`
+        /* Glassmorphism effect for cards */
+        .backdrop-blur-lg {
+          box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+        }
+        
+        /* Smooth height transitions */
+        .transition-all {
+          transition-property: all;
+          transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Custom scrollbar for modals */
+        textarea::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        textarea::-webkit-scrollbar-track {
+          background: rgba(241, 245, 249, 0.5);
+          border-radius: 10px;
+        }
+        
+        textarea::-webkit-scrollbar-thumb {
+          background: rgba(148, 163, 184, 0.5);
+          border-radius: 10px;
+        }
+        
+        textarea::-webkit-scrollbar-thumb:hover {
+          background: rgba(148, 163, 184, 0.7);
+        }
+      `}</style>
+    </div>
   );
 }
