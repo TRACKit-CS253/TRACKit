@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTrashAlt, FaEdit } from "react-icons/fa";
-import axiosInstance from "../../utils/axiosInstance";
+import { FaTrashAlt, FaEdit, FaBook, FaSearch, FaUserGraduate, FaChalkboardTeacher, FaFileUpload, FaRegUser } from "react-icons/fa";
 import { GoHome } from "react-icons/go";
+import axiosInstance from "../../utils/axiosInstance";
+import { motion } from "framer-motion";
+import { useAuth } from "../../contexts/AuthContext";
 
 const ManageCourses = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editCourseId, setEditCourseId] = useState(null);
@@ -44,10 +48,13 @@ const ManageCourses = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
+        setLoading(true);
         const response = await axiosInstance.get("/api/courses");
         setCourses(response.data.data);
       } catch (error) {
         console.error("Error fetching courses: ", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchCourses();
@@ -302,308 +309,475 @@ const ManageCourses = () => {
   // Filter courses by name or code
   const filteredCourses = courses.filter(
     (course) =>
-      course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchTerm.toLowerCase())
+      course.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      course.code?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
-    <div className="p-12">
-      {/* Header Section */}
-      <div className="fixed top-0 left-0 right-0 bg-white py-7 px-8 shadow-lg z-10 flex justify-between items-center">
-        <div className="flex gap-6">
-          <span
-            className="text-4xl font-semibold cursor-pointer"
-            onClick={() => navigate("/Admin")}
-          >
-            TRACKit
-          </span>
-          <div className="cursor-pointer hover:scale-95 duration-200 transition-all rounded-full hover:bg-gray-100 p-2">
-            <GoHome
-              className="text-[1.9rem]"
-              onClick={() => {
-                navigate("/Admin");
-              }}
-            ></GoHome>
+    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen pb-16">
+      {/* Fixed Header with glass effect */}
+      <div className="fixed top-0 left-0 right-0 py-5 px-8 m-auto z-10 backdrop-blur-md bg-white/70 border-b border-gray-100 shadow-sm">
+        <div className='flex justify-between items-center'>
+          <div className='flex gap-6 items-center'>
+            <motion.span
+              className="text-4xl font-semibold cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text"
+              onClick={() => navigate("/Admin")}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              TRACKit 
+            </motion.span>
+            <motion.div 
+              className='cursor-pointer rounded-full bg-gray-50 hover:bg-gray-100 p-3 shadow-sm'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/Admin")}
+            >
+              <GoHome className='text-[1.5rem] text-gray-700'></GoHome>
+            </motion.div>
           </div>
+          <h1 className="text-2xl font-semibold bg-gradient-to-r from-blue-700 to-purple-700 text-transparent bg-clip-text">
+            Manage Courses
+          </h1>
+          <motion.button 
+            className='flex items-center gap-2 border rounded-full px-5 py-2 shadow-sm bg-white hover:bg-red-50 transition-all duration-200'
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={logout}
+          >
+            <span>
+              <FaRegUser size={18} className='text-red-500'></FaRegUser>
+            </span>
+            <span className='font-medium'>Sign Out</span>
+          </motion.button>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-700">Manage Courses</h1>
       </div>
 
-      {/* Search Input */}
-      <div className="mt-24">
-        <div className="flex justify-center mb-4">
-          <input
-            type="text"
-            placeholder="Search courses by name or Code..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="p-4 w-2/3 border border-gray-300 rounded-lg"
-          />
-        </div>
+      {/* Main content with padding for fixed header */}
+      <div className="pt-24 px-8 max-w-6xl mx-auto">
+        {/* Search Input */}
+        <motion.div 
+          className="relative mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="Search courses by name or code..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full p-4 pl-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+            />
+            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+          </div>
+        </motion.div>
 
         {/* Course List */}
-        <div className="rounded-lg">
-          {filteredCourses.map((course) => (
-            <div
-              key={course.id}
-              className="p-4 rounded-lg mb-4 transition-all duration-200 hover:scale-[101%] hover:shadow-lg bg-gray-100"
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-xl font-semibold">{course.name}</p>
-                  <p className="text-sm text-gray-700">
-                    Course ID: {course.id}
-                  </p>
-                  <p className="text-sm text-gray-700">Code: {course.code}</p>
-                </div>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => handleEditCourse(course)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-95 hover:shadow-xl"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCourse(course.id)}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-95 hover:shadow-xl"
-                  >
-                    <FaTrashAlt />
-                  </button>
-                </div>
-              </div>
+        <div className="space-y-4">
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
             </div>
-          ))}
+          ) : filteredCourses.length > 0 ? (
+            filteredCourses.map((course, index) => (
+              <motion.div
+                key={course.id}
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                whileHover={{ y: -5 }}
+              >
+                <div className="flex justify-between items-center">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-blue-100">
+                        <FaBook className="text-blue-600" size={20} />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-semibold text-gray-800">{course.name}</h3>
+                        <div className="flex gap-6 mt-1">
+                          <p className="text-sm text-gray-500 flex items-center gap-1">
+                            <span className="font-medium text-gray-700">Code:</span> {course.code}
+                          </p>
+                          <p className="text-sm text-gray-500 flex items-center gap-1">
+                            <span className="font-medium text-gray-700">Semester:</span> {course.semester}
+                          </p>
+                          <p className="text-sm text-gray-500 flex items-center gap-1">
+                            <span className="font-medium text-gray-700">Credits:</span> {course.credits}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    {course.description && (
+                      <p className="mt-2 text-gray-600 line-clamp-2">{course.description}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-3">
+                    <motion.button
+                      onClick={() => handleEditCourse(course)}
+                      className="flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg shadow-sm"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaEdit size={16} /> Edit
+                    </motion.button>
+                    <motion.button
+                      onClick={() => handleDeleteCourse(course.id)}
+                      className="flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg shadow-sm"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <FaTrashAlt size={16} /> Delete
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            ))
+          ) : (
+            <motion.div
+              className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <p className="text-gray-500 text-lg">No courses found matching your search</p>
+            </motion.div>
+          )}
         </div>
+      </div>
 
-        {/* Edit Course Modal */}
-        {showModal && (
-          <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex justify-center items-center z-20 animate-fade-in">
-            <div className="bg-white rounded-lg shadow-lg w-[40rem] max-h-[80vh] flex flex-col">
-              {/* Modal Tabs */}
-              <div className="flex justify-center mb-4 p-4 border-b">
-                <button
-                  onClick={() => setActiveTab("edit")}
-                  className={`px-6 py-2 rounded-t-lg ${
-                    activeTab === "edit" ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
-                >
-                  Edit Course
-                </button>
-                <button
-                  onClick={() => handleViewDetails(newCourse.id)}
-                  className={`px-6 py-2 rounded-t-lg ${
-                    activeTab === "details" ? "bg-blue-500 text-white" : "bg-gray-200"
-                  }`}
-                >
-                  User Management
-                </button>
-              </div>
+      {/* Edit Course Modal */}
+      {showModal && (
+        <motion.div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-xl shadow-xl w-[45rem] max-h-[85vh] flex flex-col"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+          >
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-t-xl">
+              <h2 className="text-xl font-semibold">
+                {activeTab === "edit" 
+                  ? "Edit Course Details" 
+                  : "Course Management"}
+              </h2>
+            </div>
 
-              {/* Modal Content (Scrollable) */}
-              <div className="flex-1 overflow-y-auto p-6">
-                {activeTab === "edit" ? (
-                  <div>
-                    {/* Edit Course Form */}
-                    <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
-                      ✏️ Edit Course
-                    </h2>
-                    <div className="space-y-6">
-                      {["id", "code", "name", "description", "credits", "semester"].map(
-                        (field) => (
-                          <div key={field} className="space-y-2">
-                            <label
-                              htmlFor={field}
-                              className="block text-lg font-medium text-gray-700 capitalize"
-                            >
-                              {field}:
-                            </label>
-                            {field === "description" ? (
-                              <textarea
-                                id={field}
-                                value={newCourse[field]}
-                                onChange={(e) =>
-                                  setNewCourse({
-                                    ...newCourse,
-                                    [field]: e.target.value,
-                                  })
-                                }
-                                className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                rows="4"
-                                placeholder={`Enter course ${field}`}
-                              />
-                            ) : (
-                              <input
-                                id={field}
-                                type={field === "credits" ? "number" : "text"}
-                                value={newCourse[field]}
-                                onChange={(e) =>
-                                  setNewCourse({
-                                    ...newCourse,
-                                    [field]: e.target.value,
-                                  })
-                                }
-                                className="p-3 w-full border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                                placeholder={`Enter course ${field}`}
-                              />
-                            )}
-                          </div>
-                        )
-                      )}
+            {/* Modal Tabs */}
+            <div className="flex border-b px-6 pt-4 pb-2 gap-4">
+              <button
+                onClick={() => setActiveTab("edit")}
+                className={`px-4 py-2 rounded-lg transition-all ${
+                  activeTab === "edit"
+                    ? "bg-blue-100 text-blue-700 font-semibold" 
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <FaEdit />
+                  <span>Course Details</span>
+                </div>
+              </button>
+              <button
+                onClick={() => handleViewDetails(newCourse.id)}
+                className={`px-4 py-2 rounded-lg transition-all ${
+                  activeTab === "details"
+                    ? "bg-blue-100 text-blue-700 font-semibold"  
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <FaUserGraduate />
+                  <span>Users</span>
+                </div>
+              </button>
+            </div>
+
+            {/* Modal Content (Scrollable) */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {activeTab === "edit" ? (
+                <div className="space-y-6">
+                  {/* Edit Course Form */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Course ID</label>
+                      <input
+                        type="text"
+                        value={newCourse.id}
+                        readOnly
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 bg-gray-50 focus:outline-none"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Course Code</label>
+                      <input
+                        type="text"
+                        value={newCourse.code}
+                        onChange={(e) =>
+                          setNewCourse({ ...newCourse, code: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
+                      <select
+                        value={newCourse.semester}
+                        onChange={(e) =>
+                          setNewCourse({ ...newCourse, semester: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      >
+                        <option value="">Select Semester</option>
+                        <option value="Fall">Fall</option>
+                        <option value="Spring">Spring</option>
+                        <option value="Summer">Summer</option>
+                      </select>
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+                      <input
+                        type="text"
+                        value={newCourse.name}
+                        onChange={(e) =>
+                          setNewCourse({ ...newCourse, name: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Credits</label>
+                      <input
+                        type="number"
+                        value={newCourse.credits}
+                        onChange={(e) =>
+                          setNewCourse({ ...newCourse, credits: e.target.value })
+                        }
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      />
+                    </div>
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                      <textarea
+                        value={newCourse.description}
+                        onChange={(e) =>
+                          setNewCourse({ ...newCourse, description: e.target.value })
+                        }
+                        rows="4"
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      />
                     </div>
                   </div>
-                ) : (
-                  <div>
-                    {/* User Management Content */}
-                    <h2 className="text-3xl font-semibold text-center mb-5 text-gray-800">
-                      📖 Course Details
-                    </h2>
-                    {/* Students Enrolled Section */}
-                    <div className="mb-6 p-4 rounded-lg shadow-md bg-blue-50">
-                      <h3 className="text-xl font-semibold text-blue-600 flex items-center gap-2">
-                        👨‍🎓 Students Enrolled
-                      </h3>
-                      {/* Search Bar for Students */}
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {/* Students Enrolled Section */}
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl p-5 shadow-sm border border-blue-200">
+                    <h3 className="text-lg font-semibold text-blue-700 mb-3 flex items-center gap-2">
+                      <FaUserGraduate size={18} />
+                      <span>Enrolled Students</span>
+                    </h3>
+                    {/* Search Bar for Students */}
+                    <div className="relative mb-4">
                       <input
                         type="text"
                         placeholder="Search students by name..."
                         value={studentSearchTerm}
                         onChange={(e) => setStudentSearchTerm(e.target.value)}
-                        className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 pl-10 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                       />
-                      {filteredStudents.length > 0 ? (
-                        <div>
-                          <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
+                      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-400" />
+                    </div>
+
+                    {filteredStudents.length > 0 ? (
+                      <div>
+                        <div className="max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                          <ul className="space-y-2">
                             {filteredStudents.map((student) => (
                               <li
                                 key={student.id}
-                                className={`p-3 rounded-lg shadow flex justify-between items-center transition-all duration-200 ${
+                                className={`p-3 rounded-lg flex justify-between items-center transition-all duration-200 ${
                                   selectedStudents.includes(student.id)
-                                    ? "bg-blue-100 border-2 border-blue-500"
-                                    : "bg-white"
+                                    ? "bg-blue-200 border border-blue-300"
+                                    : "bg-white border border-gray-100"
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <input
                                     type="checkbox"
+                                    className="w-4 h-4 accent-blue-500"
                                     checked={selectedStudents.includes(student.id)}
                                     onChange={() => toggleStudentSelection(student.id)}
                                   />
-                                  <span className="text-gray-700">{student.name}</span>
+                                  <span>{student.name}</span>
                                 </div>
                               </li>
                             ))}
                           </ul>
-                          <button
-                            onClick={removeSelectedStudents}
-                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                          >
-                            Remove Selected Students
-                          </button>
                         </div>
-                      ) : (
-                        <p className="text-gray-600 mt-3">No students found.</p>
-                      )}
-                    </div>
-                    {/* Faculty Assigned Section */}
-                    <div className="p-4 rounded-lg shadow-md bg-green-50">
-                      <h3 className="text-xl font-semibold text-green-600 flex items-center gap-2">
-                        🎓 Faculty Assigned
-                      </h3>
-                      {/* Search Bar for Faculty */}
+                        {selectedStudents.length > 0 && (
+                          <motion.button
+                            onClick={removeSelectedStudents}
+                            className="mt-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                          >
+                            <FaTrashAlt size={14} />
+                            <span>Remove {selectedStudents.length} Selected</span>
+                          </motion.button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-white p-4 rounded-lg text-center border border-gray-200">
+                        <p className="text-gray-500">No students enrolled in this course</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Faculty Assigned Section */}
+                  <div className="bg-gradient-to-r from-green-50 to-green-100 rounded-xl p-5 shadow-sm border border-green-200">
+                    <h3 className="text-lg font-semibold text-green-700 mb-3 flex items-center gap-2">
+                      <FaChalkboardTeacher size={18} />
+                      <span>Faculty Assigned</span>
+                    </h3>
+                    {/* Search Bar for Faculty */}
+                    <div className="relative mb-4">
                       <input
                         type="text"
                         placeholder="Search faculty by name..."
                         value={facultySearchTerm}
                         onChange={(e) => setFacultySearchTerm(e.target.value)}
-                        className="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full p-3 pl-10 border border-green-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-400"
                       />
-                      {filteredFaculty.length > 0 ? (
-                        <div>
-                          <ul className="list-none mt-3 space-y-2 max-h-40 overflow-y-auto">
+                      <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-400" />
+                    </div>
+
+                    {filteredFaculty.length > 0 ? (
+                      <div>
+                        <div className="max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+                          <ul className="space-y-2">
                             {filteredFaculty.map((faculty) => (
                               <li
                                 key={faculty.id}
-                                className={`p-3 rounded-lg shadow flex justify-between items-center transition-all duration-200 ${
+                                className={`p-3 rounded-lg flex justify-between items-center transition-all duration-200 ${
                                   selectedFaculty.includes(faculty.id)
-                                    ? "bg-green-100 border-2 border-green-500"
-                                    : "bg-white"
+                                    ? "bg-green-200 border border-green-300"
+                                    : "bg-white border border-gray-100"
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <input
                                     type="checkbox"
+                                    className="w-4 h-4 accent-green-500"
                                     checked={selectedFaculty.includes(faculty.id)}
                                     onChange={() => toggleFacultySelection(faculty.id)}
                                   />
-                                  <span className="text-gray-700">{faculty.name}</span>
+                                  <span>{faculty.name}</span>
                                 </div>
                               </li>
                             ))}
                           </ul>
-                          <button
-                            onClick={removeSelectedFaculty}
-                            className="mt-4 bg-red-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                          >
-                            Remove Selected Faculty
-                          </button>
                         </div>
-                      ) : (
-                        <p className="text-gray-600 mt-3">No faculty found.</p>
-                      )}
-                    </div>
-                    {/* Bulk Add Students Section */}
-                    <div className="mt-6 p-4 rounded-lg shadow-md bg-yellow-50">
-                      <h3 className="text-xl font-semibold text-yellow-600 flex items-center gap-2">
-                        📂 Add Students in Bulk
-                      </h3>
-                      <p className="text-gray-600 mt-2">
-                        Upload a CSV file with <strong>userId</strong> or <strong>rollNumber</strong> to add students to this course.
-                      </p>
-                      <input
-                        type="file"
-                        accept=".csv"
-                        onChange={(e) => setSelectedFile(e.target.files[0])} // Save the selected file
-                        className="mt-4 p-3 w-full border border-gray-300 rounded-lg"
-                      />
-                      <button
-                        onClick={() => {
-                          if (selectedFile) {
-                            handleBulkAddStudents(selectedFile, courseDetails.id); // Process the file on button click
-                          } else {
-                            alert("Please select a file first.");
-                          }
-                        }}
-                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                      >
-                        Upload
-                      </button>
-                    </div>
+                        {selectedFaculty.length > 0 && (
+                          <motion.button
+                            onClick={removeSelectedFaculty}
+                            className="mt-4 bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                          >
+                            <FaTrashAlt size={14} />
+                            <span>Remove {selectedFaculty.length} Selected</span>
+                          </motion.button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="bg-white p-4 rounded-lg text-center border border-gray-200">
+                        <p className="text-gray-500">No faculty assigned to this course</p>
+                      </div>
+                    )}
                   </div>
-                )}
 
-              </div>
-
-              {/* Fixed Footer */}
-              <div className="p-4 border-t bg-white flex justify-end gap-4">
-                <button
-                  onClick={handleCancel}
-                  className="bg-red-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                >
-                  Close
-                </button>
-                {activeTab === "edit" && (
-                  <button
-                    onClick={handleSaveCourse}
-                    className="bg-blue-500 text-white px-5 py-2 rounded-lg transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                  >
-                    Save
-                  </button>
-                )}
-              </div>
+                  {/* Bulk Add Students Section */}
+                  <div className="bg-gradient-to-r from-amber-50 to-amber-100 rounded-xl p-5 shadow-sm border border-amber-200">
+                    <h3 className="text-lg font-semibold text-amber-700 mb-3 flex items-center gap-2">
+                      <FaFileUpload size={18} />
+                      <span>Bulk Student Upload</span>
+                    </h3>
+                    <p className="text-gray-600 mb-4">
+                      Upload a CSV file with <span className="font-medium">userId</span> or <span className="font-medium">rollNumber</span> to add students to this course.
+                    </p>
+                    
+                    <div className="bg-white p-4 rounded-lg border border-amber-200">
+                      <label className="flex flex-col items-center justify-center cursor-pointer">
+                        <div className="flex flex-col items-center justify-center">
+                          <FaFileUpload className="text-amber-500 mb-2" size={24} />
+                          <span className="text-sm text-gray-500">
+                            {selectedFile ? selectedFile.name : "Choose CSV file"}
+                          </span>
+                        </div>
+                        <input
+                          type="file"
+                          accept=".csv"
+                          onChange={(e) => setSelectedFile(e.target.files[0])}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                    
+                    <motion.button
+                      onClick={() => {
+                        if (selectedFile) {
+                          handleBulkAddStudents(selectedFile, courseDetails.id);
+                        } else {
+                          alert("Please select a file first.");
+                        }
+                      }}
+                      className="mt-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full justify-center"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      disabled={!selectedFile}
+                    >
+                      <FaFileUpload size={16} />
+                      <span>Upload Student Data</span>
+                    </motion.button>
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-      </div>
+
+            {/* Fixed Footer */}
+            <div className="p-4 border-t flex justify-end gap-3">
+              <motion.button
+                onClick={handleCancel}
+                className="px-5 py-2 border border-gray-300 rounded-lg text-gray-700 font-medium"
+                whileHover={{ scale: 1.03, backgroundColor: "#f3f4f6" }}
+                whileTap={{ scale: 0.97 }}
+              >
+                Cancel
+              </motion.button>
+              
+              {activeTab === "edit" && (
+                <motion.button
+                  onClick={handleSaveCourse}
+                  className="px-5 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Save Changes
+                </motion.button>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </div>
   );
 };
