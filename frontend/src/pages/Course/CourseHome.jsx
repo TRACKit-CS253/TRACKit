@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { CgProfile } from 'react-icons/cg';
 import { IoIosArrowDropdown } from "react-icons/io";
-import { FaPlus } from "react-icons/fa";
-import { FaRegEdit } from "react-icons/fa";
+import { FaPlus, FaRegEdit, FaChalkboardTeacher } from "react-icons/fa";
 import { AiOutlineDelete } from "react-icons/ai";
 import { NavLink } from 'react-router-dom';
 import { useCourse } from '../../contexts/CourseContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
-// Import the Calendar component
 import MyCalendar from '../../components/Calendar_Course_Home';
+import { TbPercentage } from "react-icons/tb";
+import { BsInfoCircle } from "react-icons/bs";
 
 export default function CourseHome({ role }) {
   const { courseDetails, loading, error } = useCourse();
@@ -31,6 +31,7 @@ export default function CourseHome({ role }) {
   const [attendanceData, setAttendanceData] = useState(null);
   const [attendanceLoading, setAttendanceLoading] = useState(false);
   const [attendanceError, setAttendanceError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
   
   // Get user data from localStorage
   const userData = JSON.parse(localStorage.getItem('user')) || {};
@@ -39,13 +40,54 @@ export default function CourseHome({ role }) {
 
   useEffect(() => {
     if (courseDetails?.id && courseDetails?.code && role === "student" && rollNumber) {
-      fetchAttendanceData();
+      getAttendanceData();
     }
   }, [courseDetails, role, rollNumber]);
   
-  const fetchAttendanceData = async () => {
+  /**
+   * Checks if there is valid cached attendance data and uses it, 
+   * otherwise fetches new data from API
+   */
+  const getAttendanceData = () => {
     if (!rollNumber) {
       setAttendanceError("Roll number not available");
+      return;
+    }
+    
+    // Try to get cached data for this specific course and student
+    const cacheKey = `attendance_${courseDetails.code}_${rollNumber}`;
+    const cachedData = localStorage.getItem(cacheKey);
+    
+    if (cachedData) {
+      try {
+        const { data, timestamp } = JSON.parse(cachedData);
+        const currentTime = new Date().getTime();
+        const oneHourMs = 60 * 60 * 1000; // 1 hour in milliseconds
+        
+        // Check if cached data is still valid (less than 1 hour old)
+        if (currentTime - timestamp < oneHourMs) {
+          console.log("Using cached attendance data from local storage");
+          setAttendanceData(data);
+          setLastUpdated(new Date(timestamp));
+          return;
+        } else {
+          console.log("Cached attendance data expired, fetching fresh data");
+        }
+      } catch (err) {
+        console.error("Error parsing cached attendance data:", err);
+        // Continue to fetch new data if there's an error with cached data
+      }
+    } else {
+      console.log("No cached attendance data found, fetching from API");
+    }
+    
+    // No valid cache found, fetch fresh data
+    fetchAttendanceData();
+  };
+  
+  const fetchAttendanceData = async () => {
+    if (!rollNumber || !courseDetails?.code) {
+      setAttendanceError("Required data not available");
       return;
     }
     
@@ -64,10 +106,23 @@ export default function CourseHome({ role }) {
           'Content-Type': 'application/json'
         }
       });
-      const courseCode= `${courseDetails.code} (G-1)`
-      console.log("Course Code:", courseCode);
+      
       console.log("Attendance API response:", response.data);
+      
+      // Store the current timestamp
+      const now = new Date();
+      setLastUpdated(now);
       setAttendanceData(response.data);
+      
+      // Cache the data in localStorage with timestamp
+      const cacheData = {
+        data: response.data,
+        timestamp: now.getTime()
+      };
+      
+      const cacheKey = `attendance_${courseDetails.code}_${rollNumber}`;
+      localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+      console.log(`Attendance data cached for ${courseDetails.code}`);
       
     } catch (err) {
       console.error("Error fetching attendance data:", err);
@@ -77,6 +132,32 @@ export default function CourseHome({ role }) {
       setAttendanceLoading(false);
     }
   };
+  
+  // Manually refresh attendance data
+  const handleRefreshAttendance = () => {
+    fetchAttendanceData();
+    showNotification("Refreshing attendance data...", "info");
+  };
+  
+  // Extract attendance data for the current course
+  const getCourseAttendance = () => {
+    if (!attendanceData || !courseDetails?.code) return null;
+    
+    // Loop through the attendance data to find the matching course code
+    for (const key in attendanceData) {
+      if (key === "percentage" || key === "present_classes" || key === "total_classes") {
+        continue; // Skip the summary fields
+      }
+      
+      if (key.startsWith(courseDetails.code)) {
+        return attendanceData[key];
+      }
+    }
+    
+    return null;
+  };
+  
+  const courseAttendance = getCourseAttendance();
   
   // Debug logs
   useEffect(() => {
@@ -256,36 +337,6 @@ export default function CourseHome({ role }) {
     }
   };
   
-  const getCourseAttendance = () => {
-    if (!attendanceData || !courseDetails?.code) return null;
-    
-    // Loop through the attendance data to find the matching course code
-    // The API returns keys like "EE340 (G-1)" but our courseCode might be just "EE340"
-    // So we need to check if the key starts with our course code
-    for (const key in attendanceData) {
-      if (key === "percentage" || key === "present_classes" || key === "total_classes") {
-        continue; // Skip the summary fields
-      }
-      
-      if (key.startsWith(courseDetails.code)) {
-        return attendanceData[key];
-      }
-    }
-    
-    // // If no specific course found, return the overall attendance
-    // if (attendanceData.percentage !== undefined) {
-    //   return {
-    //     percentage: attendanceData.percentage,
-    //     present_classes: attendanceData.present_classes,
-    //     total_classes: attendanceData.total_classes
-    //   };
-    // }
-    
-    return null;
-  };
-  
-  const courseAttendance = getCourseAttendance();
-  
   if (loading) {
     return (
       <div className='w-full h-screen flex items-center justify-center'>
@@ -369,40 +420,111 @@ export default function CourseHome({ role }) {
           </div>
         </div>
 
-        {/* Attendance section - takes up full width on small screens, 1/3 on large */}
+        {/* Attendance section with caching improvements */}
         {role === "student" && (
-          <div className='border px-6 py-8 rounded-lg shadow-lg flex flex-col justify-center lg:h-[300px] mt-10 lg:mt-20 w-full'>
-            <p className='font-semibold text-[22px] mb-4'>Your Attendance</p>
+          <div className='border px-6 py-8 rounded-lg shadow-lg flex flex-col justify-center lg:h-[300px] mt-10 lg:mt-20 w-full bg-white'>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-indigo-100 rounded-lg">
+                  <TbPercentage className="text-indigo-600 text-xl" />
+                </div>
+                <p className='font-semibold text-[22px]'>Your Attendance</p>
+              </div>
+              
+              <button
+                onClick={handleRefreshAttendance}
+                disabled={attendanceLoading}
+                className="text-sm p-1.5 rounded-full hover:bg-gray-100 transition-all"
+                title="Refresh attendance data"
+              >
+                <svg className={`w-4 h-4 text-gray-600 ${attendanceLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
+            </div>
             
             {attendanceLoading ? (
-              <div className='flex justify-center items-center h-24'>
-                <div className='animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500'></div>
+              <div className="flex flex-col items-center justify-center h-32">
+                <div className="w-10 h-10 border-t-2 border-b-2 border-blue-500 rounded-full animate-spin mb-2"></div>
+                <p className="text-gray-500 text-sm">Loading attendance data...</p>
               </div>
             ) : attendanceError ? (
-              <div className='text-red-500 text-center'>
-                <p>{attendanceError}</p>
+              <div className="text-center py-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 mb-4 rounded-full bg-red-100">
+                  <BsInfoCircle className="text-red-500 text-xl" />
+                </div>
+                <p className="text-red-500 mb-3">{attendanceError}</p>
                 <button 
                   onClick={fetchAttendanceData}
-                  className='mt-2 text-blue-500 underline'
+                  className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
                 >
                   Retry
                 </button>
               </div>
             ) : courseAttendance ? (
-              <div className='flex flex-col gap-2'>
-                <p className='text-[45px] text-black-600 font-bold'>
-                  {courseAttendance.percentage.toFixed(0)}%
+              <div className="text-center">
+                {/* Attendance percentage in a circle */}
+                <div className="relative inline-flex mb-4">
+                  <svg className="w-28 h-28">
+                    {/* Background circle */}
+                    <circle 
+                      cx="56" 
+                      cy="56" 
+                      r="50" 
+                      fill="none" 
+                      stroke="#E5E7EB" 
+                      strokeWidth="10"
+                    />
+                    
+                    {/* Foreground circle showing percentage */}
+                    <circle 
+                      cx="56" 
+                      cy="56" 
+                      r="50" 
+                      fill="none" 
+                      stroke={courseAttendance.percentage >= 75 ? "#10B981" : courseAttendance.percentage >= 65 ? "#FBBF24" : "#EF4444"} 
+                      strokeWidth="10"
+                      strokeDasharray={`${Math.PI * 100}`}
+                      strokeDashoffset={`${Math.PI * 100 * (1 - courseAttendance.percentage / 100)}`}
+                      strokeLinecap="round"
+                      transform="rotate(-90 56 56)"
+                    />
+                  </svg>
+                  
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <span className={`text-2xl font-bold ${
+                      courseAttendance.percentage >= 75 ? "text-green-500" : 
+                      courseAttendance.percentage >= 65 ? "text-yellow-500" : "text-red-500"
+                    }`}>
+                      {courseAttendance.percentage.toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+                
+                <p className='text-gray-800 mb-2'>
+                  You've attended <span className='font-semibold'>{courseAttendance.present_classes}</span> out of <span className='font-semibold'>{courseAttendance.total_classes}</span> classes
                 </p>
-                <p className='text-[18px]'>
-                  You have attended: <br /> 
-                  <span className='font-semibold'>
-                    {courseAttendance.present_classes}/{courseAttendance.total_classes}
-                  </span> classes
-                </p>
+                
+                {courseAttendance.percentage < 75 && (
+                  <p className="flex items-center justify-center gap-1 text-red-500 text-sm font-medium mt-1">
+                    <BsInfoCircle /> 
+                    <span>Below required 75% attendance</span>
+                  </p>
+                )}
+                
+                {/* Show last updated time */}
+                {lastUpdated && (
+                  <p className="text-xs text-gray-400 mt-4">
+                    Last updated: {lastUpdated.toLocaleTimeString()} {lastUpdated.toLocaleDateString()}
+                  </p>
+                )}
               </div>
             ) : (
-              <div className='text-gray-500 text-center'>
-                <p>There is no attendance policy in this course 😊</p>
+              <div className="text-center py-6">
+                <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100">
+                  <FaChalkboardTeacher className="text-blue-500 text-xl" />
+                </div>
+                <p className="text-gray-600">No attendance policy for this course</p>
               </div>
             )}
           </div>
