@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import loginImg from '../assets/login.png';
-import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaArrowRight } from 'react-icons/fa6';
 
 const Login = () => {
   const [username, setUsername] = useState('');
@@ -103,6 +104,32 @@ const Login = () => {
           </button>
         </form>
         {error && <p className="text-red-500 text-sm mt-2 w-full text-center">{error}</p>}
+        
+        {/* TRACKit-v2.0 Button with enhanced UI */}
+        <div className="w-[80%] mt-12 relative">
+          <button 
+            onClick={() => window.open('http://trackit-v2.example.com', '_blank')} // Replace with your actual v2.0 URL
+            className="group w-full flex items-center justify-between px-6 py-3 bg-gradient-to-r from-slate-900 to-gray-800 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl overflow-hidden"
+          >
+            {/* Decorative elements */}
+            <div className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
+            {/* <div className="absolute -top-6 -right-6 w-12 h-12 bg-blue-500 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
+            <div className="absolute -bottom-8 -left-8 w-16 h-16 bg-purple-500 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div> */}
+            
+            <div className="flex flex-col items-start">
+              <span className="text-xs text-blue-300 font-medium tracking-wider">EXPLORE</span>
+              <span className="text-lg font-bold">TRACKit-v2.0</span>
+            </div>
+            
+            <div className="bg-white/10 rounded-full p-2 group-hover:bg-white/20 transition-colors duration-300">
+              <FaArrowRight className="text-white" />
+            </div>
+          </button>
+          
+          <div className="absolute -bottom-6 w-full text-center">
+            <span className="text-xs text-gray-500">Try our latest version with new features</span>
+          </div>
+        </div>
       </div>
     </div>
   );
