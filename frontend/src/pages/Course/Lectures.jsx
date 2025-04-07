@@ -560,10 +560,10 @@ export default function Lectures({ role }) {
       <div className='p-4 md:p-6'>
         {Object.keys(lectures).length > 0 ? (
           Object.entries(lectures).map(([heading, topics]) => (
-            <div key={heading} className='mb-3'>
+            <div key={heading} className='mb-3 '>
               {/* Heading Header */}
               <div
-                className='w-full md:w-[98%] py-3 mx-auto md:ml-6 border-2 flex flex-col px-4 md:px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200 relative'
+                className='w-full bg-white md:w-[98%] py-3 mx-auto md:ml-6 border-2 flex flex-col px-4 md:px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200 relative'
                 onClick={() => toggleWeek(heading)}
               >
                 <div className='flex justify-between w-full font-semibold items-center flex-wrap gap-2'>

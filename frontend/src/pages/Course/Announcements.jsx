@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { CgProfile } from 'react-icons/cg'
 import { IoIosArrowDropdown } from "react-icons/io";
-import { FaPlus } from "react-icons/fa";
-import { FaRegEdit } from "react-icons/fa";
+import { FaPlus, FaRegEdit, FaClock } from "react-icons/fa";
 import { AiOutlineDelete } from "react-icons/ai";
 import { NavLink } from 'react-router-dom';
 import { useCourse } from '../../contexts/CourseContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
-
 
 export default function Announcements({ role }) {
   const [expandedIndices, setExpandedIndices] = useState({});
@@ -25,13 +23,21 @@ export default function Announcements({ role }) {
   });
   const [currentAnnouncementId, setCurrentAnnouncementId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update current time every minute to keep relative times fresh
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
   
   const toggleExpand = (index) => {
     setExpandedIndices(prev => ({ ...prev, [index]: !prev[index] }));
   };
 
-
-  
   useEffect(() => {
     if (courseDetails?.id) {
       fetchAnnouncements();
@@ -185,6 +191,49 @@ export default function Announcements({ role }) {
     return date.toLocaleString();
   };
 
+  // Check if an announcement is new (less than 24 hours old)
+  const isNew = (createdAt) => {
+    const created = new Date(createdAt);
+    const now = new Date();
+    const diff = now - created;
+    const hours = diff / (1000 * 60 * 60);
+    return hours < 24;
+  };
+
+  // Format the relative time (how long ago) without using date-fns
+  const getRelativeTime = (dateString) => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHour = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHour / 24);
+      const diffMonth = Math.floor(diffDay / 30);
+      const diffYear = Math.floor(diffDay / 365);
+      
+      if (diffSec < 5) {
+        return "just now";
+      } else if (diffSec < 60) {
+        return `${diffSec} second${diffSec === 1 ? '' : 's'} ago`;
+      } else if (diffMin < 60) {
+        return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`;
+      } else if (diffHour < 24) {
+        return `${diffHour} hour${diffHour === 1 ? '' : 's'} ago`;
+      } else if (diffDay < 30) {
+        return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`;
+      } else if (diffMonth < 12) {
+        return `${diffMonth} month${diffMonth === 1 ? '' : 's'} ago`;
+      } else {
+        return `${diffYear} year${diffYear === 1 ? '' : 's'} ago`;
+      }
+    } catch (error) {
+      console.error("Date formatting error:", error);
+      return "recently";
+    }
+  };
+
   return (
     <div className='w-full h-screen overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-purple-50'>
       {/* Show loading state while course details are loading */}
@@ -216,12 +265,12 @@ export default function Announcements({ role }) {
               </button>
             )}
             <NavLink 
-                        to="/dashboard/profile"
-                        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
-                      >
-                        <CgProfile className='text-blue-600 text-xl' />
-                        <span className="text-sm font-medium">View Profile</span>
-                      </NavLink>
+              to="/dashboard/profile"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
+            >
+              <CgProfile className='text-blue-600 text-xl' />
+              <span className="text-sm font-medium">View Profile</span>
+            </NavLink>
           </div>
         </div>
 
@@ -231,7 +280,22 @@ export default function Announcements({ role }) {
             <div key={announcement.id} className='mb-2 '>
               <div className='w-[98%] ml-6 py-3 border-2 flex flex-col bg-white px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200' onClick={() => toggleExpand(index)}>
                 <div className='flex justify-between w-full font-semibold'>
-                  <span className='text-lg'>{announcement.announcementHeading}</span>
+                  <div className="flex items-center gap-2">
+                    <span className='text-lg'>{announcement.announcementHeading}</span>
+                    
+                    {/* NEW Tag */}
+                    {isNew(announcement.createdAt) && (
+                      <span className="bg-blue-600 text-white text-xs px-1.5 py-0.5 rounded-md font-semibold animate-pulse">
+                        NEW
+                      </span>
+                    )}
+                    
+                    {/* Relative time indicator */}
+                    <div className="ml-2 flex items-center text-xs text-gray-500">
+                      <FaClock className="mr-1" size={12} />
+                      <span>{getRelativeTime(announcement.createdAt)}</span>
+                    </div>
+                  </div>
                   <div className='flex gap-8 items-center'>
                     {role !== "student" && (
                       <div className='flex gap-2 items-center'>
@@ -254,17 +318,16 @@ export default function Announcements({ role }) {
                   className={`overflow-hidden transition-all duration-300 ${expandedIndices[index] ? 'max-h-96 opacity-100 py-3' : 'max-h-0 opacity-0'}`}
                 >
                   <div>{announcement.announcementBody}</div>
-                  <hr className="my-2 border-gray-300" />
                   <div className="text-xs text-gray-600">
-                    <p>Posted by: {announcement.faculty.user.firstName} {announcement.faculty.user.lastName} ({announcement.faculty.user.username})</p>
-                    <p>Created: {formatDate(announcement.createdAt)}</p>
                     {announcement.createdAt !== announcement.updatedAt &&
-                      Math.abs(new Date(announcement.updatedAt) - new Date(announcement.createdAt)) >= 1000 && (
-                        <p>Updated: {formatDate(announcement.updatedAt)}</p>
+                    
+                    Math.abs(new Date(announcement.updatedAt) - new Date(announcement.createdAt)) >= 1000 && (
+                      <div>
+                          <hr className="my-2 border-gray-300" />
+                          <p>Updated: {formatDate(announcement.updatedAt)}</p>
+
+                        </div>
                     )}
-                    {/* {announcement.createdAt !== announcement.updatedAt && (
-                      <p>Updated: {formatDate(announcement.updatedAt)}</p>
-                    )} */}
                   </div>
                 </div>
               </div>
@@ -363,6 +426,5 @@ export default function Announcements({ role }) {
         </div>
       )}
     </div>
-
   );
 }
