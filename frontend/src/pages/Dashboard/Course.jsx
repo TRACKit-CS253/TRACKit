@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useCourses } from '../../contexts/CourseContext';
 import MyCalendar from '../../components/Calendar_Dashboard';
@@ -6,11 +6,13 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { FaBook, FaUserGraduate, FaCalendarAlt, FaClock } from 'react-icons/fa';
 import { BiChevronRight } from 'react-icons/bi';
+import axiosInstance from '../../utils/axiosInstance';
 
 export default function Course() {
   const { courses, loading, error } = useCourses();
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const [courseDetails, setCourseDetails] = useState({});
   
   // Get current semester based on current date
   const getCurrentSemester = () => {
@@ -24,6 +26,36 @@ export default function Course() {
   };
   
   const currentSemester = getCurrentSemester();
+
+  // Fetch faculty details for all courses
+  useEffect(() => {
+    if (courses && courses.length > 0) {
+      const fetchFacultyForCourses = async () => {
+        try {
+          const courseDetailsObj = {};
+          
+          for (const course of courses) {
+            const response = await axiosInstance.get(`/api/courses/${course.id}`);
+            const facultyList = response.data.data.faculty || [];
+            
+            const facultyNames = facultyList.map(faculty => 
+              `${faculty.user.firstName} ${faculty.user.lastName}`
+            );
+            
+            courseDetailsObj[course.id] = {
+              facultyNames: facultyNames.length > 0 ? facultyNames : ['No faculty assigned']
+            };
+          }
+          
+          setCourseDetails(courseDetailsObj);
+        } catch (error) {
+          console.error("Error fetching faculty details:", error);
+        }
+      };
+      
+      fetchFacultyForCourses();
+    }
+  }, [courses]);
   
   if (loading) {
     return (
@@ -114,8 +146,16 @@ export default function Course() {
                     <div className="mt-4">
                       <div className="flex items-center text-sm text-gray-600">
                         <FaUserGraduate className="text-gray-400 mr-2" />
-                        <span className="truncate">{course.instructor || 'Faculty'}</span>
+                        <span className="truncate">
+                          {courseDetails[course.id]?.facultyNames?.[0] || 'Loading faculty...'}
+                        </span>
                       </div>
+                      
+                      {courseDetails[course.id]?.facultyNames?.length > 1 && (
+                        <div className="mt-1 ml-6 text-xs text-gray-500">
+                          +{courseDetails[course.id].facultyNames.length - 1} more faculty
+                        </div>
+                      )}
                       
                       <div className="mt-2 flex items-center text-sm text-gray-600">
                         <FaClock className="text-gray-400 mr-2" />
