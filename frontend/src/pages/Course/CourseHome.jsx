@@ -528,7 +528,7 @@ export default function CourseHome({ role }) {
                 <div className="flex items-center justify-center w-12 h-12 mx-auto mb-4 rounded-full bg-blue-100">
                   <FaChalkboardTeacher className="text-blue-500 text-xl" />
                 </div>
-                <p className="text-gray-600">No attendance policy for this course</p>
+                <p className="text-gray-600">No attendance policy for this course 😊</p>
               </div>
             )}
           </div>
