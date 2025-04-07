@@ -56,7 +56,7 @@ export default function Profile() {
   console.log('Profile data:', displayData);
     
   return (
-    <div className='w-full h-full flex items-center justify-center'>
+    <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50'>
         <div className='relative w-[80%] h-[80%] border shadow-2xl rounded-xl'>
             <div 
               className='h-[40%] w-full rounded-4xl'

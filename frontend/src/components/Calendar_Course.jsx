@@ -150,7 +150,7 @@ const MyCalendar = () => {
   };
 
   return (
-    <div>
+    <div className='border px-4 py-3 bg-white rounded-xl'>
       {loading && (
         <div className="text-center py-2 text-blue-500 bg-white rounded shadow mb-2">
           Loading calendar events...

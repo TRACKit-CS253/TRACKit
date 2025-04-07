@@ -186,7 +186,7 @@ export default function Announcements({ role }) {
   };
 
   return (
-    <div className='w-full h-screen overflow-y-auto'>
+    <div className='w-full h-screen overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-purple-50'>
       {/* Show loading state while course details are loading */}
         {loading ? (
           <div className="w-full min-h-screen bg-gray-50 p-6 flex items-center justify-center">
@@ -224,8 +224,8 @@ export default function Announcements({ role }) {
       <div className='p-6'> 
         {announcements.length > 0 ? (
           announcements.map((announcement, index) => (
-            <div key={announcement.id} className='mb-2'>
-              <div className='w-[98%] ml-6 py-3 border-2 flex flex-col px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200' onClick={() => toggleExpand(index)}>
+            <div key={announcement.id} className='mb-2 '>
+              <div className='w-[98%] ml-6 py-3 border-2 flex flex-col bg-white px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200' onClick={() => toggleExpand(index)}>
                 <div className='flex justify-between w-full font-semibold'>
                   <span className='text-lg'>{announcement.announcementHeading}</span>
                   <div className='flex gap-8 items-center'>

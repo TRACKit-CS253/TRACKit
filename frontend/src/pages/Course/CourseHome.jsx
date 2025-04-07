@@ -399,7 +399,7 @@ export default function CourseHome({ role }) {
   }
   
   return (
-    <div className='w-full h-full'>
+    <div className='w-full h-full bg-gradient-to-br from-blue-50 via-white to-purple-50'>
       <div className='flex justify-between py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-lg z-50'>
         <div>
           <p className='text-[32px] uppercase font-semibold m-4'>{courseDetails.name}</p>
@@ -549,7 +549,7 @@ export default function CourseHome({ role }) {
         {courseDescriptions.length > 0 ? (
           courseDescriptions.map((item, index) => (
             <div key={item.id} className='mb-2' onClick={() => toggleExpand(index)}>
-              <div className='w-full py-3 border-2 flex flex-col m-2 px-6 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200'>
+              <div className='w-full py-3 border-2 flex flex-col m-2 px-6 bg-white rounded-xl cursor-pointer hover:shadow-md transition-all duration-200'>
                 <div className='flex justify-between w-full font-semibold'>
                   <span className='text-lg'>{item.courseDescriptionEntryHeading}</span>
                   <div className='flex gap-8 items-center'>

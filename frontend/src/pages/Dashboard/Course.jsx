@@ -77,13 +77,13 @@ export default function Course() {
   }
 
   return (
-    <div className='w-full h-full flex flex-col items-center justify-evenly'>
+    <div className='w-full h-full flex flex-col items-center justify-evenly bg-gradient-to-br from-blue-50 via-white to-purple-50'>
       {/* <p className='text-[35px] font-semibold mt-2'>Dashboard</p> */}
       <div className='flex gap-3 mt-4 flex-wrap justify-center'>
         {
           courses.map(course => (
             <NavLink to={`/${course.code}/coursehome`} key={course.id}>
-              <div className='cursor-pointer shadow-lg hover:scale-95 transition-all duration-200 h-[130px] w-[180px] border rounded-md flex flex-col items-center justify-evenly p-2'>
+              <div className='cursor-pointer shadow-lg hover:scale-95 transition-all duration-200 h-[130px] w-[180px] border rounded-md flex flex-col items-center justify-evenly p-2 bg-white'>
                 <p className='font-semibold bg-[#D9D9D9] px-5 py-1 rounded-md'>{course.code}</p>
                 <p>{courseDetails[course.id]?.facultyNames?.[0] || 'Faculty'}</p>
                 <p className='text-[14px]'>{course.name.length > 14 ? course.name.substring(0, 14) + "..." : course.name}</p>

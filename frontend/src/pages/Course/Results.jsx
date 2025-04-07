@@ -563,7 +563,7 @@ export default function Results() {
       return <div className="w-full min-h-screen bg-gray-50 p-6 flex items-center justify-center">Loading course details...</div>;
     }
     return (
-      <div className="w-full min-h-screen bg-gray-50 pb-12">
+      <div className="w-full min-h-screen bg-gray-50 pb-12 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         {/* Sticky header with consistent styling */}
           <div className='flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-10'>
             <div>
