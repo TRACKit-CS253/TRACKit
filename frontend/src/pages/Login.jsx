@@ -236,6 +236,40 @@ const Login = () => {
               )}
             </motion.button>
           </motion.form>
+
+          
+
+          {/* TRACKit Legacy Version Button */}
+          <div className="mt-8 relative">
+            <motion.a
+              href="https://trackit-v2.example.com" // Replace with actual URL
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex items-center justify-center gap-2 w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-lg overflow-hidden relative z-10 shadow-sm hover:shadow-md transition-all"
+              whileHover={{ y: -2 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 opacity-0 group-hover:opacity-100 transition-opacity -z-10"></div>
+              
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-gray-700 transition-colors mr-1">
+                <path d="M3 12h4l3-9 4 18 3-9h4"/>
+              </svg>
+              
+              <span className="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+                Switch to Legacy Version
+              </span>
+              
+              <div className="flex items-center gap-1 ml-1">
+                <span className="bg-gray-200 text-gray-600 text-xs px-1.5 py-0.5 rounded-md font-medium">OLD</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 group-hover:text-gray-700 transition-colors">
+                  <path d="M7 17l9-9"/>
+                  <path d="M8 8h8v8"/>
+                </svg>
+              </div>
+              
+              <div className="absolute -right-12 -top-4 w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-300 rounded-full blur-2xl opacity-0 group-hover:opacity-30 transition-opacity"></div>
+            </motion.a>
+          </div>
         </div>
       </motion.div>
     </div>
