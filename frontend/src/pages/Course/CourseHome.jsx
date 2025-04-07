@@ -40,9 +40,43 @@ export default function CourseHome({ role }) {
 
   useEffect(() => {
     if (courseDetails?.id && courseDetails?.code && role === "student" && rollNumber) {
-      fetchAttendanceData();
+      getAttendanceData();
     }
   }, [courseDetails, role, rollNumber]);
+  
+  // Function to check if cached data exists and is valid
+  const getAttendanceData = () => {
+    if (!rollNumber) {
+      setAttendanceError("Roll number not available");
+      return;
+    }
+    
+    // Check if we have cached attendance data for this course
+    const cachedAttendanceData = localStorage.getItem(`attendance_${courseDetails.code}_${rollNumber}`);
+    
+    if (cachedAttendanceData) {
+      try {
+        const { data, timestamp } = JSON.parse(cachedAttendanceData);
+        
+        // Check if the data is less than 1 hour old
+        const currentTime = new Date().getTime();
+        const oneHourInMs = 60 * 60 * 1000; // 1 hour in milliseconds
+        
+        if (currentTime - timestamp < oneHourInMs) {
+          console.log("Using cached attendance data");
+          setAttendanceData(data);
+          return;
+        } else {
+          console.log("Cached attendance data expired, fetching new data");
+        }
+      } catch (err) {
+        console.error("Error parsing cached attendance data:", err);
+      }
+    }
+    
+    // If no valid cached data, fetch new data
+    fetchAttendanceData();
+  };
   
   const fetchAttendanceData = async () => {
     if (!rollNumber) {
@@ -65,10 +99,20 @@ export default function CourseHome({ role }) {
           'Content-Type': 'application/json'
         }
       });
-      const courseCode= `${courseDetails.code} (G-1)`
-      console.log("Course Code:", courseCode);
+      
       console.log("Attendance API response:", response.data);
+      
+      // Set the fetched data to state
       setAttendanceData(response.data);
+      
+      // Cache the attendance data in localStorage with timestamp
+      const cacheData = {
+        data: response.data,
+        timestamp: new Date().getTime()
+      };
+      
+      localStorage.setItem(`attendance_${courseDetails.code}_${rollNumber}`, JSON.stringify(cacheData));
+      console.log(`Attendance data cached for ${courseDetails.code}`);
       
     } catch (err) {
       console.error("Error fetching attendance data:", err);
@@ -77,6 +121,12 @@ export default function CourseHome({ role }) {
     } finally {
       setAttendanceLoading(false);
     }
+  };
+  
+  // Manually refresh attendance data button handler
+  const handleRefreshAttendance = () => {
+    fetchAttendanceData();
+    showNotification("Refreshing attendance data...", "info");
   };
   
   // Debug logs
@@ -402,12 +452,27 @@ export default function CourseHome({ role }) {
           {/* Attendance section */}
           {role === "student" && (
             <div className="lg:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 bg-indigo-100 rounded-lg">
-                  <TbPercentage className="text-indigo-600 text-xl" />
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-indigo-100 rounded-lg">
+                    <TbPercentage className="text-indigo-600 text-xl" />
+                  </div>
+                  <h2 className="text-xl font-semibold text-gray-800">Attendance</h2>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800">Attendance</h2>
+                
+                {/* Added refresh button for attendance */}
+                <button 
+                  onClick={handleRefreshAttendance}
+                  className="text-sm flex items-center gap-1 text-indigo-600 hover:text-indigo-800 transition-colors"
+                  title="Refresh attendance data"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Refresh
+                </button>
               </div>
+              
               <div className="bg-white rounded-xl shadow-md border border-gray-100 p-6 h-[80%]">
                 {attendanceLoading ? (
                   <div className="flex flex-col items-center justify-center h-full">
@@ -472,6 +537,13 @@ export default function CourseHome({ role }) {
                       <p className="mt-3 text-red-600 text-sm text-center font-medium">
                         <BsInfoCircle className="inline mr-1" />
                         Attendance below minimum requirement of 75%
+                      </p>
+                    )}
+                    
+                    {/* Added timestamp information */}
+                    {localStorage.getItem(`attendance_${courseDetails.code}_${rollNumber}`) && (
+                      <p className="mt-4 text-xs text-gray-400">
+                        Last updated: {new Date(JSON.parse(localStorage.getItem(`attendance_${courseDetails.code}_${rollNumber}`)).timestamp).toLocaleString()}
                       </p>
                     )}
                   </div>
