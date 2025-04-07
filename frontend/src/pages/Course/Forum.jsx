@@ -292,14 +292,14 @@ export default function Forum({ role }) {
   // Count total replies
   const totalReplies = posts.reduce((sum, post) => sum + post.replies.length, 0);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-blue-600 mb-4"></div>
-        <p className="text-xl font-medium text-gray-700">Loading forum discussions...</p>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center">
+  //       <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+  //       <p className="text-xl font-medium text-gray-700">Loading forum discussions...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     // <div className="min-h-screen bg-gray-50">
