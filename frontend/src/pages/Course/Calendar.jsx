@@ -16,7 +16,7 @@ export default function Calendar() {
   }
   
   return (
-    <div className='w-full h-screen bg-gray-50 overflow-y-autobg-gradient-to-br from-blue-50 via-white to-purple-50'>
+    <div className='w-full h-screen bg-gray-50 overflow-y-auto'>
       <div className='flex justify-between py-2 px-8 items-center shadow-md sticky top-0 bg-[#F5F5F5] z-10'>
         <div>
           <p className='text-[32px] uppercase font-semibold m-4'>Calendar</p>

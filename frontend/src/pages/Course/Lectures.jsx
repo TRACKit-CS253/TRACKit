@@ -526,7 +526,7 @@ export default function Lectures({ role }) {
 
   // Safely access courseDetails properties
   return (
-    <div className='w-full h-screen overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-purple-50'>
+    <div className='w-full h-screen overflow-y-auto bg-gray-50'>
       {/* Header */}
       <div className='flex justify-between py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-md z-50'>
         <div>

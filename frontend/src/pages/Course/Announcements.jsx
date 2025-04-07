@@ -235,7 +235,7 @@ export default function Announcements({ role }) {
   };
 
   return (
-    <div className='w-full h-screen overflow-y-auto bg-gradient-to-br from-blue-50 via-white to-purple-50'>
+    <div className='w-full h-screen overflow-y-auto bg-gray-50'>
       {/* Show loading state while course details are loading */}
         {loading ? (
           <div className="w-full min-h-screen bg-gray-50 p-6 flex items-center justify-center">

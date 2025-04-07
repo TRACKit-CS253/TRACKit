@@ -314,7 +314,7 @@ export default function Performance() {
   const performanceGrade = getPerformanceGrade();
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-10 px-4'>
+    <div className='min-h-screen bg-gray-50 py-10 px-4'>
       <div className="max-w-7xl mx-auto">
         {/* Header Section */}
         <div className='flex justify-between items-center mb-8'>

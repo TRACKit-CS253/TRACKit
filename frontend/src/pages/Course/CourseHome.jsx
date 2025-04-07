@@ -399,7 +399,7 @@ export default function CourseHome({ role }) {
   }
   
   return (
-    <div className='w-full h-full bg-gradient-to-br from-blue-50 via-white to-purple-50'>
+    <div className='w-full h-full bg-gray-50'>
       <div className='flex justify-between py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-lg z-50'>
         <div>
           <p className='text-[32px] uppercase font-semibold m-4'>{courseDetails.name}</p>

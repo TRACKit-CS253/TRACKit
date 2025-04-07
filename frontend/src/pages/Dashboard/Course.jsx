@@ -77,7 +77,7 @@ export default function Course() {
   }
 
   return (
-    <div className='w-full h-full flex flex-col items-center justify-evenly bg-gradient-to-br from-blue-50 via-white to-purple-50'>
+    <div className='w-full h-full flex flex-col items-center justify-evenly bg-gray-50'>
       {/* <p className='text-[35px] font-semibold mt-2'>Dashboard</p> */}
       <div className='flex gap-3 mt-4 flex-wrap justify-center'>
         {
