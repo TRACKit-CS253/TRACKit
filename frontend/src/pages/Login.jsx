@@ -105,30 +105,37 @@ const Login = () => {
         </form>
         {error && <p className="text-red-500 text-sm mt-2 w-full text-center">{error}</p>}
         
-        {/* TRACKit-v2.0 Button with enhanced UI */}
-        <div className="w-[80%] mt-12 relative">
+        {/* TRACKit 2.0 Button - Modern Clean Design */}
+        <div className="w-[80%] mt-14">
           <button 
-            onClick={() => window.open('http://trackit-v2.example.com', '_blank')} // Replace with your actual v2.0 URL
-            className="group w-full flex items-center justify-between px-6 py-3 bg-gradient-to-r from-slate-900 to-gray-800 text-white rounded-lg shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-xl overflow-hidden"
+            onClick={() => window.open('http://trackit-v2.example.com', '_blank')}
+            className="w-full group transition-all duration-300 hover:translate-y-[-2px]"
           >
-            {/* Decorative elements */}
-            <div className="absolute top-0 left-0 w-full h-full bg-white opacity-0 group-hover:opacity-5 transition-opacity duration-300"></div>
-            {/* <div className="absolute -top-6 -right-6 w-12 h-12 bg-blue-500 rounded-full opacity-20 group-hover:opacity-40 transition-opacity duration-300"></div>
-            <div className="absolute -bottom-8 -left-8 w-16 h-16 bg-purple-500 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div> */}
-            
-            <div className="flex flex-col items-start">
-              <span className="text-xs text-blue-300 font-medium tracking-wider">EXPLORE</span>
-              <span className="text-lg font-bold">TRACKit-v2.0</span>
-            </div>
-            
-            <div className="bg-white/10 rounded-full p-2 group-hover:bg-white/20 transition-colors duration-300">
-              <FaArrowRight className="text-white" />
+            <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="flex items-center p-4">
+                <div className="flex-shrink-0 bg-gray-50 p-3 rounded-lg mr-3 border border-gray-100">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-blue-500">
+                    <path d="M9.315 7.584C12.195 3.883 16.695 1.5 21.75 1.5a.75.75 0 01.75.75c0 5.056-2.383 9.555-6.084 12.436A6.75 6.75 0 019.75 22.5a.75.75 0 01-.75-.75v-4.131A15.838 15.838 0 016.382 15H2.25a.75.75 0 01-.75-.75 6.75 6.75 0 017.815-6.666zM15 6.75a2.25 2.25 0 100 4.5 2.25 2.25 0 000-4.5z" />
+                    <path d="M5.26 17.242a.75.75 0 10-.897-1.203 5.243 5.243 0 00-2.05 5.022.75.75 0 00.625.627 5.243 5.243 0 005.022-2.051.75.75 0 10-1.202-.897 3.744 3.744 0 01-3.008 1.51c0-1.23.592-2.323 1.51-3.008z" />
+                  </svg>
+                </div>
+                
+                <div className="flex-grow">
+                  {/* <div className="text-xs font-medium text-blue-600 mb-0.5">NEW</div> */}
+                  <h3 className="text-base font-semibold text-gray-900">TRACKit 2.0</h3>
+                  <p className="text-xs text-gray-500 mt-1">Try our latest version with improved features</p>
+                </div>
+                
+                <div className="flex-shrink-0 ml-4">
+                  <div className="h-8 w-8 rounded-full flex items-center justify-center bg-blue-100 group-hover:bg-blue-600 transition-colors duration-300">
+                    <svg className="w-4 h-4 text-blue-600 group-hover:text-white transition-colors duration-300" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </button>
-          
-          <div className="absolute -bottom-6 w-full text-center">
-            <span className="text-xs text-gray-500">Try our latest version with new features</span>
-          </div>
         </div>
       </div>
     </div>
