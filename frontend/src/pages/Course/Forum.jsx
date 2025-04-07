@@ -302,44 +302,67 @@ export default function Forum({ role }) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Modern Header */}
-      <div className="sticky top-0 z-50 backdrop-blur-md bg-white bg-opacity-70 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center gap-3">
-              {/* <div className="bg-blue-100 p-2 rounded-lg">
-                <MdOutlineForum className="text-blue-600 text-xl" />
-              </div> */}
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Course Forum</h1>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded">{courseDetails?.code || 'Loading...'}</span>
-                  <span className="text-gray-500 text-sm">{courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}</span>
-                </div>
-              </div>
-            </div>
+    // <div className="min-h-screen bg-gray-50">
+    //   {/* Modern Header */}
+    //   <div className="sticky top-0 z-50 backdrop-blur-md bg-white bg-opacity-70 shadow-sm">
+    //     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    //       <div className="flex justify-between items-center py-4">
+    //         <div className="flex items-center gap-3">
+    //           {/* <div className="bg-blue-100 p-2 rounded-lg">
+    //             <MdOutlineForum className="text-blue-600 text-xl" />
+    //           </div> */}
+    //           <div>
+    //             <h1 className="text-2xl font-bold text-gray-800">Course Forum</h1>
+    //             <div className="flex items-center gap-2 mt-1">
+    //               <span className="bg-blue-100 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded">{courseDetails?.code || 'Loading...'}</span>
+    //               <span className="text-gray-500 text-sm">{courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}</span>
+    //             </div>
+    //           </div>
+    //         </div>
             
-            <div className="flex items-center gap-4">
-              <button 
-                onClick={handleAddPost}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
-              >
-                <FaPlus className="text-sm" /> New Discussion
-              </button>
+    //         <div className="flex items-center gap-4">
+    //           <button 
+    //             onClick={handleAddPost}
+    //             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+    //           >
+    //             <FaPlus className="text-sm" /> New Discussion
+    //           </button>
               
-              <NavLink 
-                to="/dashboard/profile"
-                className="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
-                title="View Profile"
-              >
-                <CgProfile className="text-2xl text-gray-700" />
-              </NavLink>
-            </div>
-          </div>
+    //           <NavLink 
+    //             to="/dashboard/profile"
+    //             className="p-2.5 rounded-full bg-gray-100 hover:bg-gray-200 transition-all"
+    //             title="View Profile"
+    //           >
+    //             <CgProfile className="text-2xl text-gray-700" />
+    //           </NavLink>
+    //         </div>
+    //       </div>
+    //     </div>
+    //   </div>
+<div className="min-h-screen bg-gray-50">
+      {/* Updated Header to match Announcements.jsx */}
+      <div className="flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-50">
+        <div>
+          <p className="text-[32px] uppercase font-semibold m-4">Forum</p>
+          <p className="text-gray-600 ml-4 -mt-3">
+            {courseDetails?.code || 'Loading...'} • {courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={handleAddPost}
+            className="bg-blue-500 shadow-xl text-white py-2 px-4 flex justify-center items-center gap-2 hover:bg-green-600 hover:scale-95 transition-all duration-200 rounded"
+          >
+            <FaPlus className="text-[18px]" />
+            <p>New Discussion</p>
+          </button>
+          
+          <NavLink to="/dashboard/profile">
+            <CgProfile className="text-[40px] cursor-pointer" />
+          </NavLink>
         </div>
       </div>
-
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Forum stats and filters */}
         <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
