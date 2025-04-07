@@ -573,7 +573,10 @@ export default function Results() {
               </p>
             </div>
             <NavLink to="/dashboard/profile">
-              <CgProfile className='text-[40px] cursor-pointer' />
+              <button className='flex hover:text-blue-700 shadow-lg gap-2 font-semibold text-[18px] justify-center hover:scale-[97%] transition-all duration-200 items-center border rounded-full px-3 py-1'>
+                <CgProfile className="text-[35px] cursor-pointer" />
+                <p>Profile</p>
+              </button>
             </NavLink>
           </div>
 

@@ -304,16 +304,11 @@ export default function Forum({ role }) {
         </div>
         
         <div className="flex items-center gap-4">
-          <button 
-            onClick={handleAddPost}
-            className="bg-blue-500 shadow-xl text-white py-2 px-4 flex justify-center items-center gap-2 hover:bg-green-600 hover:scale-95 transition-all duration-200 rounded"
-          >
-            <FaPlus className="text-[18px]" />
-            <p>New Discussion</p>
-          </button>
-          
           <NavLink to="/dashboard/profile">
-            <CgProfile className="text-[40px] cursor-pointer" />
+            <button className='flex hover:text-blue-700 shadow-lg gap-2 font-semibold text-[18px] justify-center hover:scale-[97%] transition-all duration-200 items-center border rounded-full px-3 py-1'>
+              <CgProfile className="text-[35px] cursor-pointer" />
+              <p>Profile</p>
+            </button>
           </NavLink>
         </div>
       </div>
