@@ -304,13 +304,9 @@ export default function Forum({ role }) {
         </div>
         
         <div className="flex items-center gap-4">
-          <NavLink 
-                      to="/dashboard/profile"
-                      className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
-                    >
-                      <CgProfile className='text-blue-600 text-xl' />
-                      <span className="text-sm font-medium">View Profile</span>
-                    </NavLink>
+        <NavLink to="/dashboard/profile">
+          <CgProfile className="text-[40px] cursor-pointer hover:scale-95 transition-all duration-200 hover:text-blue-500" />
+        </NavLink>
         </div>
       </div>
 
