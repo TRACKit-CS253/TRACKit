@@ -117,7 +117,7 @@ const Login = () => {
         {/* TRACKit 2.0 Button - Modern Clean Design */}
         <div className="w-[80%] mt-14">
           <button 
-            onClick={() => window.open('http://trackit-v2.example.com', '_blank')}
+            onClick={() => window.open('http://trackit-v2.example.com')}
             className="w-full group transition-all duration-300 hover:translate-y-[-2px]"
           >
             <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all duration-300">
