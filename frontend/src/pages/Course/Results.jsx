@@ -832,138 +832,252 @@ export default function Results() {
 )}
 
         {/* Add Result Form */}
-        {showAddResultForm && (
-          <div className="bg-white p-4 rounded-lg shadow mb-6">
-            <h2 className="text-xl font-bold mb-4">Add New Exam Result</h2>
-            
-            {/* Exam Details */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div>
-                <label className="block mb-1 font-medium">Exam Name</label>
-                <input
-                  type="text"
-                  name="examName"
-                  value={newExam.examName}
-                  onChange={handleExamInputChange}
-                  className={`w-full p-2 border ${validationErrors.examName ? 'border-red-500' : 'border-gray-300'} rounded`}
-                  placeholder="e.g., Midterm Exam"
-                  disabled={publishing}
-                />
-                {validationErrors.examName && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.examName}</p>
-                )}
+        {/* Add Result Form - Modern Design */}
+{showAddResultForm && (
+  <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden mb-8">
+    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-100 flex justify-between items-center">
+      <div>
+        <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Add New Exam Result
+        </h2>
+        <p className="text-sm text-gray-600 mt-1 ml-7">Enter exam details and student marks</p>
+      </div>
+      <button
+        onClick={handleCancelAddResult}
+        className="text-gray-500 hover:text-gray-700 p-1 rounded-full hover:bg-gray-100 transition-all"
+        disabled={publishing}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+    
+    <div className="p-6">
+      {/* Exam Details Section */}
+      <div className="bg-gray-50/70 rounded-xl p-6 mb-8">
+        <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Exam Information
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Exam Name</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
               </div>
-              
-              <div>
-                <label className="block mb-1 font-medium">Total Marks</label>
-                <input
-                  type="number"
-                  name="totalMarks"
-                  value={newExam.totalMarks}
-                  onChange={handleExamInputChange}
-                  className={`w-full p-2 border ${validationErrors.totalMarks ? 'border-red-500' : 'border-gray-300'} rounded`}
-                  placeholder="e.g., 100"
-                  min="0"
-                  step="any"
-                  disabled={publishing}
-                />
-                {validationErrors.totalMarks && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.totalMarks}</p>
-                )}
-              </div>
-              
-              <div>
-                <label className="block mb-1 font-medium">Weightage (%)</label>
-                <input
-                  type="number"
-                  name="weightage"
-                  value={newExam.weightage}
-                  onChange={handleExamInputChange}
-                  className={`w-full p-2 border ${validationErrors.weightage ? 'border-red-500' : 'border-gray-300'} rounded`}
-                  placeholder="e.g., 20"
-                  min="0"
-                  max="100"
-                  step="any"
-                  disabled={publishing}
-                />
-                {validationErrors.weightage && (
-                  <p className="text-red-500 text-sm mt-1">{validationErrors.weightage}</p>
-                )}
-              </div>
+              <input
+                type="text"
+                name="examName"
+                value={newExam.examName}
+                onChange={handleExamInputChange}
+                className={`w-full pl-10 pr-3 py-2.5 border ${validationErrors.examName ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                placeholder="e.g., Midterm Exam"
+                disabled={publishing}
+              />
+              {validationErrors.examName && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  {validationErrors.examName}
+                </p>
+              )}
             </div>
-            
-            {/* Loading Students */}
-            {loadingStudents && (
-              <div className="text-center py-4">Loading students...</div>
-            )}
-            
-            {/* Student Marks Table */}
-            {!loadingStudents && students.length > 0 && (
-              <>
-                <h3 className="text-lg font-semibold mb-2">Student Marks</h3>
-                <div className="overflow-x-auto max-h-96 overflow-y-auto mb-4">
-                  <table className="min-w-full bg-white border border-gray-300">
-                    <thead className="sticky top-0 bg-gray-100">
-                      <tr>
-                        <th className="py-2 px-4 border-b text-left">Roll Number</th>
-                        <th className="py-2 px-4 border-b text-left">Name</th>
-                        <th className="py-2 px-4 border-b text-center">Marks</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {students.map((student, index) => (
-                        <tr key={student.userId} className={index % 2 === 0 ? 'bg-gray-50' : 'bg-white'}>
-                          <td className="py-2 px-4 border-b">{student.rollNumber}</td>
-                          <td className="py-2 px-4 border-b">{`${student.user.firstName} ${student.user.lastName}`}</td>
-                          <td className="py-2 px-4 border-b">
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Total Marks</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <input
+                type="number"
+                name="totalMarks"
+                value={newExam.totalMarks}
+                onChange={handleExamInputChange}
+                className={`w-full pl-10 pr-3 py-2.5 border ${validationErrors.totalMarks ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                placeholder="e.g., 100"
+                min="0"
+                step="any"
+                disabled={publishing}
+              />
+              {validationErrors.totalMarks && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  {validationErrors.totalMarks}
+                </p>
+              )}
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Weightage (%)</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3" />
+                </svg>
+              </div>
+              <input
+                type="number"
+                name="weightage"
+                value={newExam.weightage}
+                onChange={handleExamInputChange}
+                className={`w-full pl-10 pr-3 py-2.5 border ${validationErrors.weightage ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'} rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all`}
+                placeholder="e.g., 20"
+                min="0"
+                max="100"
+                step="any"
+                disabled={publishing}
+              />
+              {validationErrors.weightage && (
+                <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                  {validationErrors.weightage}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Loading Students */}
+      {loadingStudents && (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-blue-600 border-t-transparent mb-4"></div>
+          <p className="text-gray-600">Loading enrolled students...</p>
+        </div>
+      )}
+      
+      {/* Student Marks Section */}
+      {!loadingStudents && students.length > 0 && (
+        <div className="mt-6">
+          <h3 className="text-md font-medium text-gray-700 mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M12 14l9-5-9-5-9 5 9 5z" />
+              <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5-9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222" />
+            </svg>
+            Student Marks ({students.length} students)
+          </h3>
+          
+          <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto max-h-96 overflow-y-auto">
+              <table className="min-w-full bg-white">
+                <thead className="sticky top-0 bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="py-3.5 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Roll Number</th>
+                    <th className="py-3.5 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Student Name</th>
+                    <th className="py-3.5 px-6 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Marks</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {students.map((student, index) => (
+                    <tr key={student.userId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50 transition-colors'}>
+                      <td className="py-4 px-6 text-sm text-gray-700">{student.rollNumber}</td>
+                      <td className="py-4 px-6 text-sm text-gray-800 font-medium">{`${student.user.firstName} ${student.user.lastName}`}</td>
+                      <td className="py-4 px-6 text-sm text-gray-700">
+                        <div className="w-full max-w-xs mx-auto">
+                          <div className="relative rounded-md">
                             <input
                               type="number"
                               value={newExam.results.find(r => r.userId === student.userId)?.obtainedMarks || ''}
                               onChange={(e) => handleStudentMarkChange(student.userId, e.target.value)}
-                              className={`w-full p-1 border ${validationErrors[`student-${student.userId}`] ? 'border-red-500' : 'border-gray-300'} rounded text-center`}
-                              placeholder="0"
+                              className={`w-full text-center py-2.5 px-3 rounded-lg border ${validationErrors[`student-${student.userId}`] ? 'border-red-300 bg-red-50' : 'border-gray-300 bg-white'} focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm`}
+                              placeholder={`out of ${newExam.totalMarks || '?'}`}
                               min="0"
                               step="any"
                               disabled={publishing}
                             />
                             {validationErrors[`student-${student.userId}`] && (
-                              <p className="text-red-500 text-sm">{validationErrors[`student-${student.userId}`]}</p>
+                              <div className="absolute -bottom-5 left-0 right-0 text-center">
+                                <p className="text-red-500 text-xs">{validationErrors[`student-${student.userId}`]}</p>
+                              </div>
                             )}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                
-                {/* Action Buttons */}
-                <div className="flex justify-end gap-2 mt-4">
-                  <button
-                    onClick={handleCancelAddResult}
-                    disabled={publishing}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handlePublishResults}
-                    disabled={publishing}
-                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                  >
-                    {publishing ? 'Publishing...' : 'Publish Results'}
-                  </button>
-                </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* No Students Message */}
+      {!loadingStudents && students.length === 0 && (
+        <div className="bg-gray-50 rounded-xl p-8 text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-gray-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h4 className="text-lg font-medium text-gray-700 mb-2">No students found</h4>
+          <p className="text-gray-500 mb-4">There are currently no students enrolled in this course.</p>
+          <button
+            onClick={handleCancelAddResult}
+            className="px-4 py-2 border border-gray-300 bg-white text-gray-700 rounded-lg hover:bg-gray-50"
+          >
+            Go Back
+          </button>
+        </div>
+      )}
+      
+      {/* Action Buttons */}
+      {!loadingStudents && students.length > 0 && (
+        <div className="flex justify-end gap-3 mt-8 border-t border-gray-100 pt-6">
+          <button
+            onClick={handleCancelAddResult}
+            disabled={publishing}
+            className="px-4 py-2.5 border border-gray-300 bg-white text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-all flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            Cancel
+          </button>
+          <button
+            onClick={handlePublishResults}
+            disabled={publishing}
+            className="px-6 py-2.5 bg-gradient-to-r from-green-600 to-green-700 text-white font-medium rounded-lg shadow-sm hover:shadow transition-all disabled:opacity-70 flex items-center gap-2"
+          >
+            {publishing ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                <span>Publishing...</span>
+              </>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Publish Results</span>
               </>
             )}
-            
-            {/* No Students Message */}
-            {!loadingStudents && students.length === 0 && (
-              <div className="text-center py-4 text-gray-500">
-                No students enrolled in this course
-              </div>
-            )}
-          </div>
-        )}
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+
         {/* Modify Result Form */}
       {showModifyForm && (
         <div className="bg-white p-4 rounded-lg shadow mb-6">
@@ -1336,7 +1450,7 @@ export default function Results() {
         label: 'Remaining Weightage',
         data: unobtainedWeightage,
         backgroundColor: 'rgba(230, 230, 230, 0.6)',
-        borderColor: 'rgba(230, 230, 230, 1)',
+        borderColor: 'rgba(229, 231, 235, 1)',
         borderWidth: 1,
         stack: 'Weightage',
       },
