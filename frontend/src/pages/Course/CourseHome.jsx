@@ -495,59 +495,158 @@ export default function CourseHome({ role }) {
                   </div>
                 ) : courseAttendance ? (
                   <div className="flex flex-col items-center justify-center h-full">
-                    {/* Attendance percentage circle */}
-                    <div className="relative mb-6">
-                      <svg className="w-40 h-40">
-                        <circle 
-                          cx="80" 
-                          cy="80" 
-                          r="60" 
-                          fill="none" 
-                          stroke="#E5E7EB" 
-                          strokeWidth="16"
-                        />
-                        <circle 
-                          cx="80" 
-                          cy="80" 
-                          r="60" 
-                          fill="none" 
-                          stroke={courseAttendance.percentage >= 75 ? "#10B981" : courseAttendance.percentage >= 65 ? "#FBBF24" : "#EF4444"} 
-                          strokeWidth="16"
-                          strokeDasharray={`${(courseAttendance.percentage / 100) * 377} 377`}
-                          strokeDashoffset="0"
-                          strokeLinecap="round"
-                          transform="rotate(-90 80 80)"
-                        />
-                        <text 
-                          x="80" 
-                          y="85" 
-                          textAnchor="middle" 
-                          fontSize="30"
-                          fontWeight="bold"
-                          fill={courseAttendance.percentage >= 75 ? "#10B981" : courseAttendance.percentage >= 65 ? "#FBBF24" : "#EF4444"}
-                        >
-                          {courseAttendance.percentage.toFixed(0)}%
-                        </text>
-                      </svg>
+                    {/* Modern Attendance Dashboard */}
+                    <div className="w-full max-w-xs relative mb-6">
+                      {/* Stylish percentage indicator with glow effect */}
+                      <div className="relative">
+                        <div className={`absolute inset-0 rounded-full blur-md ${
+                          courseAttendance.percentage >= 75 
+                            ? "bg-green-300/30" 
+                            : courseAttendance.percentage >= 65 
+                              ? "bg-yellow-300/30" 
+                              : "bg-red-300/30"
+                        }`}></div>
+                        
+                        <div className="relative backdrop-blur-sm bg-white/80 rounded-2xl shadow-lg p-6 border border-gray-100">
+                          <div className="flex flex-col items-center">
+                            {/* Attendance Status Badge */}
+                            <div className={`px-3 py-0.5 rounded-full text-xs font-medium mb-2 ${
+                              courseAttendance.percentage >= 75
+                                ? "bg-green-100 text-green-700"
+                                : courseAttendance.percentage >= 65
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : "bg-red-100 text-red-700"
+                            }`}>
+                              {courseAttendance.percentage >= 75
+                                ? "Good Standing"
+                                : courseAttendance.percentage >= 65
+                                  ? "Warning"
+                                  : "Critical"}
+                            </div>
+                            
+                            {/* Attendance Gauge */}
+                            <div className="relative w-36 h-36 mb-3">
+                              {/* Background Circle */}
+                              <svg className="w-full h-full" viewBox="0 0 100 100">
+                                <circle 
+                                  cx="50" 
+                                  cy="50" 
+                                  r="45" 
+                                  fill="none" 
+                                  stroke="#f0f0f0"
+                                  strokeWidth="8"
+                                  strokeLinecap="round"
+                                />
+                                
+                                {/* Percentage Arc */}
+                                <circle 
+                                  cx="50" 
+                                  cy="50" 
+                                  r="45" 
+                                  fill="none" 
+                                  stroke={courseAttendance.percentage >= 75 ? "#10B981" : courseAttendance.percentage >= 65 ? "#FBBF24" : "#EF4444"} 
+                                  strokeWidth="8"
+                                  strokeDasharray={`${(courseAttendance.percentage / 100) * 283} 283`}
+                                  strokeDashoffset="0"
+                                  strokeLinecap="round"
+                                  transform="rotate(-90 50 50)"
+                                  className="drop-shadow-md"
+                                  style={{
+                                    filter: `drop-shadow(0 0 3px ${courseAttendance.percentage >= 75 ? "rgba(16, 185, 129, 0.4)" : courseAttendance.percentage >= 65 ? "rgba(251, 191, 36, 0.4)" : "rgba(239, 68, 68, 0.4)"})`
+                                  }}
+                                />
+                                
+                                {/* Center Content */}
+                                <foreignObject x="15" y="15" width="70" height="70">
+                                  <div className="h-full w-full flex flex-col items-center justify-center">
+                                    <span className={`text-3xl font-bold ${
+                                      courseAttendance.percentage >= 75
+                                        ? "text-green-600"
+                                        : courseAttendance.percentage >= 65
+                                          ? "text-yellow-600"
+                                          : "text-red-600"
+                                    }`}>
+                                      {courseAttendance.percentage.toFixed(0)}%
+                                    </span>
+                                    <span className="text-xs text-gray-500 mt-1">Attendance</span>
+                                  </div>
+                                </foreignObject>
+                              </svg>
+                              
+                              {/* Decorative elements */}
+                              <div className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-100 border-2 border-white"></div>
+                              <div className="absolute -bottom-1 -left-1 w-4 h-4 rounded-full bg-indigo-100 border-2 border-white"></div>
+                            </div>
+                            
+                            {/* Attendance Details */}
+                            <div className="text-center space-y-2">
+                              <p className="text-gray-700">
+                                <span className="font-medium">{courseAttendance.present_classes}</span> classes attended out of <span className="font-medium">{courseAttendance.total_classes}</span>
+                              </p>
+                              
+                              {courseAttendance.percentage < 75 && (
+                                <div className={`text-sm ${courseAttendance.percentage >= 65 ? "text-yellow-600" : "text-red-600"} flex items-center justify-center gap-1.5 mt-1`}>
+                                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                                    <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clipRule="evenodd" />
+                                  </svg>
+                                  <span>
+                                    {courseAttendance.percentage < 65 
+                                      ? "Attendance critically low" 
+                                      : "Attendance below requirement"}
+                                  </span>
+                                </div>
+                              )}
+
+                              {/* Needed to reach 75% */}
+                              {courseAttendance.percentage < 75 && (
+                                <div className="text-xs bg-gray-50 px-3 py-2 rounded-lg mt-1">
+                                  <p>
+                                    <span className="font-medium">
+                                      {Math.ceil((0.75 * courseAttendance.total_classes - courseAttendance.present_classes) / (1 - 0.75))}
+                                    </span> more classes needed to reach 75%
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Last update information */}
+                      {localStorage.getItem(`attendance_${courseDetails.code}_${rollNumber}`) && (
+                        <p className="mt-3 text-center text-xs text-gray-400 flex items-center justify-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3 h-3">
+                            <path fillRule="evenodd" d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.242a.75.75 0 001.5 0v-2.43l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.243a.75.75 0 00.53-.219z" clipRule="evenodd" />
+                          </svg>
+                          Last updated: {new Date(JSON.parse(localStorage.getItem(`attendance_${courseDetails.code}_${rollNumber}`)).timestamp).toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'})}
+                        </p>
+                      )}
                     </div>
-                    <p className="text-gray-700 text-lg text-center">
-                      You have attended <span className="font-semibold">{courseAttendance.present_classes}</span> out of <span className="font-semibold">{courseAttendance.total_classes}</span> classes
-                    </p>
-                    {courseAttendance.percentage < 75 && (
-                      <p className="mt-3 text-red-600 text-sm text-center font-medium">
-                        <BsInfoCircle className="inline mr-1" />
-                        Attendance below minimum requirement of 75%
-                      </p>
-                    )}
-                    
-                    {/* Added timestamp information */}
-                    {localStorage.getItem(`attendance_${courseDetails.code}_${rollNumber}`) && (
-                      <p className="mt-4 text-xs text-gray-400">
-                        Last updated: {new Date(JSON.parse(localStorage.getItem(`attendance_${courseDetails.code}_${rollNumber}`)).timestamp).toLocaleString()}
-                      </p>
-                    )}
+
+                    {/* Refresh Button */}
+                    <button 
+                      onClick={handleRefreshAttendance}
+                      className={`px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-all ${
+                        attendanceLoading 
+                          ? "bg-gray-100 text-gray-500" 
+                          : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                      }`}
+                      disabled={attendanceLoading}
+                    >
+                      <svg 
+                        className={`w-4 h-4 ${attendanceLoading ? "animate-spin" : ""}`} 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24" 
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      {attendanceLoading ? "Refreshing..." : "Refresh Attendance"}
+                    </button>
                   </div>
                 ) : (
+                  // Existing code for when no attendance data is available
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <div className="bg-blue-100 p-3 rounded-full mb-3">
                       <FaChalkboardTeacher className="text-blue-500 text-xl" />
