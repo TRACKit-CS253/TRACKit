@@ -48,13 +48,22 @@ const Login = () => {
 
   return (
     <div className='w-full h-screen relative flex justify-around items-center'>
-      <img src={loginImg} className='absolute h-full w-full z-[-100]' alt="Login Background" />
-      <div className='h-full absolute w-[40%] left-[100px]'>
+      <img src={loginImg} className='absolute h-full w-full z-[-100] object-cover' alt="Login Background" />
+      
+      {/* Left side content - Hidden on small screens */}
+      <div className='h-full absolute w-[40%] left-[100px] md:block hidden'>
         <h1 className='text-[62px] font-[800] top-[60px] absolute'>TRACKit</h1>
         <p className='absolute top-[140px] w-full font-semibold'>Testing Reporting Academic Comprehensive Kit</p>
       </div>
 
-      <div className='bg-white w-[30%] rounded-xl h-[97%] flex flex-col justify-center items-center absolute right-5 shadow-3xl'>
+      {/* Login form container - Full width on small screens */}
+      <div className='bg-white md:w-[30%] w-[90%] mx-auto rounded-xl h-[97%] flex flex-col justify-center items-center md:absolute md:right-5 relative shadow-3xl'>
+        {/* Small screen only branding */}
+        <div className='md:hidden w-[80%] mb-8'>
+          <h1 className='text-[42px] font-[800] text-center'>TRACKit</h1>
+          <p className='text-center font-semibold text-sm'>Testing Reporting Academic Comprehensive Kit</p>
+        </div>
+        
         <div className='w-[80%]'>
           <p className='font-semibold text-[28px]'>Welcome to TRACKit</p>
           <h1 className='text-[30px] mt-2'>Sign In</h1>
@@ -121,7 +130,6 @@ const Login = () => {
                 </div>
                 
                 <div className="flex-grow">
-                  {/* <div className="text-xs font-medium text-blue-600 mb-0.5">NEW</div> */}
                   <h3 className="text-base font-semibold text-gray-900">TRACKit 2.0</h3>
                   <p className="text-xs text-gray-500 mt-1">Try our latest version with improved features</p>
                 </div>
