@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { FaUser } from 'react-icons/fa';
+import { FaUser, FaReply, FaPaperPlane, FaPlus, FaSort } from 'react-icons/fa';
 import { CgProfile } from 'react-icons/cg';
 import { NavLink } from 'react-router-dom';
 import { AiOutlineDelete } from 'react-icons/ai';
+import { MdOutlineForum, MdFilterList } from 'react-icons/md';
 import { useCourse } from '../../contexts/CourseContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNotification } from '../../contexts/NotificationContext';
 import axios from 'axios';
-
-
 
 export default function Forum({ role }) {
   const [posts, setPosts] = useState([]);
@@ -17,6 +16,8 @@ export default function Forum({ role }) {
   const [showNewPostForm, setShowNewPostForm] = useState(false);
   const [replyingToPost, setReplyingToPost] = useState(null);
   const [replyContent, setReplyContent] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+  const [filterByRole, setFilterByRole] = useState('all');
 
   const { courseDetails } = useCourse();
   const { currentUser } = useAuth();
@@ -245,178 +246,339 @@ export default function Forum({ role }) {
     return currentUser?.userType === 'faculty' || currentUser?.userType === 'admin';
   };
 
-  if (loading) {
-    return (
-      <div className="bg-gray-100 min-h-screen flex justify-center items-center">
-        <div className="text-xl text-blue-500">Loading forum posts...</div>
-      </div>
-    );
-  }
+  // Format time elapsed since post
+  const getTimeElapsed = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = Math.floor((now - date) / 1000); // difference in seconds
+    
+    if (diff < 60) {
+      return 'Just now';
+    } else if (diff < 3600) {
+      const minutes = Math.floor(diff / 60);
+      return `${minutes} ${minutes === 1 ? 'minute' : 'minutes'} ago`;
+    } else if (diff < 86400) {
+      const hours = Math.floor(diff / 3600);
+      return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
+    } else if (diff < 2592000) {
+      const days = Math.floor(diff / 86400);
+      return `${days} ${days === 1 ? 'day' : 'days'} ago`;
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+  
+  // Filter and sort posts
+  const filteredAndSortedPosts = React.useMemo(() => {
+    let filtered = [...posts];
+    
+    // Apply role filter
+    if (filterByRole !== 'all') {
+      filtered = filtered.filter(post => post.userType === filterByRole);
+    }
+    
+    // Apply sorting
+    if (sortBy === 'newest') {
+      filtered.sort((a, b) => b.createdAt - a.createdAt);
+    } else if (sortBy === 'oldest') {
+      filtered.sort((a, b) => a.createdAt - b.createdAt);
+    } else if (sortBy === 'most-replies') {
+      filtered.sort((a, b) => b.replies.length - a.replies.length);
+    }
+    
+    return filtered;
+  }, [posts, sortBy, filterByRole]);
+  
+  // Count total replies
+  const totalReplies = posts.reduce((sum, post) => sum + post.replies.length, 0);
 
   return (
-    <div className="bg-gray-100 min-h-screen flex flex-col items-center w-full h-full">
-      <div className="flex items-center justify-between w-full mb-6 sticky top-0 bg-[#F5F5F5] shadow-lg px-8">
-        <div className="flex items-center h-[100px]">
-          <div className="mr-8">
-            <h1 className="text-3xl font-bold">FORUM</h1>
-            <p className="text-gray-600">
-              {courseDetails.code} • {courseDetails.credits} Credits •{' '}
-              {courseDetails.semester}
-            </p>
-          </div>
-          <button
-            className="bg-blue-500 shadow-lg hover:scale-95 transition-all duration-200 text-white px-4 py-2 rounded-md ml-4"
-            onClick={handleAddPost}
-          >
-            Add Post
-          </button>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header - Always visible regardless of loading state */}
+      <div className="flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-50">
+        <div>
+          <p className="text-[32px] uppercase font-semibold m-4">Forum</p>
+          <p className="text-gray-600 ml-4 -mt-3">
+            {courseDetails?.code || 'Loading...'} • {courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}
+          </p>
         </div>
-        <NavLink to="/dashboard/profile">
-          <CgProfile className="text-[40px] cursor-pointer hover:scale-95 transition-all duration-200 hover:text-blue-500" />
-        </NavLink>
+        
+        <div className="flex items-center gap-4">
+          <NavLink 
+                      to="/dashboard/profile"
+                      className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
+                    >
+                      <CgProfile className='text-blue-600 text-xl' />
+                      <span className="text-sm font-medium">View Profile</span>
+                    </NavLink>
+        </div>
       </div>
 
-      {showNewPostForm && (
-        <div className="bg-white p-4 rounded-md shadow-md mb-6 w-[95%]">
-          <form onSubmit={handleSubmitPost}>
-            <textarea
-              className="w-full p-2 border border-gray-300 rounded-md mb-2 px-6"
-              placeholder="Your Query"
-              value={newQuery}
-              onChange={(e) => setNewQuery(e.target.value)}
-              rows="4"
-              required
-            ></textarea>
-            <div className="flex justify-end">
-              <button
-                className="mr-4 bg-gray-300 shadow-lg rounded-md px-4 py-2 hover:scale-95 transition-all duration-200"
-                onClick={() => setShowNewPostForm(false)}
-                type="button"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="bg-blue-500 shadow-lg text-white px-4 py-2 rounded-md duration-200 transition-all hover:scale-95"
-              >
-                Submit
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {posts.length === 0 ? (
-        <div className="bg-white p-6 rounded-md shadow-md w-[95%] text-center">
-          <p className="text-lg text-gray-500">No forum posts yet. Start a discussion!</p>
+      {/* Conditionally render content based on loading state */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center p-12">
+          <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-blue-600 mb-4"></div>
+          <p className="text-xl font-medium text-gray-700">Loading forum discussions...</p>
         </div>
       ) : (
-        posts.map((post) => (
-          <div key={post.id} className="bg-gray-200 rounded-md shadow-md mb-6 w-[95%]">
-            <div className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-500 mr-2">
-                    <FaUser className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-600">{post.author}</span>
-                    {post.userType === 'faculty' && (
-                      <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
-                        Instructor
-                      </span>
-                    )}
-                    <div className="text-xs text-gray-500">
-                      {post.createdAt.toLocaleString()}
-                    </div>
-                  </div>
-                </div>
-                {(canDelete() || post.userId === currentUser?.id) && (
-                  <AiOutlineDelete
-                    className="text-red-600 mr-4 text-[28px] hover:scale-110 transition-all duration-200 cursor-pointer"
-                    onClick={() => handleDeletePost(post.id)}
-                  />
-                )}
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Forum stats and filters */}
+          <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <p className="text-2xl font-semibold text-blue-600">{posts.length}</p>
+                <p className="text-sm text-gray-600">Discussions</p>
               </div>
-              {post.query && (
-                <div className="bg-white p-4 rounded-md mb-4">
-                  <p className="whitespace-pre-line">{post.query}</p>
+              <div className="text-center">
+                <p className="text-2xl font-semibold text-blue-600">{totalReplies}</p>
+                <p className="text-sm text-gray-600">Replies</p>
+              </div>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative">
+                <select
+                  className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="most-replies">Most Replies</option>
+                </select>
+                <FaSort className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400" />
+              </div>
+              
+              <div className="relative">
+                <select
+                  className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                  value={filterByRole}
+                  onChange={(e) => setFilterByRole(e.target.value)}
+                >
+                  <option value="all">All Posts</option>
+                  <option value="faculty">Instructor Only</option>
+                  <option value="student">Students Only</option>
+                </select>
+                <MdFilterList className="absolute top-1/2 -translate-y-1/2 left-3 text-gray-400" />
+              </div>
+            </div>
+          </div>
+
+          {/* New Post Form */}
+          {showNewPostForm && (
+            <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-md mb-6 overflow-hidden animate-fade-in">
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                  <FaPlus className="text-blue-500 text-sm" />
+                  <span>New Discussion</span>
+                </h2>
+                <button
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                  onClick={() => setShowNewPostForm(false)}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+              <form onSubmit={handleSubmitPost} className="p-6">
+                <textarea
+                  className="w-full p-4 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                  placeholder="What would you like to discuss?"
+                  value={newQuery}
+                  onChange={(e) => setNewQuery(e.target.value)}
+                  rows="5"
+                  required
+                ></textarea>
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
+                    onClick={() => setShowNewPostForm(false)}
+                    type="button"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all flex items-center gap-2"
+                  >
+                    <FaPaperPlane className="text-sm" />
+                    Post Discussion
+                  </button>
                 </div>
-              )}
-              <div className="mt-4">
-                <h3 className="font-medium mb-2">Replies</h3>
-                {post.replies.length === 0 ? (
-                  <p className="text-sm text-gray-500 mb-4">No replies yet</p>
-                ) : (
-                  post.replies.map((reply) => (
-                    <div key={reply.id} className="bg-white p-4 rounded-md mb-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-gray-500 mr-2">
-                            <FaUser className="h-4 w-4" />
-                          </div>
-                          <div>
-                            <span className="text-sm text-gray-600">{reply.author}</span>
-                            {reply.userType === 'faculty' && (
-                              <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">
+              </form>
+            </div>
+          )}
+
+          {/* No Posts State */}
+          {filteredAndSortedPosts.length === 0 ? (
+            <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm p-12 mb-6 text-center">
+              <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MdOutlineForum className="text-blue-500 text-3xl" />
+              </div>
+              <h3 className="text-xl font-medium text-gray-800 mb-2">No discussions yet</h3>
+              <p className="text-gray-600 max-w-md mx-auto mb-6">
+                {filterByRole !== 'all' ? 
+                  `No posts from ${filterByRole === 'faculty' ? 'instructors' : 'students'} yet.` : 
+                  "Be the first to start a discussion in this course forum."
+                }
+              </p>
+              <button 
+                onClick={handleAddPost}
+                className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all inline-flex items-center gap-2"
+              >
+                <FaPlus />
+                Start a New Discussion
+              </button>
+            </div>
+          ) : (
+            // Post List
+            <div className="space-y-6">
+              {filteredAndSortedPosts.map((post) => (
+                <div key={post.id} className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                  {/* Post Header */}
+                  <div className="bg-gray-50 p-4 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                          post.userType === 'faculty' ? 'bg-blue-100 text-blue-600' : 'bg-blue-100 text-blue-600'
+                        }`}>
+                          <FaUser className="text-lg" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-800">{post.author}</span>
+                            {post.userType === 'faculty' && (
+                              <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs">
                                 Instructor
                               </span>
                             )}
-                            <div className="text-xs text-gray-500">
-                              {reply.createdAt.toLocaleString()}
-                            </div>
+                          </div>
+                          <p className="text-xs text-gray-500">{getTimeElapsed(post.createdAt)}</p>
+                        </div>
+                      </div>
+                      {(canDelete() || post.userId === currentUser?.id) && (
+                        <button
+                          className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                          onClick={() => handleDeletePost(post.id)}
+                          title="Delete post"
+                        >
+                          <AiOutlineDelete className="text-lg" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Post Content */}
+                  <div className="p-5">
+                    <p className="text-gray-800 whitespace-pre-line mb-5">{post.query}</p>
+                    
+                    {/* Reply button */}
+                    <div className="flex justify-end">
+                      <button
+                        className="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all"
+                        onClick={() => handleReplyClick(post.id)}
+                      >
+                        <FaReply className="text-sm" />
+                        Reply
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Replies Section */}
+                  {(post.replies.length > 0 || replyingToPost === post.id) && (
+                    <div className="border-t border-gray-100 bg-gray-50 p-4">
+                      <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M18 13V5a2 2 0 00-2-2H4a2 2 0 00-2 2v8a2 2 0 002 2h3l3 3 3-3h3a2 2 0 002-2zM5 7a1 1 0 011-1h8a1 1 0 110 2H6a1 1 0 01-1-1zm1 3a1 1 0 100 2h3a1 1 0 100-2H6z" clipRule="evenodd" />
+                        </svg>
+                        {post.replies.length} {post.replies.length === 1 ? 'Reply' : 'Replies'}
+                      </h3>
+                      
+                      {/* Reply Form */}
+                      {replyingToPost === post.id && (
+                        <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4 animate-fade-in">
+                          <textarea
+                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                            rows="3"
+                            placeholder="Write your reply..."
+                            value={replyContent}
+                            onChange={(e) => setReplyContent(e.target.value)}
+                          ></textarea>
+                          <div className="flex justify-end gap-2 mt-3">
+                            <button
+                              className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-all text-sm"
+                              onClick={handleCancelReply}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all flex items-center gap-1.5 text-sm"
+                              onClick={() => handleSubmitReply(post.id)}
+                            >
+                              <FaPaperPlane className="text-xs" />
+                              Submit
+                            </button>
                           </div>
                         </div>
-                        {(canDelete() || reply.userId === currentUser?.id) && (
-                          <AiOutlineDelete
-                            className="text-red-600 text-[28px] hover:scale-110 transition-all duration-200 cursor-pointer"
-                            onClick={() => handleDeleteReply(post.id, reply.id)}
-                          />
-                        )}
+                      )}
+                      
+                      {/* Reply List */}
+                      <div className="space-y-3">
+                        {post.replies.map((reply) => (
+                          <div key={reply.id} className="bg-white rounded-lg border border-gray-100 shadow-sm p-4">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                                  reply.userType === 'faculty' ? 'bg-blue-100 text-blue-600' : 'bg-blue-100 text-blue-600'
+                                }`}>
+                                  <FaUser className="text-sm" />
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-sm font-medium text-gray-800">{reply.author}</span>
+                                    {reply.userType === 'faculty' && (
+                                      <span className="inline-flex items-center bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full text-xs">
+                                        Instructor
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-gray-500">{getTimeElapsed(reply.createdAt)}</p>
+                                </div>
+                              </div>
+                              {(canDelete() || reply.userId === currentUser?.id) && (
+                                <button
+                                  className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-all"
+                                  onClick={() => handleDeleteReply(post.id, reply.id)}
+                                  title="Delete reply"
+                                >
+                                  <AiOutlineDelete className="text-base" />
+                                </button>
+                              )}
+                            </div>
+                            <p className="text-gray-800 whitespace-pre-line text-sm">{reply.content}</p>
+                          </div>
+                        ))}
                       </div>
-                      <p className="whitespace-pre-line">{reply.content}</p>
                     </div>
-                  ))
-                )}
-                {replyingToPost === post.id ? (
-                  <div className="bg-white p-4 rounded-md mb-2">
-                    <textarea
-                      className="w-full p-2 border border-gray-300 rounded-md mb-2"
-                      rows="3"
-                      placeholder="Write your reply..."
-                      value={replyContent}
-                      onChange={(e) => setReplyContent(e.target.value)}
-                    ></textarea>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        className="bg-gray-300 shadow-lg text-black px-4 py-2 rounded-md hover:scale-95 transition-all duration-200"
-                        onClick={handleCancelReply}
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        className="bg-blue-500 hover:scale-95 transition-all duration-200 shadow-lg text-white px-4 py-2 rounded-md"
-                        onClick={() => handleSubmitReply(post.id)}
-                      >
-                        Submit
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex justify-end mt-2">
-                    <button
-                      className="bg-black text-white px-4 py-2 rounded-md hover:scale-95 transition-all duration-200 hover:bg-blue-500"
-                      onClick={() => handleReplyClick(post.id)}
-                    >
-                      Reply
-                    </button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              ))}
             </div>
-          </div>
-        ))
+          )}
+        </div>
       )}
+      
+      <style jsx>{`
+        @keyframes fade-in {
+          0% { opacity: 0; transform: translateY(10px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+          animation: fade-in 0.4s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
