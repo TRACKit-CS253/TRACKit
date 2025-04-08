@@ -183,7 +183,7 @@ export default function Course() {
           </h2>
           
           <div className="bg-white rounded-xl shadow-md border border-gray-100 p-5">
-            <div className="h-[500px]">
+            <div>
               <MyCalendar />
             </div>
           </div>

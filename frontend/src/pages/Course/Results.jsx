@@ -696,52 +696,141 @@ export default function Results() {
           </div>
         )}
 
-        {/* Exam Summary Table */}
-        {!showAddResultForm && !showModifyForm && !selectedExamId && examSummaries.length > 0 && (
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-3">All results</h2>
-            {loadingExamSummaries ? (
-              <div className="text-center py-4">Loading exam summaries...</div>
-            ) : examSummaries.length > 0 ? (
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-300 rounded-lg shadow">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="py-3 px-4 border-b text-left">Exam Name</th>
-                      <th className="py-3 px-4 border-b text-center">Total Marks</th>
-                      <th className="py-3 px-4 border-b text-center">Weightage</th>
-                      <th className="py-3 px-4 border-b text-center">Mean</th>
-                      <th className="py-3 px-4 border-b text-center">Median</th>
-                      <th className="py-3 px-4 border-b text-center">Max</th>
-                      <th className="py-3 px-4 border-b text-center">Std Dev</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {examSummaries.map((exam, index) => (
-                      <tr 
-                        key={exam.id} 
-                        className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} cursor-pointer hover:bg-blue-50`}
-                        onClick={() => setSelectedExamId(exam.id)}
-                      >
-                        <td className="py-2 px-4 border-b font-medium">{exam.examName}</td>
-                        <td className="py-2 px-4 border-b text-center">{exam.totalMarks}</td>
-                        <td className="py-2 px-4 border-b text-center">{exam.weightage}%</td>
-                        <td className="py-2 px-4 border-b text-center">{exam.mean?.toFixed(1) || 'N/A'}</td>
-                        <td className="py-2 px-4 border-b text-center">{exam.median || 'N/A'}</td>
-                        <td className="py-2 px-4 border-b text-center">{exam.max || 'N/A'}</td>
-                        <td className="py-2 px-4 border-b text-center">{exam.deviation?.toFixed(1) || 'N/A'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="text-center py-4 text-gray-500 bg-white p-4 rounded-lg shadow">
-                No result have been added to this course yet. Use the "Add Result" button to create one.
-              </div>
-            )}
+        {/* Exam Summary Table - Modern Design */}
+{!showAddResultForm && !showModifyForm && !selectedExamId && examSummaries.length > 0 && (
+  <div className="mb-8">
+    <div className="flex items-center justify-between mb-5">
+      <h2 className="text-xl font-semibold text-gray-800">Course Results</h2>
+      {examSummaries.length > 0 && (
+        <button className="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 text-sm rounded-lg border border-gray-200 shadow-sm flex items-center gap-2 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Export All
+        </button>
+      )}
+    </div>
+    
+    {loadingExamSummaries ? (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8 flex justify-center items-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="animate-spin rounded-full h-8 w-8 border-2 border-blue-500 border-t-transparent"></div>
+          <p className="text-sm text-gray-500">Loading exam summaries...</p>
+        </div>
+      </div>
+    ) : examSummaries.length > 0 ? (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead>
+              <tr className="bg-gray-50">
+                <th scope="col" className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Exam Name
+                </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Total Marks
+                </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Weightage
+                </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Mean
+                </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Median
+                </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Max
+                </th>
+                <th scope="col" className="px-6 py-4 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  Std Dev
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-100">
+              {examSummaries.map((exam, index) => (
+                <tr 
+                  key={exam.id} 
+                  className="hover:bg-blue-50/50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedExamId(exam.id)}
+                >
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="h-9 w-9 flex-shrink-0 rounded-md bg-blue-100 flex items-center justify-center mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                      </div>
+                      <div>
+                        <div className="font-medium text-gray-900">{exam.examName}</div>
+                        <div className="text-xs text-gray-500">Click to view details</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span className="px-3 py-1.5 inline-flex text-sm font-medium bg-gray-100 text-gray-800 rounded-md">
+                      {exam.totalMarks}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span className="px-3 py-1.5 inline-flex text-sm font-medium bg-blue-100 text-blue-800 rounded-md">
+                      {exam.weightage}%
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center font-medium text-gray-700">
+                    {exam.mean?.toFixed(1) || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center font-medium text-gray-700">
+                    {exam.median || 'N/A'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span className="px-3 py-1.5 inline-flex text-sm font-medium bg-green-100 text-green-800 rounded-md">
+                      {exam.max || 'N/A'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-center font-medium text-gray-700">
+                    {exam.deviation?.toFixed(1) || 'N/A'}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        
+        <div className="bg-gray-50 px-6 py-4 border-t border-gray-100">
+          <div className="text-sm text-gray-500 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Click on any row to view detailed results and statistics</span>
           </div>
-        )}
+        </div>
+      </div>
+    ) : (
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-10">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="rounded-full bg-blue-50 p-3 mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium text-gray-700 mb-1">No results available yet</h3>
+          <p className="text-gray-500 mb-6 max-w-md">No result have been added to this course yet. Use the "Add Result" button to create one.</p>
+          <button
+            onClick={handleShowAddResultForm}
+            className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          >
+            <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Result
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+)}
+
         {/* Add Result Form */}
         {showAddResultForm && (
           <div className="bg-white p-4 rounded-lg shadow mb-6">
@@ -1333,68 +1422,392 @@ export default function Results() {
     </div>
 
     {/* Content container */}
-      <div className="p-6">  {/* Added padding container */}
+      <div className="p-6 lg:p-8">  {/* Added padding container */}
 
-        {/* Graph Section */}
+        {/* Results Overview Panel - Only shown when results exist */}
         {results.length > 0 && (
-          <div className="w-full h-96 mb-6">
-            <Bar data={chartData} options={chartOptions} />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mb-8 overflow-hidden">
+            {/* Panel Header */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-5 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Results Overview
+              </h2>
+              <p className="text-sm text-gray-600 mt-1 ml-7">Visual representation of your performance across exams</p>
+            </div>
+
+            {/* Performance Graph */}
+            <div className="p-6">
+              <div className="w-full h-80 lg:h-96">
+                <Bar 
+                  data={{
+                    labels: examNames,
+                    datasets: [
+                      {
+                        label: 'Obtained Marks',
+                        data: obtainedMarks,
+                        backgroundColor: 'rgba(59, 130, 246, 0.75)', // Modern blue
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        stack: 'Marks',
+                      },
+                      {
+                        label: 'Remaining Marks',
+                        data: unobtainedMarks,
+                        backgroundColor: 'rgba(229, 231, 235, 0.5)', // Light gray
+                        borderColor: 'rgba(209, 213, 219, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        stack: 'Marks',
+                      },
+                      {
+                        label: 'Obtained Weightage',
+                        data: obtainedWeightage,
+                        backgroundColor: 'rgba(124, 58, 237, 0.75)', // Modern purple
+                        borderColor: 'rgba(124, 58, 237, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        stack: 'Weightage',
+                      },
+                      {
+                        label: 'Remaining Weightage',
+                        data: unobtainedWeightage,
+                        backgroundColor: 'rgba(243, 244, 246, 0.5)', // Very light gray
+                        borderColor: 'rgba(229, 231, 235, 1)',
+                        borderWidth: 1,
+                        borderRadius: 6,
+                        stack: 'Weightage',
+                      },
+                    ],
+                  }} 
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                      mode: 'index',
+                      intersect: false,
+                    },
+                    plugins: {
+                      tooltip: {
+                        backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                        titleColor: '#1f2937',
+                        bodyColor: '#4b5563',
+                        borderColor: '#e5e7eb',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        boxPadding: 4,
+                        usePointStyle: true,
+                        callbacks: {
+                          labelPointStyle: (context) => {
+                            return {
+                              pointStyle: 'rectRounded',
+                              rotation: 0
+                            };
+                          }
+                        }
+                      },
+                      legend: {
+                        position: 'top',
+                        labels: {
+                          boxWidth: 15,
+                          boxHeight: 15,
+                          usePointStyle: true,
+                          pointStyle: 'rectRounded',
+                          padding: 20,
+                          filter: (legendItem) =>
+                            legendItem.text !== 'Remaining Marks' && legendItem.text !== 'Remaining Weightage',
+                          color: '#4b5563',
+                          font: {
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                            size: 12,
+                          }
+                        },
+                      },
+                      title: {
+                        display: false,
+                      },
+                    },
+                    scales: {
+                      x: {
+                        title: {
+                          display: true,
+                          text: 'Exams',
+                          color: '#6b7280',
+                          font: {
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                            size: 13,
+                            weight: '500',
+                          },
+                        },
+                        stacked: true,
+                        grid: {
+                          display: false,
+                        },
+                        ticks: {
+                          color: '#4b5563',
+                          font: {
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                          },
+                        },
+                      },
+                      y: {
+                        title: {
+                          display: true,
+                          text: 'Marks / Weightage',
+                          color: '#6b7280',
+                          font: {
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                            size: 13,
+                            weight: '500',
+                          },
+                        },
+                        beginAtZero: true,
+                        stacked: true,
+                        grid: {
+                          color: '#f3f4f6',
+                          borderDash: [3, 3],
+                        },
+                        ticks: {
+                          color: '#4b5563',
+                          font: {
+                            family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+                          },
+                          padding: 10,
+                        },
+                      },
+                    },
+                    animation: {
+                      duration: 1000,
+                      easing: 'easeOutQuad',
+                    },
+                  }}
+                />
+              </div>
+              
+              <div className="mt-6 pt-4 border-t border-gray-100">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="relative bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
+                    <div className="text-xs text-blue-700 font-medium mb-1">Average Score</div>
+                    <div className="text-xl font-bold text-blue-800">
+                      {(() => {
+                        const validResults = results.filter(r => r.obtainedMarks !== null && r.totalMarks > 0);
+                        if (validResults.length === 0) return 'N/A';
+                        
+                        const avgPercent = validResults.reduce((sum, result) => 
+                          sum + (result.obtainedMarks / result.totalMarks * 100), 0) / validResults.length;
+                        
+                        return `${avgPercent.toFixed(1)}%`;
+                      })()}
+                    </div>
+                    <div className="absolute top-3 right-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <div className="relative bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
+                    <div className="text-xs text-purple-700 font-medium mb-1">Best Performance</div>
+                    <div className="text-xl font-bold text-purple-800">
+                      {(() => {
+                        const validResults = results.filter(r => r.obtainedMarks !== null && r.totalMarks > 0);
+                        if (validResults.length === 0) return 'N/A';
+                        
+                        const bestPercentage = Math.max(...validResults.map(r => 
+                          (r.obtainedMarks / r.totalMarks * 100)));
+                        
+                        return `${bestPercentage.toFixed(1)}%`;
+                      })()}
+                    </div>
+                    <div className="absolute top-3 right-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <div className="relative bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
+                    <div className="text-xs text-green-700 font-medium mb-1">Overall Progress</div>
+                    <div className="text-xl font-bold text-green-800">
+                      {(() => {
+                        const totalWeightage = results.reduce((sum, result) => sum + (result.weightage || 0), 0);
+                        return `${Math.min(totalWeightage, 100)}%`;
+                      })()}
+                    </div>
+                    <div className="absolute top-3 right-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <div className="relative bg-gradient-to-br from-amber-50 to-amber-100 p-4 rounded-lg border border-amber-200">
+                    <div className="text-xs text-amber-700 font-medium mb-1">Completed Exams</div>
+                    <div className="text-xl font-bold text-amber-800">
+                      {results.filter(r => r.obtainedMarks !== null).length} / {results.length}
+                    </div>
+                    <div className="absolute top-3 right-3">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
-        {/* Table Section */}
-        <table className="min-w-full bg-white border border-gray-300">
-        <thead>
-              <tr>
-                <th className="py-2 px-4 border-b text-center w-32">Exam Name</th>
-                <th className="py-2 px-4 border-b text-center w-24">Weightage</th>
-                <th className="py-2 px-4 border-b text-center w-24">Total Marks</th>
-                <th className="py-2 px-4 border-b text-center w-32">Obtained Marks</th>
-                <th className="py-2 px-4 border-b text-center w-24">Mean</th>
-                <th className="py-2 px-4 border-b text-center w-24">Median</th>
-                <th className="py-2 px-4 border-b text-center w-24">Max</th>
-                <th className="py-2 px-4 border-b text-center w-32">Deviation</th>
-              </tr>
-            </thead>
-            <tbody>
-              {results.length === 0 ? (
-                <tr>
-                  <td colSpan="8" className="py-4 px-4 text-center text-gray-500">
-                    No results available yet
-                  </td>
+        {/* Results Table Panel */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Panel Header */}
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-800">Detailed Results</h2>
+              <p className="text-sm text-gray-600 mt-1">{results.length > 0 ? `${results.length} exams found` : 'No results available yet'}</p>
+            </div>
+            
+            {results.length > 0 && (
+              <button className="bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 text-sm rounded-lg border border-gray-200 shadow-sm flex items-center gap-2 transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export
+              </button>
+            )}
+          </div>
+
+          {/* Table Section with modern styling */}
+          <div className="overflow-x-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr className="bg-gray-50 text-xs uppercase tracking-wider">
+                  <th className="px-5 py-3.5 text-left text-gray-600 font-semibold">Exam Name</th>
+                  <th className="px-5 py-3.5 text-center text-gray-600 font-semibold">Weightage</th>
+                  <th className="px-5 py-3.5 text-center text-gray-600 font-semibold">Total Marks</th>
+                  <th className="px-5 py-3.5 text-center text-gray-600 font-semibold">Obtained Marks</th>
+                  <th className="px-5 py-3.5 text-center text-gray-600 font-semibold">Mean</th>
+                  <th className="px-5 py-3.5 text-center text-gray-600 font-semibold">Median</th>
+                  <th className="px-5 py-3.5 text-center text-gray-600 font-semibold">Max</th>
+                  <th className="px-5 py-3.5 text-center text-gray-600 font-semibold">Deviation</th>
                 </tr>
-              ) : (
-                results.map((result, index) => (
-                  <tr key={index}>
-                    <td className="py-2 px-4 border-b text-center w-32 overflow-x-auto">
-                      {result.examName}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center w-24 overflow-x-auto">
-                      {result.weightage}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center w-24 overflow-x-auto">
-                      {result.totalMarks}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center w-32 overflow-x-auto">
-                      {result.obtainedMarks !== null ? result.obtainedMarks : 'N/A'}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center w-24 overflow-x-auto">
-                      {result.mean}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center w-24 overflow-x-auto">
-                      {result.median}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center w-24 overflow-x-auto">
-                      {result.max}
-                    </td>
-                    <td className="py-2 px-4 border-b text-center w-32 overflow-x-auto">
-                      {result.deviation !== null ? result.deviation.toFixed(1) : 'N/A'}
+              </thead>
+              <tbody className="divide-y divide-gray-100">
+                {results.length === 0 ? (
+                  <tr>
+                    <td colSpan="8" className="px-6 py-12">
+                      <div className="flex flex-col items-center justify-center text-center">
+                        <div className="rounded-full bg-blue-50 p-3 mb-4">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                        </div>
+                        <p className="text-gray-500 font-medium">No results available yet</p>
+                        <p className="text-gray-400 text-sm mt-1">Results will appear here once published by the faculty</p>
+                      </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  results.map((result, index) => (
+                    <tr key={index} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
+                      <td className="px-5 py-4 text-left">
+                        <span className="font-medium text-gray-900">{result.examName}</span>
+                      </td>
+                      <td className="px-5 py-4 text-center">
+                        <span className="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 text-sm">
+                          {result.weightage}%
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 text-center text-gray-600">
+                        {result.totalMarks}
+                      </td>
+                      <td className="px-5 py-4 text-center">
+                        {result.obtainedMarks !== null ? (
+                          <span className="font-medium text-gray-900">{result.obtainedMarks}</span>
+                        ) : (
+                          <span className="text-gray-400">N/A</span>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-center text-gray-600">
+                        {result.mean ? result.mean.toFixed(1) : 'N/A'}
+                      </td>
+                      <td className="px-5 py-4 text-center text-gray-600">
+                        {result.median || 'N/A'}
+                      </td>
+                      <td className="px-5 py-4 text-center text-gray-600">
+                        {result.max || 'N/A'}
+                      </td>
+                      <td className="px-5 py-4 text-center">
+                        {result.deviation !== null ? (
+                          <span className="text-gray-600">{result.deviation.toFixed(1)}</span>
+                        ) : (
+                          <span className="text-gray-400">N/A</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+          
+          {/* Footer with stats - only when results exist */}
+          {results.length > 0 && (
+            <div className="border-t border-gray-100 px-6 py-4 bg-gray-50/50">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                  <div className="text-xs text-gray-500 mb-1">Overall Progress</div>
+                  <div className="text-xl font-semibold text-gray-900">
+                    {(() => {
+                      const totalWeightage = results.reduce((sum, result) => sum + (result.weightage || 0), 0);
+                      return `${Math.min(totalWeightage, 100)}%`;
+                    })()}
+                  </div>
+                </div>
+                
+                <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                  <div className="text-xs text-gray-500 mb-1">Average Score</div>
+                  <div className="text-xl font-semibold text-gray-900">
+                    {(() => {
+                      const validResults = results.filter(r => r.obtainedMarks !== null && r.totalMarks > 0);
+                      if (validResults.length === 0) return 'N/A';
+                      
+                      const avgPercent = validResults.reduce((sum, result) => 
+                        sum + (result.obtainedMarks / result.totalMarks * 100), 0) / validResults.length;
+                      
+                      return `${avgPercent.toFixed(1)}%`;
+                    })()}
+                  </div>
+                </div>
+                
+                <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                  <div className="text-xs text-gray-500 mb-1">Best Performance</div>
+                  <div className="text-xl font-semibold text-gray-900">
+                    {(() => {
+                      const validResults = results.filter(r => r.obtainedMarks !== null && r.totalMarks > 0);
+                      if (validResults.length === 0) return 'N/A';
+                      
+                      const bestPercentage = Math.max(...validResults.map(r => 
+                        (r.obtainedMarks / r.totalMarks * 100)));
+                      
+                      return `${bestPercentage.toFixed(1)}%`;
+                    })()}
+                  </div>
+                </div>
+                
+                <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm">
+                  <div className="text-xs text-gray-500 mb-1">Completed Exams</div>
+                  <div className="text-xl font-semibold text-gray-900">
+                    {results.filter(r => r.obtainedMarks !== null).length} / {results.length}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
     </div>
