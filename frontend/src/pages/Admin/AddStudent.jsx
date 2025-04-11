@@ -366,8 +366,11 @@ export default function AddStudent() {
                       onChange={handleChange}
                       required
                       className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                      placeholder="Enter roll number"
+                      placeholder="Enter numeric roll number only (e.g., 12345)"
                     />
+                    <p className="mt-1 text-sm text-gray-500">
+                      Roll number must contain only numeric digits (0-9)
+                    </p>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
@@ -387,15 +390,46 @@ export default function AddStudent() {
                     </div>
                     <div className="relative">
                       <label className="block text-gray-700 text-sm font-medium mb-2">Major</label>
-                      <input
-                        type="text"
+                      <select
                         name="major"
                         value={studentData.major}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Computer Science"
-                      />
+                      >
+                        <option value="">Select Engineering Branch</option>
+                        <option value="Aerospace Engineering">Aerospace Engineering</option>
+                        <option value="Biological Sciences and Bioengineering">Biological Sciences and Bioengineering</option>
+                        <option value="Chemical Engineering">Chemical Engineering</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                        <option value="Cognitive Science">Cognitive Science</option>
+                        <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                        <option value="Earth Science">Earth Science</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Electrical Engineering">Electrical Engineering</option>
+                        <option value="Environmental Engineering and Management">Environmental Engineering and Management</option>
+                        <option value="Humanities and Social Sciences">Humanities and Social Sciences</option>
+                        <option value="Industrial and Management Engineering">Industrial and Management Engineering</option>
+                        <option value="Laser Technology">Laser Technology</option>
+                        <option value="Materials Science Programme">Materials Science Programme</option>
+                        <option value="Materials Science and Engineering">Materials Science and Engineering</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Mathematics and Scientific Computing">Mathematics and Scientific Computing</option>
+                        <option value="Mathematics and Statistics">Mathematics and Statistics</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Nuclear Engineering and Technology Programme">Nuclear Engineering and Technology Programme</option>
+                        <option value="Photonics Science and Engineering">Photonics Science and Engineering</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Space Science and Astronomy">Space Science and Astronomy</option>
+                        <option value="Space, Planetary and Astronomical Sciences and Engineering">Space, Planetary and Astronomical Sciences and Engineering</option>
+                        <option value="Statistics">Statistics</option>
+                        <option value="Statistics and Data Science">Statistics and Data Science</option>
+                        <option value="Sustainable Energy Engineering">Sustainable Energy Engineering</option>
+                      </select>
+                      <p className="mt-1 text-sm text-gray-500">
+                        Select an engineering discipline from the dropdown
+                      </p>
                     </div>
                   </div>
                   
@@ -529,9 +563,9 @@ export default function AddStudent() {
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>firstName</b>: Student's first name</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>lastName</b>: Student's last name</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>: Valid email address</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>rollNumber</b>: Student's roll number</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>rollNumber</b>: Student's roll number (numeric only)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>enrollmentYear</b>: Year of enrollment</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>major</b>: Student's major</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>major</b>: Engineering branch (e.g., Computer Science, Electrical)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>password</b>: Initial password</li>
                       </ul>
                       <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">

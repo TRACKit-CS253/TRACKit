@@ -57,6 +57,14 @@ exports.addStudent = async (req, res) => {
       });
     }
 
+    // Validate roll number - must be numeric only
+    if (!/^\d+$/.test(req.body.rollNumber)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Roll number must contain only numeric characters'
+      });
+    }
+
     // Validate enrollment year
     if (isNaN(req.body.enrollmentYear) || req.body.enrollmentYear < 2000 || req.body.enrollmentYear > 2099) {
       return res.status(400).json({
@@ -258,6 +266,14 @@ exports.createUser = async (req, res) => {
         });
       }
 
+      // Validate roll number - must be numeric only
+      if (!/^\d+$/.test(req.body.rollNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Roll number must contain only numeric characters'
+        });
+      }
+
       // Validate enrollment year
       if (isNaN(req.body.enrollmentYear) || req.body.enrollmentYear < 2000 || req.body.enrollmentYear > 2099) {
         return res.status(400).json({
@@ -445,6 +461,11 @@ exports.bulkCreateStudents = async (req, res) => {
         // Username validation
         if (record.username.length < 3 || record.username.length > 50) {
           throw new Error('Username must be between 3 and 50 characters');
+        }
+
+        // Roll number validation - must be numeric only
+        if (!/^\d+$/.test(record.rollNumber)) {
+          throw new Error('Roll number must contain only numeric characters');
         }
 
         // Enrollment year validation
