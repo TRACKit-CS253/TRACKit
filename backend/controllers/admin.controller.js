@@ -410,7 +410,7 @@ exports.bulkCreateStudents = async (req, res) => {
       });
     }
 
-    // ...existing code to process the CSV...
+    // Parse the CSV
     const records = parse(csvData, {  
       columns: true,
       skip_empty_lines: true,
@@ -441,7 +441,37 @@ exports.bulkCreateStudents = async (req, res) => {
       });
     }
 
-    const createdUsers = [];
+    // Extract usernames, emails, and roll numbers to check for duplicates
+    const usernames = records.map(record => record.username);
+    const emails = records.map(record => record.email);
+    const rollNumbers = records.map(record => record.rollNumber);
+
+    // Check for existing usernames or emails
+    const existingUsers = await User.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          { username: { [db.Sequelize.Op.in]: usernames } },
+          { email: { [db.Sequelize.Op.in]: emails } }
+        ]
+      },
+      attributes: ['username', 'email']
+    });
+
+    // Check for existing roll numbers
+    const existingStudents = await Student.findAll({
+      where: { rollNumber: { [db.Sequelize.Op.in]: rollNumbers } },
+      attributes: ['rollNumber']
+    });
+
+    // Create lookup sets for faster existence checks
+    const existingUsernamesSet = new Set(existingUsers.map(user => user.username.toLowerCase()));
+    const existingEmailsSet = new Set(existingUsers.map(user => user.email.toLowerCase()));
+    const existingRollNumbersSet = new Set(existingStudents.map(student => student.rollNumber));
+
+    const createdStudents = [];
+    const duplicateUsernames = [];
+    const duplicateEmails = [];
+    const duplicateRollNumbers = [];
     const errors = [];
 
     for (const [index, record] of records.entries()) {
@@ -474,29 +504,27 @@ exports.bulkCreateStudents = async (req, res) => {
           throw new Error('Invalid enrollment year (must be between 2000 and 2099)');
         }
 
-        // Check for existing username or email
-        const existingUser = await User.findOne({
-          where: {
-            [db.Sequelize.Op.or]: [
-              { username: record.username },
-              { email: record.email }
-            ]
-          }
-        });
+        // Check for duplicates within the database
+        const usernameExists = existingUsernamesSet.has(record.username.toLowerCase());
+        const emailExists = existingEmailsSet.has(record.email.toLowerCase());
+        const rollNumberExists = existingRollNumbersSet.has(record.rollNumber);
 
-        if (existingUser) {
-          throw new Error('Username or email already exists');
+        if (usernameExists) {
+          duplicateUsernames.push(record.username);
+          continue; // Skip this record but continue processing others
         }
 
-        // Check for existing roll number
-        const existingStudent = await Student.findOne({
-          where: { rollNumber: record.rollNumber }
-        });
-
-        if (existingStudent) {
-          throw new Error('Roll number already exists');
+        if (emailExists) {
+          duplicateEmails.push(record.email);
+          continue; // Skip this record but continue processing others
         }
 
+        if (rollNumberExists) {
+          duplicateRollNumbers.push(record.rollNumber);
+          continue; // Skip this record but continue processing others
+        }
+
+        // Create the user and student
         const hashedPassword = bcrypt.hashSync(record.password, 8);
         
         const user = await User.create({
@@ -515,26 +543,61 @@ exports.bulkCreateStudents = async (req, res) => {
           major: record.major
         }, { transaction: t });
 
-        createdUsers.push(user.id);
+        // Add to tracking sets to prevent duplicates within the CSV
+        existingUsernamesSet.add(record.username.toLowerCase());
+        existingEmailsSet.add(record.email.toLowerCase());
+        existingRollNumbersSet.add(record.rollNumber);
+
+        createdStudents.push({
+          id: user.id,
+          username: user.username,
+          rollNumber: record.rollNumber
+        });
       } catch (error) {
-        errors.push(`Row ${index + 1}: ${error.message}`);
+        errors.push(`Row ${index + 2}: ${error.message}`); // +2 because row 1 is header
       }
     }
 
-    if (errors.length > 0) {
+    // Only roll back if no students were created and there were errors
+    if (createdStudents.length === 0 && (errors.length > 0 || 
+        duplicateUsernames.length > 0 || duplicateEmails.length > 0 || duplicateRollNumbers.length > 0)) {
       await t.rollback();
+      
+      let message = 'No students were created due to errors or duplicates';
+      if (duplicateUsernames.length > 0 && errors.length === 0) {
+        message = 'All usernames in the CSV already exist in the database';
+      }
+      
       return res.status(400).json({
         success: false,
-        message: 'Errors occurred while processing CSV',
-        errors: errors
+        message: message,
+        errors: errors,
+        duplicateUsernames: duplicateUsernames.length > 0 ? duplicateUsernames : undefined,
+        duplicateEmails: duplicateEmails.length > 0 ? duplicateEmails : undefined,
+        duplicateRollNumbers: duplicateRollNumbers.length > 0 ? duplicateRollNumbers : undefined,
+        totalRows: records.length
       });
     }
 
     await t.commit();
+    
+    // Return a success response with information about created students and duplicates
+    let message = `Successfully created ${createdStudents.length} students`;
+    let totalDuplicates = duplicateUsernames.length + duplicateEmails.length + duplicateRollNumbers.length;
+    if (totalDuplicates > 0) {
+      message += `, skipped ${totalDuplicates} duplicate records`;
+    }
+    
     res.status(201).json({
       success: true,
-      message: `Successfully created ${createdUsers.length} students`,
-      userIds: createdUsers
+      message: message,
+      students: createdStudents,
+      duplicateUsernames: duplicateUsernames.length > 0 ? duplicateUsernames : undefined,
+      duplicateEmails: duplicateEmails.length > 0 ? duplicateEmails : undefined,
+      duplicateRollNumbers: duplicateRollNumbers.length > 0 ? duplicateRollNumbers : undefined,
+      skippedCount: totalDuplicates,
+      createdCount: createdStudents.length,
+      totalRows: records.length
     });
   } catch (error) {
     await t.rollback();
@@ -604,7 +667,7 @@ exports.bulkCreateFaculty = async (req, res) => {
       });
     }
 
-    // ...existing code to process the CSV...
+    // Parse the CSV
     const records = parse(csvData, {  
       columns: true,
       skip_empty_lines: true,
@@ -635,7 +698,28 @@ exports.bulkCreateFaculty = async (req, res) => {
       });
     }
 
-    const createdUsers = [];
+    // Extract usernames and emails to check for duplicates
+    const usernames = records.map(record => record.username);
+    const emails = records.map(record => record.email);
+
+    // Check for existing usernames or emails
+    const existingUsers = await User.findAll({
+      where: {
+        [db.Sequelize.Op.or]: [
+          { username: { [db.Sequelize.Op.in]: usernames } },
+          { email: { [db.Sequelize.Op.in]: emails } }
+        ]
+      },
+      attributes: ['username', 'email']
+    });
+
+    // Create lookup sets for faster existence checks
+    const existingUsernamesSet = new Set(existingUsers.map(user => user.username.toLowerCase()));
+    const existingEmailsSet = new Set(existingUsers.map(user => user.email.toLowerCase()));
+
+    const createdFaculty = [];
+    const duplicateUsernames = [];
+    const duplicateEmails = [];
     const errors = [];
 
     for (const [index, record] of records.entries()) {
@@ -657,20 +741,26 @@ exports.bulkCreateFaculty = async (req, res) => {
           throw new Error('Username must be between 3 and 50 characters');
         }
 
-        // Check for existing username or email
-        const existingUser = await User.findOne({
-          where: {
-            [db.Sequelize.Op.or]: [
-              { username: record.username },
-              { email: record.email }
-            ]
-          }
-        });
-
-        if (existingUser) {
-          throw new Error('Username or email already exists');
+        // Password validation
+        if (record.password.length < 8) {
+          throw new Error('Password must be at least 8 characters long');
         }
 
+        // Check for duplicates within the database
+        const usernameExists = existingUsernamesSet.has(record.username.toLowerCase());
+        const emailExists = existingEmailsSet.has(record.email.toLowerCase());
+
+        if (usernameExists) {
+          duplicateUsernames.push(record.username);
+          continue; // Skip this record but continue processing others
+        }
+
+        if (emailExists) {
+          duplicateEmails.push(record.email);
+          continue; // Skip this record but continue processing others
+        }
+
+        // Create the user and faculty
         const hashedPassword = bcrypt.hashSync(record.password, 8);
         
         const user = await User.create({
@@ -688,26 +778,58 @@ exports.bulkCreateFaculty = async (req, res) => {
           position: record.position
         }, { transaction: t });
 
-        createdUsers.push(user.id);
+        // Add to tracking sets to prevent duplicates within the CSV
+        existingUsernamesSet.add(record.username.toLowerCase());
+        existingEmailsSet.add(record.email.toLowerCase());
+
+        createdFaculty.push({
+          id: user.id,
+          username: user.username,
+          department: record.department
+        });
       } catch (error) {
-        errors.push(`Row ${index + 1}: ${error.message}`);
+        errors.push(`Row ${index + 2}: ${error.message}`); // +2 because row 1 is header
       }
     }
 
-    if (errors.length > 0) {
+    // Only roll back if no faculty were created and there were errors
+    if (createdFaculty.length === 0 && (errors.length > 0 || 
+        duplicateUsernames.length > 0 || duplicateEmails.length > 0)) {
       await t.rollback();
+      
+      let message = 'No faculty members were created due to errors or duplicates';
+      if (duplicateUsernames.length > 0 && errors.length === 0) {
+        message = 'All usernames in the CSV already exist in the database';
+      }
+      
       return res.status(400).json({
         success: false,
-        message: 'Errors occurred while processing CSV',
-        errors: errors
+        message: message,
+        errors: errors,
+        duplicateUsernames: duplicateUsernames.length > 0 ? duplicateUsernames : undefined,
+        duplicateEmails: duplicateEmails.length > 0 ? duplicateEmails : undefined,
+        totalRows: records.length
       });
     }
 
     await t.commit();
+    
+    // Return a success response with information about created faculty and duplicates
+    let message = `Successfully created ${createdFaculty.length} faculty members`;
+    let totalDuplicates = duplicateUsernames.length + duplicateEmails.length;
+    if (totalDuplicates > 0) {
+      message += `, skipped ${totalDuplicates} duplicate records`;
+    }
+    
     res.status(201).json({
       success: true,
-      message: `Successfully created ${createdUsers.length} faculty members`,
-      userIds: createdUsers
+      message: message,
+      faculty: createdFaculty,
+      duplicateUsernames: duplicateUsernames.length > 0 ? duplicateUsernames : undefined,
+      duplicateEmails: duplicateEmails.length > 0 ? duplicateEmails : undefined,
+      skippedCount: totalDuplicates,
+      createdCount: createdFaculty.length,
+      totalRows: records.length
     });
   } catch (error) {
     await t.rollback();
@@ -857,6 +979,14 @@ exports.createCourse = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: `Missing required fields: ${missingFields.join(', ')}`
+      });
+    }
+    
+    // Validate course code - must be alphanumeric only and max 10 characters
+    if (!/^[a-zA-Z0-9]{1,10}$/.test(req.body.code)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Course code must be alphanumeric and maximum 10 characters'
       });
     }
     
@@ -1107,19 +1237,12 @@ exports.bulkCreateCourses = async (req, res) => {
       attributes: ['code']
     });
     
-    // If we found existing courses with the same codes, return an error
-    if (existingCourses.length > 0) {
-      const duplicateCodes = existingCourses.map(course => course.code);
-      return res.status(400).json({
-        success: false,
-        message: 'These course codes already exist. Please use different CSV file or remove duplicate entries.',
-        duplicateCodes: duplicateCodes,
-        hint: `Found ${duplicateCodes.length} courses that already exist in the database.`
-      });
-    }
-
+    // Create a lookup set of existing course codes for faster checks
+    const existingCodesSet = new Set(existingCourses.map(course => course.code.toUpperCase()));
+    
     const createdCourses = [];
     const errors = [];
+    const duplicateCodes = [];
 
     // Process each record from the CSV
     for (const [index, record] of records.entries()) {
@@ -1144,6 +1267,17 @@ exports.bulkCreateCourses = async (req, res) => {
         }
         if (!semester) {
           throw new Error('Missing semester');
+        }
+
+        // Course code validation - must be alphanumeric only and max 10 characters
+        if (!/^[a-zA-Z0-9]{1,10}$/.test(code)) {
+          throw new Error('Course code must be alphanumeric and maximum 10 characters');
+        }
+
+        // Check if this course code already exists in the database
+        if (existingCodesSet.has(code.toUpperCase())) {
+          duplicateCodes.push(code);
+          continue; // Skip this record but continue processing others
         }
 
         // Credits validation
@@ -1171,6 +1305,9 @@ exports.bulkCreateCourses = async (req, res) => {
           semester: semester.charAt(0).toUpperCase() + semester.slice(1).toLowerCase(), // Proper case
         }, { transaction: t });
 
+        // Add this code to the existing codes set to prevent duplicates within the CSV
+        existingCodesSet.add(code.toUpperCase());
+
         createdCourses.push({
           id: course.id,
           code: course.code
@@ -1180,23 +1317,40 @@ exports.bulkCreateCourses = async (req, res) => {
       }
     }
 
-    if (errors.length > 0) {
-      console.error("CSV processing errors:", errors);
+    // Only roll back if no courses were created and there were errors
+    if (createdCourses.length === 0 && (errors.length > 0 || duplicateCodes.length > 0)) {
       await t.rollback();
+      
+      let message = 'No courses were created due to errors';
+      if (duplicateCodes.length > 0 && errors.length === 0) {
+        message = 'All course codes in the CSV already exist in the database';
+      }
+      
       return res.status(400).json({
         success: false,
-        message: `Errors occurred while processing CSV (${errors.length} errors)`,
+        message: message,
         errors: errors,
-        totalRows: records.length,
-        successfulRows: createdCourses.length
+        duplicateCodes: duplicateCodes.length > 0 ? duplicateCodes : undefined,
+        totalRows: records.length
       });
     }
 
     await t.commit();
+    
+    // Return a success response with information about created courses and duplicates
+    let message = `Successfully created ${createdCourses.length} courses`;
+    if (duplicateCodes.length > 0) {
+      message += `, skipped ${duplicateCodes.length} duplicate course codes`;
+    }
+    
     res.status(201).json({
       success: true,
-      message: `Successfully created ${createdCourses.length} courses`,
-      courses: createdCourses
+      message: message,
+      courses: createdCourses,
+      duplicateCodes: duplicateCodes.length > 0 ? duplicateCodes : undefined,
+      skippedCount: duplicateCodes.length,
+      createdCount: createdCourses.length,
+      totalRows: records.length
     });
   } catch (error) {
     await t.rollback();

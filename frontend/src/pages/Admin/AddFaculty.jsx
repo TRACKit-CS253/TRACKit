@@ -171,31 +171,110 @@ export default function AddFaculty() {
       
       console.log('Bulk upload response:', response);
       
-      setSuccess(response.data.message);
+      if (response.data.success) {
+        // Display improved success message with stats
+        const message = (
+          <div>
+            <p>{response.data.message}</p>
+            {response.data.skippedCount > 0 && (
+              <div className="mt-3 p-3 bg-blue-50 rounded-md text-sm">
+                <p className="font-medium text-blue-800 mb-2">Upload Summary:</p>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  <div className="bg-white p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-gray-500">Total</span>
+                    <span className="block text-base font-semibold text-gray-700">{response.data.totalRows}</span>
+                  </div>
+                  <div className="bg-green-50 p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-green-600">Created</span>
+                    <span className="block text-base font-semibold text-green-700">{response.data.createdCount}</span>
+                  </div>
+                  <div className="bg-amber-50 p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-amber-600">Skipped</span>
+                    <span className="block text-base font-semibold text-amber-700">{response.data.skippedCount}</span>
+                  </div>
+                </div>
+                
+                {response.data.duplicateUsernames && response.data.duplicateUsernames.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-amber-700">Duplicate usernames:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {response.data.duplicateUsernames.map((username, idx) => (
+                        <span key={idx} className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">{username}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {response.data.duplicateEmails && response.data.duplicateEmails.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-amber-700">Duplicate emails:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {response.data.duplicateEmails.map((email, idx) => (
+                        <span key={idx} className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">{email}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+        setSuccess(message);
+      } else {
+        setError(response.data.message);
+      }
+      
       setCsvFile(null);
       setCsvFileName('');
-      // Reset the file input
-      const fileInput = document.querySelector('input[type="file"]');
-      if (fileInput) fileInput.value = '';
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error) {
       console.error('Upload error:', error.response?.data || error);
       const errorMessage = error.response?.data?.message;
       const errorList = error.response?.data?.errors;
+      const duplicateUsernames = error.response?.data?.duplicateUsernames;
+      const duplicateEmails = error.response?.data?.duplicateEmails;
       
-      if (errorList && Array.isArray(errorList)) {
-        setError(
-          <div>
-            <p>{errorMessage}</p>
-            <ul className="list-disc pl-5 mt-2">
-              {errorList.map((err, index) => (
-                <li key={index}>{err}</li>
-              ))}
-            </ul>
-          </div>
-        );
-      } else {
-        setError(errorMessage || 'Error uploading faculty');
-      }
+      // Comprehensive error display
+      const errorContent = (
+        <div>
+          <p className="font-medium">{errorMessage || 'Error uploading faculty'}</p>
+          
+          {errorList && errorList.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium">Validation errors:</p>
+              <ul className="list-disc pl-5 mt-1 text-sm">
+                {errorList.map((err, index) => (
+                  <li key={index}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {duplicateUsernames && duplicateUsernames.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium">Duplicate usernames:</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {duplicateUsernames.map((username, idx) => (
+                  <span key={idx} className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded text-xs">{username}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {duplicateEmails && duplicateEmails.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium">Duplicate emails:</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {duplicateEmails.map((email, idx) => (
+                  <span key={idx} className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded text-xs">{email}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+      
+      setError(errorContent);
     }
   };
 
@@ -355,27 +434,55 @@ export default function AddFaculty() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="block text-gray-700 text-sm font-medium mb-2">Department</label>
-                      <input
-                        type="text"
+                      <select
                         name="department"
                         value={facultyData.department}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Computer Science"
-                      />
+                      >
+                        <option value="">Select Department</option>
+                        <option value="Aerospace Engineering">Aerospace Engineering</option>
+                        <option value="Biological Sciences and Bioengineering">Biological Sciences and Bioengineering</option>
+                        <option value="Chemical Engineering">Chemical Engineering</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                        <option value="Cognitive Science">Cognitive Science</option>
+                        <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                        <option value="Earth Science">Earth Science</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Electrical Engineering">Electrical Engineering</option>
+                        <option value="Environmental Engineering and Management">Environmental Engineering and Management</option>
+                        <option value="Humanities and Social Sciences">Humanities and Social Sciences</option>
+                        <option value="Industrial and Management Engineering">Industrial and Management Engineering</option>
+                        <option value="Materials Science and Engineering">Materials Science and Engineering</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Statistics">Statistics</option>
+                      </select>
                     </div>
                     <div className="relative">
                       <label className="block text-gray-700 text-sm font-medium mb-2">Position</label>
-                      <input
-                        type="text"
+                      <select
                         name="position"
                         value={facultyData.position}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Professor"
-                      />
+                      >
+                        <option value="">Select Position</option>
+                        <option value="Professor">Professor</option>
+                        <option value="Associate Professor">Associate Professor</option>
+                        <option value="Assistant Professor">Assistant Professor</option>
+                        <option value="Visiting Professor">Visiting Professor</option>
+                        <option value="Lecturer">Lecturer</option>
+                        <option value="Adjunct Faculty">Adjunct Faculty</option>
+                        <option value="Research Professor">Research Professor</option>
+                        <option value="Department Head">Department Head</option>
+                        <option value="Teaching Assistant">Teaching Assistant</option>
+                        <option value="Lab Instructor">Lab Instructor</option>
+                      </select>
                     </div>
                   </div>
                   
@@ -508,8 +615,8 @@ export default function AddFaculty() {
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>firstName</b>: Faculty's first name</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>lastName</b>: Faculty's last name</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>: Valid email address</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>department</b>: Faculty's department</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>position</b>: Faculty's position</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>department</b>: Faculty's department (match from dropdown options)</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>position</b>: Faculty's position (match from dropdown options)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>password</b>: Initial password</li>
                       </ul>
                       <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">

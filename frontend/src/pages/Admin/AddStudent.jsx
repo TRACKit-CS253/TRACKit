@@ -177,30 +177,133 @@ export default function AddStudent() {
       
       console.log('Bulk upload response:', response);
       
-      setSuccess(response.data.message);
+      if (response.data.success) {
+        // Display improved success message with stats
+        const message = (
+          <div>
+            <p>{response.data.message}</p>
+            {response.data.skippedCount > 0 && (
+              <div className="mt-3 p-3 bg-blue-50 rounded-md text-sm">
+                <p className="font-medium text-blue-800 mb-2">Upload Summary:</p>
+                <div className="grid grid-cols-3 gap-2 mb-2">
+                  <div className="bg-white p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-gray-500">Total</span>
+                    <span className="block text-base font-semibold text-gray-700">{response.data.totalRows}</span>
+                  </div>
+                  <div className="bg-green-50 p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-green-600">Created</span>
+                    <span className="block text-base font-semibold text-green-700">{response.data.createdCount}</span>
+                  </div>
+                  <div className="bg-amber-50 p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-amber-600">Skipped</span>
+                    <span className="block text-base font-semibold text-amber-700">{response.data.skippedCount}</span>
+                  </div>
+                </div>
+                
+                {response.data.duplicateUsernames && response.data.duplicateUsernames.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-amber-700">Duplicate usernames:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {response.data.duplicateUsernames.map((username, idx) => (
+                        <span key={idx} className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">{username}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {response.data.duplicateEmails && response.data.duplicateEmails.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-amber-700">Duplicate emails:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {response.data.duplicateEmails.map((email, idx) => (
+                        <span key={idx} className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">{email}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {response.data.duplicateRollNumbers && response.data.duplicateRollNumbers.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs font-medium text-amber-700">Duplicate roll numbers:</p>
+                    <div className="flex flex-wrap gap-1 mt-1">
+                      {response.data.duplicateRollNumbers.map((rollNumber, idx) => (
+                        <span key={idx} className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">{rollNumber}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+        setSuccess(message);
+      } else {
+        setError(response.data.message);
+      }
+      
       setCsvFile(null);
-      // Reset the file input
-      const fileInput = document.querySelector('input[type="file"]');
-      if (fileInput) fileInput.value = '';
+      setCsvFileName('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
     } catch (error) {
       console.error('Upload error:', error.response?.data || error);
       const errorMessage = error.response?.data?.message;
       const errorList = error.response?.data?.errors;
+      const duplicateUsernames = error.response?.data?.duplicateUsernames;
+      const duplicateEmails = error.response?.data?.duplicateEmails;
+      const duplicateRollNumbers = error.response?.data?.duplicateRollNumbers;
       
-      if (errorList && Array.isArray(errorList)) {
-        setError(
-          <div>
-            <p>{errorMessage}</p>
-            <ul className="list-disc pl-5 mt-2">
-              {errorList.map((err, index) => (
-                <li key={index}>{err}</li>
-              ))}
-            </ul>
-          </div>
-        );
-      } else {
-        setError(errorMessage || 'Error uploading students');
-      }
+      // Comprehensive error display
+      const errorContent = (
+        <div>
+          <p className="font-medium">{errorMessage || 'Error uploading students'}</p>
+          
+          {errorList && errorList.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium">Validation errors:</p>
+              <ul className="list-disc pl-5 mt-1 text-sm">
+                {errorList.map((err, index) => (
+                  <li key={index}>{err}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {duplicateUsernames && duplicateUsernames.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium">Duplicate usernames:</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {duplicateUsernames.map((username, idx) => (
+                  <span key={idx} className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded text-xs">{username}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {duplicateEmails && duplicateEmails.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium">Duplicate emails:</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {duplicateEmails.map((email, idx) => (
+                  <span key={idx} className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded text-xs">{email}</span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {duplicateRollNumbers && duplicateRollNumbers.length > 0 && (
+            <div className="mt-3">
+              <p className="text-sm font-medium">Duplicate roll numbers:</p>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {duplicateRollNumbers.map((rollNumber, idx) => (
+                  <span key={idx} className="bg-red-100 text-red-800 px-1.5 py-0.5 rounded text-xs">{rollNumber}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      );
+      
+      setError(errorContent);
     }
   };
 
@@ -427,9 +530,6 @@ export default function AddStudent() {
                         <option value="Statistics and Data Science">Statistics and Data Science</option>
                         <option value="Sustainable Energy Engineering">Sustainable Energy Engineering</option>
                       </select>
-                      <p className="mt-1 text-sm text-gray-500">
-                        Select an engineering discipline from the dropdown
-                      </p>
                     </div>
                   </div>
                   
@@ -565,13 +665,14 @@ export default function AddStudent() {
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>: Valid email address</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>rollNumber</b>: Student's roll number (numeric only)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>enrollmentYear</b>: Year of enrollment</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>major</b>: Engineering branch (e.g., Computer Science, Electrical)</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>major</b>: Engineering branch (match from dropdown options)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>password</b>: Initial password</li>
                       </ul>
                       <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
                         Ensure your CSV file uses commas as separators and includes a header row.
                       </div>
                     </div>
+                    
                   </div>
                   
                   <motion.button

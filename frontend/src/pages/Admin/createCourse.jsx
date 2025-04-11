@@ -29,11 +29,26 @@ export default function CreateCourse() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: '', type: '' });
   const [fileError, setFileError] = useState('');
+  const [codeError, setCodeError] = useState('');
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    if (name === 'code') {
+      // Clear previous error
+      setCodeError('');
+      
+      // Validate course code (alphanumeric only, max 10 chars)
+      if (value && !/^[a-zA-Z0-9]*$/.test(value)) {
+        setCodeError('Course code must contain only letters and numbers');
+      } else if (value.length > 10) {
+        setCodeError('Course code must be maximum 10 characters');
+      }
+    }
+    
     setCourseData({
       ...courseData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -87,6 +102,16 @@ export default function CreateCourse() {
     e.preventDefault();
     setLoading(true);
     setMessage({ text: '', type: '' });
+
+    // Validate course code before submission
+    if (!/^[a-zA-Z0-9]{1,10}$/.test(courseData.code)) {
+      setMessage({ 
+        text: 'Course code must be alphanumeric and maximum 10 characters', 
+        type: 'error' 
+      });
+      setLoading(false);
+      return;
+    }
 
     try {
       const requiredFields = ['code', 'name', 'credits', 'semester'];
@@ -218,7 +243,14 @@ export default function CreateCourse() {
       if (response.data.success) {
         setMessage({ 
           text: `${response.data.message || 'Courses uploaded successfully!'}`, 
-          type: 'success' 
+          type: 'success',
+          createdCourses: response.data.courses || [],
+          duplicateCodes: response.data.duplicateCodes || [],
+          stats: {
+            created: response.data.createdCount || 0,
+            skipped: response.data.skippedCount || 0,
+            total: response.data.totalRows || 0
+          }
         });
         resetForm();
         if (fileInputRef.current) {
@@ -243,7 +275,7 @@ export default function CreateCourse() {
         
         if (error.response.data.duplicateCodes && error.response.data.duplicateCodes.length > 0) {
           duplicateCodes = error.response.data.duplicateCodes;
-          errorMessage = 'These course codes already exist. Please use a different CSV file.';
+          errorMessage = 'Some course codes already exist. Please check the details below.';
         }
       }
       
@@ -327,6 +359,53 @@ export default function CreateCourse() {
               </motion.div>
             )}
             
+            {/* Show created/skipped courses summary on success */}
+            {message.type === 'success' && message.stats && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg"
+              >
+                <h4 className="text-sm font-medium text-blue-700 mb-2">Upload Summary:</h4>
+                <div className="grid grid-cols-3 gap-2 mb-3">
+                  <div className="bg-white p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-gray-500">Total Processed</span>
+                    <span className="block text-lg font-semibold text-gray-700">{message.stats.total}</span>
+                  </div>
+                  <div className="bg-green-50 p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-green-600">Created</span>
+                    <span className="block text-lg font-semibold text-green-700">{message.stats.created}</span>
+                  </div>
+                  <div className="bg-amber-50 p-2 rounded shadow-sm text-center">
+                    <span className="block text-xs text-amber-600">Skipped</span>
+                    <span className="block text-lg font-semibold text-amber-700">{message.stats.skipped}</span>
+                  </div>
+                </div>
+                
+                {message.duplicateCodes && message.duplicateCodes.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs font-medium text-amber-700 mb-1">Skipped (already exist):</p>
+                    <div className="flex flex-wrap gap-1">
+                      {message.duplicateCodes.map((code, index) => (
+                        <span key={index} className="bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded text-xs">{code}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {message.createdCourses && message.createdCourses.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs font-medium text-green-700 mb-1">Successfully created:</p>
+                    <div className="flex flex-wrap gap-1">
+                      {message.createdCourses.map((course, index) => (
+                        <span key={index} className="bg-green-100 text-green-800 px-1.5 py-0.5 rounded text-xs">{course.code}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </motion.div>
+            )}
+            
             {/* Tab Navigation */}
             <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
               <button
@@ -362,9 +441,14 @@ export default function CreateCourse() {
                       value={courseData.code}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      maxLength={10}
+                      className={`w-full px-4 py-2.5 rounded-lg border ${codeError ? 'border-red-300 focus:ring-red-500 focus:border-red-500' : 'border-gray-300 focus:ring-blue-500 focus:border-blue-500'} focus:outline-none focus:ring-2 transition-all duration-200`}
                       placeholder="e.g., CS101"
                     />
+                    {codeError && (
+                      <p className="mt-1 text-sm text-red-600">{codeError}</p>
+                    )}
+                    <p className="mt-1 text-xs text-gray-500">Only letters and numbers allowed (e.g. CS101, MATH2, PHYS456)</p>
                   </div>
                   
                   <div className="relative">
@@ -527,7 +611,7 @@ export default function CreateCourse() {
                     <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                       <h4 className="text-sm font-semibold text-blue-700 mb-2">CSV File Requirements</h4>
                       <ul className="space-y-1 text-xs text-gray-700">
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>course code</b>: Course code (required)</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>course code</b>: Alphanumeric only, max 10 chars (required)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>course name</b>: Course name (required)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>credits</b>: Course credits (required, 2-14)</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>semester</b>: Fall/Spring/Summer (required)</li>
