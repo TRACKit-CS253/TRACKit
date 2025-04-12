@@ -57,19 +57,29 @@ exports.addStudent = async (req, res) => {
       });
     }
 
-    // Validate roll number - must be numeric only
-    if (!/^\d+$/.test(req.body.rollNumber)) {
-      return res.status(400).json({
-        success: false,
-        message: 'Roll number must contain only numeric characters'
-      });
-    }
+    // Remove the roll number validation for numeric only characters
+    // Roll number can now contain alphanumeric and special characters
 
     // Validate enrollment year
     if (isNaN(req.body.enrollmentYear) || req.body.enrollmentYear < 2000 || req.body.enrollmentYear > 2099) {
       return res.status(400).json({
         success: false,
         message: 'Invalid enrollment year'
+      });
+    }
+
+    // Validate name fields - only alphabets and spaces
+    if (!/^[A-Za-z\s]+$/.test(req.body.firstName)) {
+      return res.status(400).json({
+        success: false,
+        message: 'First name should contain only alphabets and spaces'
+      });
+    }
+    
+    if (req.body.lastName && !/^[A-Za-z\s]+$/.test(req.body.lastName)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Last name should contain only alphabets and spaces'
       });
     }
 
@@ -157,6 +167,21 @@ exports.addFaculty = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: `Missing required fields: ${missingFields.join(', ')}`
+      });
+    }
+
+    // Validate name fields - only alphabets and spaces
+    if (!/^[A-Za-z\s]+$/.test(req.body.firstName)) {
+      return res.status(400).json({
+        success: false,
+        message: 'First name should contain only alphabets and spaces'
+      });
+    }
+    
+    if (req.body.lastName && !/^[A-Za-z\s]+$/.test(req.body.lastName)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Last name should contain only alphabets and spaces'
       });
     }
 
@@ -266,13 +291,8 @@ exports.createUser = async (req, res) => {
         });
       }
 
-      // Validate roll number - must be numeric only
-      if (!/^\d+$/.test(req.body.rollNumber)) {
-        return res.status(400).json({
-          success: false,
-          message: 'Roll number must contain only numeric characters'
-        });
-      }
+      // Remove the roll number validation for numeric only characters
+      // Roll number can now contain alphanumeric and special characters
 
       // Validate enrollment year
       if (isNaN(req.body.enrollmentYear) || req.body.enrollmentYear < 2000 || req.body.enrollmentYear > 2099) {
@@ -482,6 +502,15 @@ exports.bulkCreateStudents = async (req, res) => {
           throw new Error('Missing required fields');
         }
 
+        // Name validation - only alphabets and spaces
+        if (!/^[A-Za-z\s]+$/.test(record.firstName)) {
+          throw new Error('First name must contain only alphabets and spaces');
+        }
+        
+        if (record.lastName && !/^[A-Za-z\s]+$/.test(record.lastName)) {
+          throw new Error('Last name must contain only alphabets and spaces');
+        }
+
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(record.email)) {
@@ -493,10 +522,8 @@ exports.bulkCreateStudents = async (req, res) => {
           throw new Error('Username must be between 3 and 50 characters');
         }
 
-        // Roll number validation - must be numeric only
-        if (!/^\d+$/.test(record.rollNumber)) {
-          throw new Error('Roll number must contain only numeric characters');
-        }
+        // Remove the roll number validation for numeric only characters
+        // Roll number can now contain alphanumeric and special characters
 
         // Enrollment year validation
         const enrollmentYear = parseInt(record.enrollmentYear);
@@ -728,6 +755,15 @@ exports.bulkCreateFaculty = async (req, res) => {
         if (!record.username || !record.email || !record.password || !record.firstName || 
             !record.department || !record.position) {
           throw new Error('Missing required fields');
+        }
+
+        // Name validation - only alphabets and spaces
+        if (!/^[A-Za-z\s]+$/.test(record.firstName)) {
+          throw new Error('First name must contain only alphabets and spaces');
+        }
+        
+        if (record.lastName && !/^[A-Za-z\s]+$/.test(record.lastName)) {
+          throw new Error('Last name must contain only alphabets and spaces');
         }
 
         // Email validation
