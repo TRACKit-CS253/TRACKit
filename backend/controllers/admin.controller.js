@@ -488,6 +488,16 @@ exports.bulkCreateStudents = async (req, res) => {
       delimiter: ','
     });
 
+    // Check if the number of records exceeds the maximum limit
+    const MAX_ENTRIES = 2000;
+    if (records.length > MAX_ENTRIES) {
+      return res.status(400).json({
+        success: false,
+        message: `CSV file contains too many entries. Maximum allowed is ${MAX_ENTRIES}, but found ${records.length} entries.`,
+        hint: 'Please split your data into multiple smaller CSV files.'
+      });
+    }
+
     const requiredColumns = ['username', 'email', 'password', 'firstName', 'lastName', 
                            'rollNumber', 'enrollmentYear', 'major'];
     
@@ -741,6 +751,16 @@ exports.bulkCreateFaculty = async (req, res) => {
       relaxQuotes: true,
       delimiter: ','
     });
+
+    // Check if the number of records exceeds the maximum limit
+    const MAX_ENTRIES = 2000;
+    if (records.length > MAX_ENTRIES) {
+      return res.status(400).json({
+        success: false,
+        message: `CSV file contains too many entries. Maximum allowed is ${MAX_ENTRIES}, but found ${records.length} entries.`,
+        hint: 'Please split your data into multiple smaller CSV files.'
+      });
+    }
 
     const requiredColumns = ['username', 'email', 'password', 'firstName', 'lastName', 
                            'department', 'position'];
@@ -1237,6 +1257,16 @@ exports.bulkCreateCourses = async (req, res) => {
           message: 'The CSV file contains no valid data rows'
         });
       }
+
+      // Check if the number of records exceeds the maximum limit
+      const MAX_ENTRIES = 2000;
+      if (records.length > MAX_ENTRIES) {
+        return res.status(400).json({
+          success: false,
+          message: `CSV file contains too many entries. Maximum allowed is ${MAX_ENTRIES}, but found ${records.length} entries.`,
+          hint: 'Please split your data into multiple smaller CSV files.'
+        });
+      }
     } catch (parseError) {
       console.error("CSV Parse Error:", parseError);
       return res.status(400).json({
@@ -1295,11 +1325,11 @@ exports.bulkCreateCourses = async (req, res) => {
       });
     }
 
-    // Extract all course codes from the CSV file to check for duplicates
+    // Extract all course codes from the CSV file
     const csvCourseCodes = records.map(record => 
       record[foundMappings.code].trim().toUpperCase());
     
-    // Check if any course codes in the CSV already exist in the database
+    // Check which course codes in the CSV already exist in the database
     const existingCourses = await Course.findAll({
       where: { 
         code: {
@@ -1309,18 +1339,11 @@ exports.bulkCreateCourses = async (req, res) => {
       attributes: ['code']
     });
     
-    // If we found existing courses with the same codes, return an error
-    if (existingCourses.length > 0) {
-      const duplicateCodes = existingCourses.map(course => course.code);
-      return res.status(400).json({
-        success: false,
-        message: 'These course codes already exist. Please use different CSV file or remove duplicate entries.',
-        duplicateCodes: duplicateCodes,
-        hint: `Found ${duplicateCodes.length} courses that already exist in the database.`
-      });
-    }
-
+    // Create a set of existing course codes for faster lookups
+    const existingCourseCodes = new Set(existingCourses.map(course => course.code.toUpperCase()));
+    
     const createdCourses = [];
+    const duplicateCourseCodes = [];
     const errors = [];
 
     // Process each record from the CSV
@@ -1370,6 +1393,12 @@ exports.bulkCreateCourses = async (req, res) => {
           throw new Error('Course code must be alphanumeric only');
         }
 
+        // Skip if the course code already exists
+        if (existingCourseCodes.has(code.toUpperCase())) {
+          duplicateCourseCodes.push(code);
+          continue;
+        }
+
         // Create the course
         const course = await Course.create({
           code: code,
@@ -1383,27 +1412,40 @@ exports.bulkCreateCourses = async (req, res) => {
           id: course.id,
           code: course.code
         });
+        
+        // Add to the set of existing codes to prevent duplicates within the CSV
+        existingCourseCodes.add(code.toUpperCase());
       } catch (error) {
         errors.push(`Row ${index + 2}: ${error.message}`); // +2 because row 1 is header
       }
     }
 
-    if (errors.length > 0) {
-      console.error("CSV processing errors:", errors);
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: `Errors occurred while processing CSV (${errors.length} errors)`,
-        errors: errors,
+    await t.commit();
+    
+    // If there were errors or duplicates, but we still created some courses
+    if (errors.length > 0 || duplicateCourseCodes.length > 0) {
+      console.log("Partial success - created:", createdCourses.length, 
+                 "duplicates:", duplicateCourseCodes.length, 
+                 "errors:", errors.length);
+                 
+      return res.status(207).json({
+        success: true,
+        message: `Processed ${records.length} records. Added ${createdCourses.length} courses successfully.`,
         totalRows: records.length,
-        successfulRows: createdCourses.length
+        createdCount: createdCourses.length,
+        skippedCount: duplicateCourseCodes.length,
+        duplicateCodes: duplicateCourseCodes,
+        errors: errors,
+        courses: createdCourses
       });
     }
 
-    await t.commit();
+    // Complete success
     res.status(201).json({
       success: true,
       message: `Successfully created ${createdCourses.length} courses`,
+      totalRows: records.length,
+      createdCount: createdCourses.length,
       courses: createdCourses
     });
   } catch (error) {

@@ -227,10 +227,32 @@ export default function CreateCourse() {
       console.log("Response received:", response.data);
       
       if (response.data.success) {
+        // Calculate the values
+        const totalRows = response.data.totalRows || response.data.courses?.length || 0;
+        const createdCount = response.data.createdCount || response.data.courses?.length || 0;
+        const notAddedCount = totalRows - createdCount;
+        
+        // Very simple success message matching AddStudent component format
+        const successMessage = (
+          <div>
+            <p className="mb-2">{response.data.message || 'Courses uploaded successfully!'}</p>
+            <div className="p-2 bg-blue-50 rounded text-sm">
+              <div className="mb-1"><span className="font-medium">Total records in CSV:</span> {totalRows}</div>
+              <div className="mb-1 text-green-700"><span className="font-medium">Successfully added:</span> {createdCount}</div>
+              {notAddedCount > 0 && (
+                <div className="text-amber-700"><span className="font-medium">Not added:</span> {notAddedCount}
+                  <span className="text-xs ml-1">(duplicates or validation errors)</span>
+                </div>
+              )}
+            </div>
+          </div>
+        );
+        
         setMessage({ 
-          text: `${response.data.message || 'Courses uploaded successfully!'}`, 
-          type: 'success' 
+          text: successMessage, 
+          type: 'success'
         });
+        
         resetForm();
         if (fileInputRef.current) {
           fileInputRef.current.value = '';

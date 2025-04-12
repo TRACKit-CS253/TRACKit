@@ -28,6 +28,17 @@ export const validateCSVFile = (file) => {
     return { isValid: false, message: 'File size too large. Maximum size is 5MB.' };
   }
 
+  // Add a rough estimate check for file size that might contain more than 2000 entries
+  // Assuming average CSV row is about 100 bytes (conservative estimate)
+  // Plus header row and some buffer for larger entries
+  const estimatedMaxSizeFor2000Entries = 2000 * 100 + 1000;
+  if (file.size > estimatedMaxSizeFor2000Entries) {
+    return { 
+      isValid: true, 
+      warning: 'This file might contain more than 2000 entries, which will be rejected by the server.' 
+    };
+  }
+
   return { isValid: true };
 };
 
