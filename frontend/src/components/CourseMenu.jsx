@@ -39,7 +39,7 @@ export default function CourseMenu() {
 
       <div className='flex flex-col items-center justify-start w-full'>
      
-      <div className="flex items-center w-full justify-between px-2">
+      <div className="flex items-center w-full justify-center px-2">
         <NavLink 
           to="/dashboard/courses" 
           onClick={() => setActiveTab("courses")}

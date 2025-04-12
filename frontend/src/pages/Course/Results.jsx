@@ -563,7 +563,7 @@ export default function Results() {
       return <div className="w-full min-h-screen bg-gray-50 p-6 flex items-center justify-center">Loading course details...</div>;
     }
     return (
-      <div className="w-full min-h-screen bg-gray-50 pb-12">
+      <div className="w-full min-h-screen bg-gray-50 pb-12 bg-gradient-to-br from-blue-50 via-white to-purple-50">
         {/* Sticky header with consistent styling */}
           <div className='flex justify-between shadow-md py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] z-10'>
             <div>
@@ -572,9 +572,13 @@ export default function Results() {
                 {courseDetails?.code || 'Loading...'} • {courseDetails?.credits || ''} Credits • {courseDetails?.semester || ''}
               </p>
             </div>
-            <NavLink to="/dashboard/profile">
-              <CgProfile className='text-[40px] cursor-pointer' />
-            </NavLink>
+            <NavLink 
+                        to="/dashboard/profile"
+                        className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-all duration-200 shadow-sm"
+                      >
+                        <CgProfile className='text-blue-600 text-xl' />
+                        <span className="text-sm font-medium">View Profile</span>
+                      </NavLink>
           </div>
 
       <div className="p-6 overflow-y-auto">  
@@ -1273,7 +1277,7 @@ export default function Results() {
         <p className='text-gray-600 ml-4 -mt-3'>{courseDetails.code} • {courseDetails.credits} Credits • {courseDetails.semester}</p>
       </div>
       <NavLink to="/dashboard/profile">
-        <CgProfile className='text-[40px] cursor-pointer' />
+        <CgProfile className="text-[40px] cursor-pointer hover:scale-95 transition-all duration-200 hover:text-blue-500" />
       </NavLink>
     </div>
 

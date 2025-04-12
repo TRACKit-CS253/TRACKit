@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { authFetch } from '../services/auth';
 
 const ChangePassword = () => {
@@ -9,9 +9,37 @@ const ChangePassword = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [passStrength, setPassStrength] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
   const user = JSON.parse(localStorage.getItem('user'));
+  const isOTPVerified = location.state?.fromOTP;
+  const userId = location.state?.userId || user?.id;
+
+  const strengthCheck = (pass)=>{
+    if(pass.length<8){
+      setPassStrength('Password is too short');
+      return false;
+    }
+
+    if(!/[A-Z]/.test(pass)){
+      setPassStrength('Password must contain at least one uppercase letter');
+      return false;
+    }
+
+    if(!/[0-9]/.test(pass)){
+      setPassStrength('Password must contain at least one number');
+      return false;
+    }
+
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pass)) {
+      setPassStrength('Password must contain at least one special character');
+      return false;
+    }
+
+    return true;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,34 +51,55 @@ const ChangePassword = () => {
       return;
     }
 
+    if(!strengthCheck(newPassword)){
+      setError(passStrength);
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
+      let response;
       
-      // Update the API URL to match proxy configuration
-      const response = await fetch(`/users/${user.id}/change-password`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          oldPassword: currentPassword,
-          newPassword: newPassword
-        })
-      });
+      if (isOTPVerified) {
+        // Handle password reset after OTP verification
+        response = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/reset-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: userId,
+            token: location.state?.token,  // Include the reset token
+            newPassword: newPassword
+          })
+        });
+      } else {
+        // Handle normal password change
+        const token = localStorage.getItem('token');
+        response = await fetch(`/users/${userId}/change-password`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            oldPassword: currentPassword,
+            newPassword: newPassword
+          })
+        });
+      }
 
       const data = await response.json();
       
-      if (response.ok && data.success) {
+      if (data.success) {
         setSuccess('Password changed successfully!');
         setCurrentPassword('');
         setNewPassword('');
         setConfirmPassword('');
         
         setTimeout(() => {
-          navigate('/dashboard/profile');
+          navigate(isOTPVerified ? '/login' : '/dashboard/profile');
         }, 2000);
       } else {
         throw new Error(data.message || 'Failed to change password');
@@ -67,7 +116,9 @@ const ChangePassword = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4">
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
         <div>
-          <h2 className="text-center text-3xl font-bold text-gray-900">Change Password</h2>
+          <h2 className="text-center text-3xl font-bold text-gray-900">
+            {isOTPVerified ? 'Set New Password' : 'Change Password'}
+          </h2>
           {success && (
             <div className="mt-4 p-2 bg-green-100 text-green-700 rounded text-center">
               {success}
@@ -82,16 +133,18 @@ const ChangePassword = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
-            <div>
-              <input
-                type="password"
-                required
-                className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="Current Password"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-            </div>
+            {!isOTPVerified && (
+              <div>
+                <input
+                  type="password"
+                  required
+                  className="appearance-none rounded relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="Current Password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+            )}
             <div>
               <input
                 type="password"
@@ -126,7 +179,7 @@ const ChangePassword = () => {
             </button>
             <button
               type="button"
-              onClick={() => navigate('/dashboard/profile')}
+              onClick={() => navigate(isOTPVerified ? '/login' : '/dashboard/profile')}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-indigo-100 hover:bg-indigo-200"
             >
               Cancel

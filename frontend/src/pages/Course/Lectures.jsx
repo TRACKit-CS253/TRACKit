@@ -510,7 +510,7 @@ export default function Lectures({ role }) {
   // Handle case where courseDetails is null or undefined
   if (!courseDetails) {
     return (
-      <div className='w-full p-4'>
+      <div className='w-full p-4 bg-gradient-to-br from-blue-50 via-white to-purple-50'>
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
           <p>Course details not available. Please try again later.</p>
           <button 
@@ -526,7 +526,7 @@ export default function Lectures({ role }) {
 
   // Safely access courseDetails properties
   return (
-    <div className='w-full h-screen overflow-y-auto'>
+    <div className='w-full h-screen overflow-y-auto bg-gray-50'>
       {/* Header */}
       <div className='flex justify-between py-2 px-8 items-center sticky top-0 bg-[#F5F5F5] shadow-md z-50'>
         <div>
@@ -536,7 +536,7 @@ export default function Lectures({ role }) {
           </p>
         </div>
         <NavLink to="/dashboard/profile">
-          <CgProfile className='text-[40px] cursor-pointer hover:text-blue-500 duration-200 transition-all' />
+          <CgProfile className="text-[40px] cursor-pointer hover:scale-95 transition-all duration-200 hover:text-blue-500" />
         </NavLink>
       </div>
 
@@ -556,10 +556,10 @@ export default function Lectures({ role }) {
       <div className='p-4 md:p-6'>
         {Object.keys(lectures).length > 0 ? (
           Object.entries(lectures).map(([heading, topics]) => (
-            <div key={heading} className='mb-3'>
+            <div key={heading} className='mb-3 '>
               {/* Heading Header */}
               <div
-                className='w-full md:w-[98%] py-3 mx-auto md:ml-6 border-2 flex flex-col px-4 md:px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200 relative'
+                className='w-full bg-white md:w-[98%] py-3 mx-auto md:ml-6 border-2 flex flex-col px-4 md:px-8 rounded-xl cursor-pointer hover:shadow-md transition-all duration-200 relative'
                 onClick={() => toggleWeek(heading)}
               >
                 <div className='flex justify-between w-full font-semibold items-center flex-wrap gap-2'>
@@ -632,7 +632,7 @@ export default function Lectures({ role }) {
                 {lectures.map((lecture) => (
                   <div
                     key={lecture.id}
-                    className="ml-2 md:ml-4 mb-2 flex flex-col md:flex-row justify-between items-start md:items-center p-3 border rounded-lg hover:bg-gray-50 gap-2"
+                    className="ml-2 bg-white md:ml-4 mb-2 flex flex-col md:flex-row justify-between items-start md:items-center p-3 border rounded-lg hover:bg-gray-50 gap-2"
                   >
                     <a
                       href={lecture.youtubeLink || '#'}

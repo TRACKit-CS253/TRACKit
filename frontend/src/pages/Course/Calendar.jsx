@@ -23,7 +23,7 @@ export default function Calendar() {
           <p className='text-gray-600 ml-4 -mt-3'>{courseDetails.code} • {courseDetails.credits} Credits • {courseDetails.semester}</p>
         </div>
         <NavLink to="/dashboard/profile">
-          <CgProfile className='text-[40px] cursor-pointer'></CgProfile>
+          <CgProfile className="text-[40px] cursor-pointer hover:scale-95 transition-all duration-200 hover:text-blue-500" />
         </NavLink>
       </div>
       

@@ -1,13 +1,15 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CgProfile } from "react-icons/cg";
 import axios from 'axios';
 import { API_URL } from '../../services/auth';
 import { useAuth } from '../../contexts/AuthContext';
-import { GoHome } from "react-icons/go";
+import { GoHome } from 'react-icons/go';
+import { FaEye, FaEyeSlash, FaRegUser, FaCloudUploadAlt, FaUserTie } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 
 export default function AddFaculty() {
   const [activeTab, setActiveTab] = useState('manual');
+  const [showPassword, setShowPassword] = useState(false);
   const [facultyData, setFacultyData] = useState({
     username: '',
     email: '',
@@ -24,14 +26,28 @@ export default function AddFaculty() {
   const [success, setSuccess] = useState('');
   const [fileError, setFileError] = useState('');
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { logout } = useAuth();
   const fileInputRef = useRef(null);
 
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Name validation - allow only alphabets and spaces
+    if ((name === 'firstName' || name === 'lastName') && value !== '') {
+      // Allow only alphabets and spaces
+      if (!/^[A-Za-z\s]+$/.test(value)) {
+        return; // Don't update state if invalid input
+      }
+    }
+    
     setFacultyData({
       ...facultyData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleFileChange = (e) => {
@@ -86,6 +102,35 @@ export default function AddFaculty() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // Validate name fields - only alphabets and spaces
+    if (!/^[A-Za-z\s]+$/.test(facultyData.firstName)) {
+      setError('First name should contain only alphabets and spaces');
+      return;
+    }
+    
+    if (facultyData.lastName && !/^[A-Za-z\s]+$/.test(facultyData.lastName)) {
+      setError('Last name should contain only alphabets and spaces');
+      return;
+    }
+
+    const password = facultyData.password;
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long');
+      return;
+    }
+    if(!/[A-Z]/.test(password)) {
+      setError('Password must contain at least one uppercase letter');
+      return;
+    }
+    if(!/[0-9]/.test(password)){
+      setError('Password must contain at least one number');
+      return;
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+      setError('Password must contain at least one special character');
+      return;
+    }
     
     try {
       const response = await axios.post(
@@ -129,6 +174,8 @@ export default function AddFaculty() {
       return;
     }
 
+    // Instead of pre-validating passwords, let the server handle validation
+    // This allows valid records to be processed even when some are invalid
     const formData = new FormData();
     formData.append('file', csvFile);
 
@@ -147,234 +194,480 @@ export default function AddFaculty() {
       
       console.log('Bulk upload response:', response);
       
-      setSuccess(response.data.message);
-      setCsvFile(null);
-      setCsvFileName('');
-      // Reset the file input
-      const fileInput = document.querySelector('input[type="file"]');
-      if (fileInput) fileInput.value = '';
-    } catch (error) {
-      console.error('Upload error:', error.response?.data || error);
-      const errorMessage = error.response?.data?.message;
-      const errorList = error.response?.data?.errors;
-      
-      if (errorList && Array.isArray(errorList)) {
-        setError(
+      if (response.data.success) {
+        // Enhanced success message with clear explanation of not added records
+        const successMessage = (
           <div>
-            <p>{errorMessage}</p>
-            <ul className="list-disc pl-5 mt-2">
-              {errorList.map((err, index) => (
-                <li key={index}>{err}</li>
-              ))}
-            </ul>
+            <p className="mb-2">{response.data.message}</p>
+            <div className="p-2 bg-blue-50 rounded text-sm">
+              <div className="mb-1"><span className="font-medium">Total records in CSV:</span> {response.data.totalRows}</div>
+              <div className="mb-1 text-green-700"><span className="font-medium">Successfully added:</span> {response.data.createdCount}</div>
+              <div className="text-amber-700"><span className="font-medium">Not added:</span> {response.data.totalRows - response.data.createdCount} 
+                <span className="text-xs ml-1">(duplicates or validation errors)</span>
+              </div>
+              
+              {/* Show specific reasons for not added records */}
+              {((response.data.duplicateUsernames && response.data.duplicateUsernames.length > 0) ||
+                (response.data.duplicateEmails && response.data.duplicateEmails.length > 0) ||
+                (response.data.validationErrors && response.data.validationErrors.length > 0)) && (
+                <div className="mt-2 p-2 bg-amber-50 rounded border border-amber-200">
+                  <p className="font-medium text-amber-800 mb-1">Reasons for skipped records:</p>
+                  
+                  {response.data.duplicateUsernames && response.data.duplicateUsernames.length > 0 && (
+                    <div className="mt-1">
+                      <p className="text-xs text-amber-700 font-medium">Duplicate usernames:</p>
+                      <ul className="list-disc list-inside text-xs text-amber-700 ml-2">
+                        {response.data.duplicateUsernames.slice(0, 3).map((username, idx) => (
+                          <li key={idx}>{username}</li>
+                        ))}
+                        {response.data.duplicateUsernames.length > 3 && (
+                          <li>...and {response.data.duplicateUsernames.length - 3} more</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {response.data.duplicateEmails && response.data.duplicateEmails.length > 0 && (
+                    <div className="mt-1">
+                      <p className="text-xs text-amber-700 font-medium">Duplicate emails:</p>
+                      <ul className="list-disc list-inside text-xs text-amber-700 ml-2">
+                        {response.data.duplicateEmails.slice(0, 3).map((email, idx) => (
+                          <li key={idx}>{email}</li>
+                        ))}
+                        {response.data.duplicateEmails.length > 3 && (
+                          <li>...and {response.data.duplicateEmails.length - 3} more</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  
+                  {response.data.validationErrors && response.data.validationErrors.length > 0 && (
+                    <div className="mt-1">
+                      <p className="text-xs text-amber-700 font-medium">Validation errors:</p>
+                      <ul className="list-disc list-inside text-xs text-amber-700 ml-2">
+                        {response.data.validationErrors.slice(0, 3).map((err, idx) => (
+                          <li key={idx}>{err}</li>
+                        ))}
+                        {response.data.validationErrors.length > 3 && (
+                          <li>...and {response.data.validationErrors.length - 3} more errors</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         );
+        
+        setSuccess(successMessage);
+        
+        setCsvFile(null);
+        setCsvFileName('');
+        if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
-        setError(errorMessage || 'Error uploading faculty');
+        setError(response.data.message);
+      }
+    } catch (error) {
+      console.error('Upload error:', error.response?.data || error);
+      
+      // Enhanced error handling
+      if (error.response?.data) {
+        const errorData = error.response.data;
+        const errorMessage = (
+          <div>
+            <p className="font-medium mb-2">{errorData.message || 'Error uploading faculty'}</p>
+            
+            {errorData.processSummary && (
+              <div className="p-2 bg-red-50 rounded text-sm mb-2">
+                <div className="mb-1"><span className="font-medium">Attempted:</span> {errorData.processSummary.total || 0}</div>
+                <div className="mb-1"><span className="font-medium">Processed:</span> {errorData.processSummary.processed || 0}</div>
+                <div><span className="font-medium">Failed:</span> {errorData.processSummary.failed || 0}</div>
+              </div>
+            )}
+            
+            {errorData.errors && errorData.errors.length > 0 && (
+              <ul className="list-disc list-inside text-sm text-red-600 mt-1">
+                {errorData.errors.map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        );
+        setError(errorMessage);
+      } else {
+        setError('An unexpected error occurred while uploading faculty');
       }
     }
   };
 
   return (
-    <div className="bg-[#F5F5F5] min-h-screen pb-8">
-      {/* Fixed Header */}
-      <div className="fixed top-0 left-0 right-0 bg-white py-7 px-8 shadow-lg z-10 flex justify-between items-center">
-        <div className='flex gap-6'>
-          <span
-            className="text-4xl font-semibold cursor-pointer"
-            onClick={() => navigate("/Admin")}
+    <div className="bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen pb-16">
+      {/* Fixed Header - Updated with glass effect */}
+      <div className="fixed top-0 left-0 right-0 py-5 px-8 m-auto z-10 backdrop-blur-md bg-white/70 border-b border-gray-100 shadow-sm">
+        <div className='flex justify-between items-center'>
+          <div className='flex gap-6 items-center'>
+            <motion.span
+              className="text-4xl font-semibold cursor-pointer bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text"
+              onClick={() => navigate("/Admin")}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-            TRACKit
-          </span>
-          <div className='cursor-pointer hover:scale-95 duration-200 transition-all rounded-full hover:bg-gray-100 p-2'>
-            <GoHome className='text-[1.9rem]' onClick={()=>{navigate("/Admin")}}></GoHome>
+              TRACKit 
+            </motion.span>
+            <motion.div 
+              className='cursor-pointer rounded-full bg-gray-50 hover:bg-gray-100 p-3 shadow-sm'
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={()=>{navigate("/Admin")}}
+            >
+              <GoHome className='text-[1.5rem] text-gray-700'></GoHome>
+            </motion.div>
           </div>
+          <motion.button 
+            className='flex items-center gap-2 border rounded-full px-5 py-2 shadow-sm bg-white hover:bg-red-50 transition-all duration-200'
+            whileHover={{ scale: 0.97 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={logout}
+          >
+            <span>
+              <FaRegUser size={18} className='text-red-500'></FaRegUser>
+            </span>
+            <span className='font-medium'>Sign Out</span>
+          </motion.button>
         </div>
-        <h1 className="text-2xl font-semibold text-gray-700">Add Faculty</h1>
       </div>
       
       {/* Main Content */}
-      <div className="pt-32 px-4">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-          {/* Show error/success messages */}
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
-              {error}
-            </div>
-          )}
-          {success && (
-            <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
-              {success}
-            </div>
-          )}
-          
-          <h2 className="text-2xl font-bold mb-6 text-center">Add Faculty</h2>
-          
-          <div className="flex mb-6">
-            <button
-              className={`flex-1 py-2 ${activeTab === 'manual' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => setActiveTab('manual')}
-            >
-              Manual Entry
-            </button>
-            <button
-              className={`flex-1 py-2 ${activeTab === 'bulk' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-              onClick={() => setActiveTab('bulk')}
-            >
-              Bulk Upload
-            </button>
+      <div className="pt-28 px-4">
+        <motion.div 
+          className="max-w-md mx-auto bg-white rounded-xl shadow-lg overflow-hidden"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Form Header */}
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 py-6 px-6">
+            <h2 className="text-2xl font-bold text-white text-center flex items-center justify-center gap-3">
+              <FaUserTie size={24} />
+              <span>Add Faculty</span>
+            </h2>
           </div>
+          
+          <div className="p-6">
+            {/* Show error/success messages */}
+            {error && (
+              <motion.div 
+                className="mb-6 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded-md"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                {error}
+              </motion.div>
+            )}
+            {success && (
+              <motion.div 
+                className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 text-green-700 rounded-md"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+              >
+                {success}
+              </motion.div>
+            )}
+            
+            {/* Tab Navigation */}
+            <div className="flex mb-8 bg-gray-100 rounded-lg p-1">
+              <button
+                className={`flex-1 py-2.5 rounded-md font-medium text-sm transition-all duration-200 ${
+                  activeTab === 'manual' 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+                onClick={() => setActiveTab('manual')}
+              >
+                Manual Entry
+              </button>
+              <button
+                className={`flex-1 py-2.5 rounded-md font-medium text-sm transition-all duration-200 ${
+                  activeTab === 'bulk' 
+                    ? 'bg-white text-blue-600 shadow-sm' 
+                    : 'text-gray-500 hover:text-gray-800'
+                }`}
+                onClick={() => setActiveTab('bulk')}
+              >
+                Bulk Upload
+              </button>
+            </div>
 
-          {activeTab === 'manual' ? (
-            <form onSubmit={handleManualSubmit}>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Username:</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={facultyData.username}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">First Name:</label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={facultyData.firstName}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Last Name:</label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={facultyData.lastName}
-                  onChange={handleChange}
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-                <input
-                  type="email"
-                  name="email"
-                  value={facultyData.email}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Department:</label>
-                <input
-                  type="text"
-                  name="department"
-                  value={facultyData.department}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Position:</label>
-                <input
-                  type="text"
-                  name="position"
-                  value={facultyData.position}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Password:</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={facultyData.password}
-                  onChange={handleChange}
-                  required
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                />
-              </div>
-              <button
-                type="submit"
-                className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline
-                hover:scale-95 transition-all duration-200"
-              >
-                Add Faculty
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleBulkSubmit} encType="multipart/form-data">
-              <div className="mb-6">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Upload CSV File:</label>
-                <div className="flex items-center">
-                  <input
-                    type="file"
-                    accept=".csv"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    required
-                    className="hidden"
-                    id="csv-file-input"
-                  />
-                  <label 
-                    htmlFor="csv-file-input"
-                    className="cursor-pointer bg-gray-200 hover:bg-gray-300 py-2 px-4 rounded flex-grow text-center"
+            {activeTab === 'manual' ? (
+              <form onSubmit={handleManualSubmit}>
+                <div className="space-y-5">
+                  <div className="relative">
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Username</label>
+                    <input
+                      type="text"
+                      name="username"
+                      value={facultyData.username}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200"
+                      placeholder="Enter username"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <label className="block text-gray-700 text-sm font-medium mb-2">First Name</label>
+                      <input
+                        type="text"
+                        name="firstName"
+                        value={facultyData.firstName}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="First name"
+                      />
+                    </div>
+                    <div className="relative">
+                      <label className="block text-gray-700 text-sm font-medium mb-2">Last Name</label>
+                      <input
+                        type="text"
+                        name="lastName"
+                        value={facultyData.lastName}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Last name"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="relative">
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={facultyData.email}
+                      onChange={handleChange}
+                      required
+                      className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="faculty@example.com"
+                    />
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="relative">
+                      <label className="block text-gray-700 text-sm font-medium mb-2">Department</label>
+                      <select
+                        name="department"
+                        value={facultyData.department}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Department</option>
+                        <option value="Aerospace Engineering">Aerospace Engineering</option>
+                        <option value="Biological Sciences and Bioengineering">Biological Sciences and Bioengineering</option>
+                        <option value="Chemical Engineering">Chemical Engineering</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Civil Engineering">Civil Engineering</option>
+                        <option value="Cognitive Science">Cognitive Science</option>
+                        <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                        <option value="Earth Science">Earth Science</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Electrical Engineering">Electrical Engineering</option>
+                        <option value="Environmental Engineering and Management">Environmental Engineering and Management</option>
+                        <option value="Humanities and Social Sciences">Humanities and Social Sciences</option>
+                        <option value="Industrial and Management Engineering">Industrial and Management Engineering</option>
+                        <option value="Materials Science and Engineering">Materials Science and Engineering</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Statistics">Statistics</option>
+                      </select>
+                    </div>
+                    <div className="relative">
+                      <label className="block text-gray-700 text-sm font-medium mb-2">Position</label>
+                      <select
+                        name="position"
+                        value={facultyData.position}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      >
+                        <option value="">Select Position</option>
+                        <option value="Professor">Professor</option>
+                        <option value="Associate Professor">Associate Professor</option>
+                        <option value="Assistant Professor">Assistant Professor</option>
+                        <option value="Visiting Professor">Visiting Professor</option>
+                        <option value="Lecturer">Lecturer</option>
+                        <option value="Adjunct Faculty">Adjunct Faculty</option>
+                        <option value="Research Professor">Research Professor</option>
+                        <option value="Department Head">Department Head</option>
+                        <option value="Teaching Assistant">Teaching Assistant</option>
+                        <option value="Lab Instructor">Lab Instructor</option>
+                      </select>
+                    </div>
+                  </div>
+                  
+                  <div className="relative">
+                    <label className="block text-gray-700 text-sm font-medium mb-2">Password</label>
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={facultyData.password}
+                        onChange={handleChange}
+                        required
+                        className="w-full px-4 py-2.5 pr-10 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Create password"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-500 hover:text-gray-700 transition-all"
+                        onClick={togglePasswordVisibility}
+                      >
+                        {showPassword ? <FaEye size={18} /> : <FaEyeSlash size={18} />}
+                      </button>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Min 8 characters, with uppercase, number & special character
+                    </p>
+                  </div>
+                  
+                  <motion.button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium py-3 px-4 rounded-lg focus:outline-none hover:from-blue-700 hover:to-purple-700 transition-all"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    {csvFileName || "Choose a CSV file"}
-                  </label>
-                  {csvFileName && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCsvFile(null);
-                        setCsvFileName('');
-                        if (fileInputRef.current) {
-                          fileInputRef.current.value = '';
-                        }
-                      }}
-                      className="ml-2 text-red-500 hover:text-red-700"
+                    Add Faculty
+                  </motion.button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleBulkSubmit} encType="multipart/form-data">
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-gray-700 text-sm font-medium mb-3">Upload CSV File</label>
+                    <motion.div 
+                      className={`mt-2 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed rounded-lg 
+                        transition-all duration-200 cursor-pointer hover:bg-blue-50
+                        ${csvFile ? 'border-blue-400 bg-blue-50/40' : 'border-gray-300'}`}
+                      onClick={() => fileInputRef.current.click()}
+                      whileHover={{ scale: 1.01, boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)" }}
+                      whileTap={{ scale: 0.99 }}
                     >
-                      ✕
-                    </button>
-                  )}
+                      <div className="space-y-3 text-center">
+                        <motion.div 
+                          className="mx-auto h-14 w-14"
+                          animate={{ 
+                            y: [0, -5, 0],
+                            transition: { repeat: Infinity, duration: 2 }
+                          }}
+                        >
+                          <FaCloudUploadAlt size={48} className={`mx-auto ${csvFile ? 'text-blue-600' : 'text-blue-500'}`} />
+                        </motion.div>
+                        <div className="flex flex-col gap-1">
+                          <span className="text-sm font-medium text-gray-700">
+                            {csvFileName ? (
+                              <motion.div 
+                                initial={{ opacity: 0 }} 
+                                animate={{ opacity: 1 }} 
+                                className="flex items-center justify-center gap-2"
+                              >
+                                <span className="text-blue-600">{csvFileName}</span>
+                              </motion.div>
+                            ) : (
+                              "Drag and drop a CSV file here"
+                            )}
+                          </span>
+                          <span className="text-xs text-gray-500">
+                            or <span className="text-blue-600 font-medium">browse files</span>
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500">CSV up to 5MB</p>
+                        
+                        <input
+                          id="csv-file-input"
+                          name="file"
+                          type="file"
+                          accept=".csv"
+                          ref={fileInputRef}
+                          onChange={handleFileChange}
+                          required
+                          className="sr-only"
+                        />
+                      </div>
+                    </motion.div>
+                    
+                    {fileError && (
+                      <motion.p 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-2 text-sm text-red-600"
+                      >
+                        {fileError}
+                      </motion.p>
+                    )}
+                    
+                    {csvFile && (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-3 flex justify-end"
+                      >
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setCsvFile(null);
+                            setCsvFileName('');
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }}
+                          className="text-sm text-red-500 hover:text-red-700 transition-colors"
+                        >
+                          Remove file
+                        </button>
+                      </motion.div>
+                    )}
+                    
+                    <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                      <h4 className="text-sm font-semibold text-blue-700 mb-2">CSV File Requirements</h4>
+                      <ul className="space-y-1 text-xs text-gray-700">
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>username</b>: Unique identifier</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>firstName</b>: Faculty's first name</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>lastName</b>: Faculty's last name </li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>: Valid email address</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>department</b>: Faculty's department</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>position</b>: Faculty's position</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span><b>password</b>: Initial password</li>
+                      </ul>
+                      <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
+                        <p>Ensure your CSV file uses commas as separators and includes a header row.</p>
+                        <p className="mt-1">Note: Records with invalid names or passwords will be skipped, but valid records will still be processed.</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <motion.button
+                    type="submit"
+                    disabled={!csvFile}
+                    className={`w-full py-3 px-4 rounded-lg font-medium focus:outline-none transition-all ${
+                      !csvFile 
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
+                        : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700'
+                    }`}
+                    whileHover={csvFile ? { scale: 1.02 } : {}}
+                    whileTap={csvFile ? { scale: 0.98 } : {}}
+                  >
+                    Upload and Add Faculty
+                  </motion.button>
                 </div>
-                {fileError && (
-                  <p className="text-red-500 text-xs mt-1">{fileError}</p>
-                )}
-                <div className="text-sm text-gray-500 mt-2">
-                  <p className="font-bold">CSV file must include these columns:</p>
-                  <ul className="list-disc pl-5 mt-1">
-                    <li><span className="font-medium">username</span>: Unique username (required)</li>
-                    <li><span className="font-medium">firstName</span>: Faculty's first name (required)</li>
-                    <li><span className="font-medium">lastName</span>: Faculty's last name (required)</li>
-                    <li><span className="font-medium">email</span>: Valid email address (required)</li>
-                    <li><span className="font-medium">department</span>: Faculty's department (required)</li>
-                    <li><span className="font-medium">position</span>: Faculty's position (required)</li>
-                    <li><span className="font-medium">password</span>: Initial password (required)</li>
-                  </ul>
-                  <p className="mt-2 text-amber-600 font-medium">Important: Make sure your CSV file uses commas (,) as separators and includes a header row.</p>
-                </div>
-              </div>
-              <button
-                type="submit"
-                disabled={!csvFile}
-                className={`w-full ${!csvFile ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-700 cursor-pointer'} text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline
-                hover:scale-95 transition-all duration-200`}
-              >
-                Upload and Add Faculty
-              </button>
-            </form>
-          )}
-        </div>
+              </form>
+            )}
+          </div>
+        </motion.div>
       </div>
     </div>
   );

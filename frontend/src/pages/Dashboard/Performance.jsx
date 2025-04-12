@@ -25,7 +25,7 @@ export default function Performance() {
           // Initialize expanded state for each course
           const initialExpandedState = {};
           courses.forEach(course => {
-            initialExpandedState[course.id] = true; // Default to expanded
+            initialExpandedState[course.id] = false; // Default to expanded
           });
           setExpandedCourses(initialExpandedState);
 
@@ -343,13 +343,13 @@ export default function Performance() {
                                   {result.mean?.toFixed(1) || 'N/A'}
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">
-                                  {result.median || 'N/A'}
+                                  {result.median !== null && result.median !== undefined ? result.median : 'N/A'}
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">
-                                  {result.max || 'N/A'}
+                                  {result.max !== null && result.max !== undefined ? result.max : 'N/A'}
                                 </td>
                                 <td className="py-2 px-4 border-b text-center">
-                                  {result.deviation !== null ? result.deviation.toFixed(1) : 'N/A'}
+                                  {result.deviation !== null && result.deviation !== undefined ? result.deviation.toFixed(1) : 'N/A'}
                                 </td>
                               </tr>
                             ))}

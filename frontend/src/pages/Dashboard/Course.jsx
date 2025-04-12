@@ -1,16 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useCourses } from '../../contexts/CourseContext';
 // Import the Calendar component
 import MyCalendar from '../../components/Calendar_Dashboard';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import axiosInstance from '../../utils/axiosInstance';
 
 export default function Course() {
   const { courses, loading, error } = useCourses();
   // const pastYears = ["2024-25 SEMII", "2024-25 SEMI", "2024-25 SEMII", "2024-25 SEMI", "2024-25 SEMII", "2024-25 SEMI"];
   const navigate = useNavigate();
   const {logout} = useAuth();
+  const [courseDetails, setCourseDetails] = useState({});
+  
+  // Fetch faculty details for all courses
+  useEffect(() => {
+    if (courses && courses.length > 0) {
+      const fetchFacultyForCourses = async () => {
+        try {
+          const courseDetailsObj = {};
+          
+          for (const course of courses) {
+            const response = await axiosInstance.get(`/api/courses/${course.id}`);
+            const facultyList = response.data.data.faculty || [];
+            
+            const facultyNames = facultyList.map(faculty =>
+              `${faculty.user.firstName} ${faculty.user.lastName}`
+            );
+            
+            courseDetailsObj[course.id] = {
+              facultyNames: facultyNames.length > 0 ? facultyNames : ['No faculty assigned']
+            };
+          }
+          
+          setCourseDetails(courseDetailsObj);
+        } catch (error) {
+          console.error("Error fetching faculty details:", error);
+        }
+      };
+      
+      fetchFacultyForCourses();
+    }
+  }, [courses]);
+
   if (loading) {
     return (
       <div className='w-full h-full flex items-center justify-center'>
@@ -29,6 +62,7 @@ export default function Course() {
     // );
     logout();
     navigate('/login');
+    return null;
   }
 
   if (!courses || courses.length === 0) {
@@ -43,15 +77,15 @@ export default function Course() {
   }
 
   return (
-    <div className='w-full h-full flex flex-col items-center justify-evenly'>
+    <div className='w-full h-full flex flex-col items-center justify-evenly bg-gray-50'>
       {/* <p className='text-[35px] font-semibold mt-2'>Dashboard</p> */}
       <div className='flex gap-3 mt-4 flex-wrap justify-center'>
         {
           courses.map(course => (
             <NavLink to={`/${course.code}/coursehome`} key={course.id}>
-              <div className='cursor-pointer shadow-lg hover:scale-95 transition-all duration-200 h-[130px] w-[180px] border rounded-md flex flex-col items-center justify-evenly p-2'>
+              <div className='cursor-pointer shadow-lg hover:scale-95 transition-all duration-200 h-[130px] w-[180px] border rounded-md flex flex-col items-center justify-evenly p-2 bg-white'>
                 <p className='font-semibold bg-[#D9D9D9] px-5 py-1 rounded-md'>{course.code}</p>
-                <p>{course.instructor || 'Faculty'}</p>
+                <p>{courseDetails[course.id]?.facultyNames?.[0] || 'Faculty'}</p>
                 <p className='text-[14px]'>{course.name.length > 14 ? course.name.substring(0, 14) + "..." : course.name}</p>
               </div>
             </NavLink>

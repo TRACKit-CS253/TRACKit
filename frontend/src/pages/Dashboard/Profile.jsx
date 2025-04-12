@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import imgMy from '../../assets/ved.png';
 import texture from '../../assets/textures.jpg';
 import { authFetch } from '../../services/auth';
 import { PiStudentDuotone } from "react-icons/pi";
