@@ -452,18 +452,64 @@ export default function AddStudent() {
                     </div>
                     <div className="relative">
                       <label className="block text-gray-700 text-sm font-medium mb-2">Major</label>
-                      <select
-                        name="major"
-                        value={studentData.major}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      <div className="relative">
+                        <select
+                          name="major"
+                          value={studentData.major}
+                          onChange={handleChange}
+                          required
+                          className="w-full appearance-none px-4 py-2.5 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-700 pr-10"
+                        >
+                          <option value="" disabled>Select Department</option>
+                          {engineeringBranches.map((branch, index) => (
+                            <option key={index} value={branch} className="py-2">{branch}</option>
+                          ))}
+                        </select>
+                        
+                        {/* Custom dropdown arrow */}
+                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-500">
+                          <svg 
+                            xmlns="http://www.w3.org/2000/svg" 
+                            className="h-5 w-5 transition-transform duration-200 ease-in-out" 
+                            fill="none" 
+                            viewBox="0 0 24 24" 
+                            stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                        
+                        {/* Highlight effect on focus */}
+                        <div 
+                          className={`absolute inset-0 rounded-lg pointer-events-none transition-opacity duration-200 ${
+                            studentData.major ? 'opacity-100 border-2 border-blue-100' : 'opacity-0'
+                          }`} 
+                          aria-hidden="true"
+                        />
+                      </div>
+                      
+                      {/* Selected department badge - shows when a department is selected */}
+                      {studentData.major && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          <span>{studentData.major}</span>
+                        </motion.div>
+                      )}
+                      
+                      {/* Department count */}
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 0.7 }}
+                        className="absolute right-0 top-0 text-xs text-gray-500"
                       >
-                        <option value="" disabled>Select a major</option>
-                        {engineeringBranches.map((branch, index) => (
-                          <option key={index} value={branch}>{branch}</option>
-                        ))}
-                      </select>
+                        {engineeringBranches.length} departments
+                      </motion.div>
                     </div>
                   </div>
                   

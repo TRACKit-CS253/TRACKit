@@ -294,12 +294,12 @@ async function createStudents(courses) {
       courseIndices: [0, 1, 2, 3, 4, 5] // All courses
     },
     {
-      username: 'student2',
+      username: 'student1',
       password: 'student123',
-      email: 'student2@trackit.com',
-      firstName: 'Bob',
+      email: 'student2@trackit.com',  
+      firstName: 'Dhruv Varshney',
       lastName: 'Williams',
-      rollNumber: 'CS20B002',
+      rollNumber: '220366',
       enrollmentYear: 2020,
       major: 'Computer Science',
       courseIndices: [0, 1, 2, 3, 4, 5] // All courses
