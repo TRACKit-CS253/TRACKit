@@ -337,6 +337,89 @@ exports.createUser = async (req, res) => {
   }
 };
 
+const engineeringBranches = [
+  "Aerospace Engineering",
+  "Biological Sciences and Bioengineering",
+  "Chemical Engineering",
+  "Chemistry",
+  "Civil Engineering",
+  "Cognitive Science",
+  "Computer Science and Engineering",
+  "Dean Of Academic Affairs",
+  "Dean Of Research & Development",
+  "Dean Of Resource & Alumni",
+  "Design",
+  "Earth Science",
+  "Economics",
+  "Electrical Engineering",
+  "Environmental Engineering and Management",
+  "Humanities and Social Sciences",
+  "Industrial and Management Engineering",
+  "Laser Technology",
+  "Materials Science Programme",
+  "Materials Science and Engineering",
+  "Mathematics",
+  "Mathematics and Scientific Computing",
+  "Mathematics and Statistics",
+  "Mechanical Engineering",
+  "Nuclear Engineering and Technology Programme",
+  "Photonics Science and Engineering",
+  "Physics",
+  "Space Science and Astronomy",
+  "Space, Planetary and Astronomical Sciences and Engineering",
+  "Statistics",
+  "Statistics and Data Science",
+  "Sustainable Energy Engineering"
+];
+
+const departments = [
+  "Aerospace Engineering",
+  "Biological Sciences and Bioengineering",
+  "Chemical Engineering",
+  "Chemistry",
+  "Civil Engineering",
+  "Cognitive Science",
+  "Computer Science and Engineering",
+  "Dean Of Academic Affairs",
+  "Dean Of Research & Development",
+  "Dean Of Resource & Alumni",
+  "Design",
+  "Earth Science",
+  "Economics",
+  "Electrical Engineering",
+  "Environmental Engineering and Management",
+  "Humanities and Social Sciences",
+  "Industrial and Management Engineering",
+  "Laser Technology",
+  "Materials Science Programme",
+  "Materials Science and Engineering",
+  "Mathematics",
+  "Mathematics and Scientific Computing",
+  "Mathematics and Statistics",
+  "Mechanical Engineering",
+  "Nuclear Engineering and Technology Programme",
+  "Photonics Science and Engineering",
+  "Physics",
+  "Space Science and Astronomy",
+  "Space, Planetary and Astronomical Sciences and Engineering",
+  "Statistics",
+  "Statistics and Data Science",
+  "Sustainable Energy Engineering"
+];
+
+const facultyPositions = [
+  "Professor",
+  "Associate Professor",
+  "Assistant Professor",
+  "Visiting Professor",
+  "Lecturer",
+  "Adjunct Faculty",
+  "Research Professor",
+  "Department Head",
+  "Teaching Assistant",
+  "Lab Instructor"
+];
+
 // Bulk create students from CSV
 exports.bulkCreateStudents = async (req, res) => {
   // More flexible file detection logic
@@ -427,6 +510,10 @@ exports.bulkCreateStudents = async (req, res) => {
 
     const createdUsers = [];
     const errors = [];
+    const validationErrors = [];
+    const duplicateUsernames = [];
+    const duplicateEmails = [];
+    const duplicateRollNumbers = [];
 
     for (const [index, record] of records.entries()) {
       try {
@@ -436,21 +523,61 @@ exports.bulkCreateStudents = async (req, res) => {
           throw new Error('Missing required fields');
         }
 
+        // Name validation - only alphabets and spaces
+        const nameRegex = /^[A-Za-z\s]+$/;
+        if (!nameRegex.test(record.firstName)) {
+          validationErrors.push(`Row ${index + 2}: First name should contain only alphabets and spaces`);
+          continue;
+        }
+        
+        if (record.lastName && !nameRegex.test(record.lastName)) {
+          validationErrors.push(`Row ${index + 2}: Last name should contain only alphabets and spaces`);
+          continue;
+        }
+
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(record.email)) {
-          throw new Error('Invalid email format');
+          validationErrors.push(`Row ${index + 2}: Invalid email format`);
+          continue;
         }
 
         // Username validation
         if (record.username.length < 3 || record.username.length > 50) {
-          throw new Error('Username must be between 3 and 50 characters');
+          validationErrors.push(`Row ${index + 2}: Username must be between 3 and 50 characters`);
+          continue;
         }
 
         // Enrollment year validation
         const enrollmentYear = parseInt(record.enrollmentYear);
         if (isNaN(enrollmentYear) || enrollmentYear < 2000 || enrollmentYear > 2099) {
-          throw new Error('Invalid enrollment year (must be between 2000 and 2099)');
+          validationErrors.push(`Row ${index + 2}: Invalid enrollment year (must be between 2000 and 2099)`);
+          continue;
+        }
+
+        // Major validation
+        if (!engineeringBranches.includes(record.major)) {
+          validationErrors.push(`Row ${index + 2}: Invalid major. Must be one of the predefined engineering branches`);
+          continue;
+        }
+
+        // Password strength validation
+        const password = record.password;
+        if (password.length < 8) {
+          validationErrors.push(`Row ${index + 2}: Password must be at least 8 characters long`);
+          continue;
+        }
+        if (!/[A-Z]/.test(password)) {
+          validationErrors.push(`Row ${index + 2}: Password must contain at least one uppercase letter`);
+          continue;
+        }
+        if (!/[0-9]/.test(password)) {
+          validationErrors.push(`Row ${index + 2}: Password must contain at least one number`);
+          continue;
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+          validationErrors.push(`Row ${index + 2}: Password must contain at least one special character`);
+          continue;
         }
 
         // Check for existing username or email
@@ -464,7 +591,13 @@ exports.bulkCreateStudents = async (req, res) => {
         });
 
         if (existingUser) {
-          throw new Error('Username or email already exists');
+          if (existingUser.username === record.username) {
+            duplicateUsernames.push(record.username);
+          }
+          if (existingUser.email === record.email) {
+            duplicateEmails.push(record.email);
+          }
+          continue;
         }
 
         // Check for existing roll number
@@ -473,7 +606,8 @@ exports.bulkCreateStudents = async (req, res) => {
         });
 
         if (existingStudent) {
-          throw new Error('Roll number already exists');
+          duplicateRollNumbers.push(record.rollNumber);
+          continue;
         }
 
         const hashedPassword = bcrypt.hashSync(record.password, 8);
@@ -496,23 +630,37 @@ exports.bulkCreateStudents = async (req, res) => {
 
         createdUsers.push(user.id);
       } catch (error) {
-        errors.push(`Row ${index + 1}: ${error.message}`);
+        errors.push(`Row ${index + 2}: ${error.message}`);
       }
     }
 
-    if (errors.length > 0) {
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: 'Errors occurred while processing CSV',
-        errors: errors
+    // Instead of rolling back the transaction on any error, we'll commit the valid entries
+    await t.commit();
+
+    if (errors.length > 0 || validationErrors.length > 0 || 
+        duplicateUsernames.length > 0 || duplicateEmails.length > 0 || 
+        duplicateRollNumbers.length > 0) {
+      
+      // Return mixed success/error response
+      return res.status(207).json({
+        success: true,
+        message: `Processed ${records.length} records. Added ${createdUsers.length} students successfully.`,
+        totalRows: records.length,
+        createdCount: createdUsers.length,
+        skippedCount: records.length - createdUsers.length,
+        errors: errors,
+        validationErrors: validationErrors,
+        duplicateUsernames: duplicateUsernames,
+        duplicateEmails: duplicateEmails,
+        duplicateRollNumbers: duplicateRollNumbers
       });
     }
 
-    await t.commit();
     res.status(201).json({
       success: true,
       message: `Successfully created ${createdUsers.length} students`,
+      totalRows: records.length,
+      createdCount: createdUsers.length,
       userIds: createdUsers
     });
   } catch (error) {
@@ -616,6 +764,9 @@ exports.bulkCreateFaculty = async (req, res) => {
 
     const createdUsers = [];
     const errors = [];
+    const validationErrors = [];
+    const duplicateUsernames = [];
+    const duplicateEmails = [];
 
     for (const [index, record] of records.entries()) {
       try {
@@ -625,15 +776,60 @@ exports.bulkCreateFaculty = async (req, res) => {
           throw new Error('Missing required fields');
         }
 
+        // Name validation - only alphabets and spaces
+        const nameRegex = /^[A-Za-z\s]+$/;
+        if (!nameRegex.test(record.firstName)) {
+          validationErrors.push(`Row ${index + 2}: First name should contain only alphabets and spaces`);
+          continue;
+        }
+        
+        if (record.lastName && !nameRegex.test(record.lastName)) {
+          validationErrors.push(`Row ${index + 2}: Last name should contain only alphabets and spaces`);
+          continue;
+        }
+
         // Email validation
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(record.email)) {
-          throw new Error('Invalid email format');
+          validationErrors.push(`Row ${index + 2}: Invalid email format`);
+          continue;
         }
 
         // Username validation
         if (record.username.length < 3 || record.username.length > 50) {
-          throw new Error('Username must be between 3 and 50 characters');
+          validationErrors.push(`Row ${index + 2}: Username must be between 3 and 50 characters`);
+          continue;
+        }
+
+        // Department validation
+        if (!departments.includes(record.department)) {
+          validationErrors.push(`Row ${index + 2}: Invalid department. Must be one of the predefined departments`);
+          continue;
+        }
+
+        // Position validation
+        if (!facultyPositions.includes(record.position)) {
+          validationErrors.push(`Row ${index + 2}: Invalid position. Must be one of the predefined faculty positions`);
+          continue;
+        }
+
+        // Password strength validation
+        const password = record.password;
+        if (password.length < 8) {
+          validationErrors.push(`Row ${index + 2}: Password must be at least 8 characters long`);
+          continue;
+        }
+        if (!/[A-Z]/.test(password)) {
+          validationErrors.push(`Row ${index + 2}: Password must contain at least one uppercase letter`);
+          continue;
+        }
+        if (!/[0-9]/.test(password)) {
+          validationErrors.push(`Row ${index + 2}: Password must contain at least one number`);
+          continue;
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+          validationErrors.push(`Row ${index + 2}: Password must contain at least one special character`);
+          continue;
         }
 
         // Check for existing username or email
@@ -647,7 +843,13 @@ exports.bulkCreateFaculty = async (req, res) => {
         });
 
         if (existingUser) {
-          throw new Error('Username or email already exists');
+          if (existingUser.username === record.username) {
+            duplicateUsernames.push(record.username);
+          }
+          if (existingUser.email === record.email) {
+            duplicateEmails.push(record.email);
+          }
+          continue;
         }
 
         const hashedPassword = bcrypt.hashSync(record.password, 8);
@@ -669,23 +871,35 @@ exports.bulkCreateFaculty = async (req, res) => {
 
         createdUsers.push(user.id);
       } catch (error) {
-        errors.push(`Row ${index + 1}: ${error.message}`);
+        errors.push(`Row ${index + 2}: ${error.message}`);
       }
     }
 
-    if (errors.length > 0) {
-      await t.rollback();
-      return res.status(400).json({
-        success: false,
-        message: 'Errors occurred while processing CSV',
-        errors: errors
+    // Commit valid entries
+    await t.commit();
+
+    if (errors.length > 0 || validationErrors.length > 0 || 
+        duplicateUsernames.length > 0 || duplicateEmails.length > 0) {
+      
+      // Return mixed success/error response
+      return res.status(207).json({
+        success: true,
+        message: `Processed ${records.length} records. Added ${createdUsers.length} faculty members successfully.`,
+        totalRows: records.length,
+        createdCount: createdUsers.length,
+        skippedCount: records.length - createdUsers.length,
+        errors: errors,
+        validationErrors: validationErrors,
+        duplicateUsernames: duplicateUsernames,
+        duplicateEmails: duplicateEmails
       });
     }
 
-    await t.commit();
     res.status(201).json({
       success: true,
       message: `Successfully created ${createdUsers.length} faculty members`,
+      totalRows: records.length,
+      createdCount: createdUsers.length,
       userIds: createdUsers
     });
   } catch (error) {
@@ -845,6 +1059,15 @@ exports.createCourse = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'Credits must be between 1 and 20'
+      });
+    }
+
+    // Validate course code
+    const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+    if (!alphanumericRegex.test(req.body.code)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Course code must be alphanumeric only'
       });
     }
     
@@ -1139,6 +1362,12 @@ exports.bulkCreateCourses = async (req, res) => {
         const validSemesters = ['fall', 'spring', 'summer'];
         if (!validSemesters.includes(normalizedSemester)) {
           throw new Error('Invalid semester (must be Fall, Spring, or Summer)');
+        }
+
+        // Validate course code
+        const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+        if (!alphanumericRegex.test(code)) {
+          throw new Error('Course code must be alphanumeric only');
         }
 
         // Create the course

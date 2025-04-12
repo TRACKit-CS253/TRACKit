@@ -100,6 +100,17 @@ export default function CreateCourse() {
         setLoading(false);
         return;
       }
+
+      // Validate course code
+      const alphanumericRegex = /^[a-zA-Z0-9]+$/;
+      if (!alphanumericRegex.test(courseData.code)) {
+        setMessage({ 
+          text: 'Course code must be alphanumeric only.', 
+          type: 'error' 
+        });
+        setLoading(false);
+        return;
+      }
       
       const userData = JSON.parse(localStorage.getItem('user') || '{}');
       const authToken = token || 

@@ -29,10 +29,68 @@ export default function AddFaculty() {
   const { logout } = useAuth();
   const fileInputRef = useRef(null);
 
+  const departments = [
+    "Aerospace Engineering",
+    "Biological Sciences and Bioengineering",
+    "Chemical Engineering",
+    "Chemistry",
+    "Civil Engineering",
+    "Cognitive Science",
+    "Computer Science and Engineering",
+    "Dean Of Academic Affairs",
+    "Dean Of Research & Development", 
+    "Dean Of Resource & Alumni",
+    "Design",
+    "Earth Science",
+    "Economics",
+    "Electrical Engineering",
+    "Environmental Engineering and Management",
+    "Humanities and Social Sciences",
+    "Industrial and Management Engineering",
+    "Laser Technology",
+    "Materials Science Programme",
+    "Materials Science and Engineering",
+    "Mathematics",
+    "Mathematics and Scientific Computing",
+    "Mathematics and Statistics",
+    "Mechanical Engineering",
+    "Nuclear Engineering and Technology Programme",
+    "Photonics Science and Engineering",
+    "Physics",
+    "Space Science and Astronomy",
+    "Space, Planetary and Astronomical Sciences and Engineering",
+    "Statistics",
+    "Statistics and Data Science",
+    "Sustainable Energy Engineering"
+  ];
+  
+  const facultyPositions = [
+    "Professor",
+    "Associate Professor",
+    "Assistant Professor",
+    "Visiting Professor",
+    "Lecturer",
+    "Adjunct Faculty",
+    "Research Professor",
+    "Department Head",
+    "Teaching Assistant",
+    "Lab Instructor"
+  ];
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
+    
+    // Name validation - allow only alphabets and spaces
+    if ((name === 'firstName' || name === 'lastName') && value !== '') {
+      // Allow only alphabets and spaces
+      if (!/^[A-Za-z\s]+$/.test(value)) {
+        return; // Don't update state if invalid input
+      }
+    }
+    
     setFacultyData({
       ...facultyData,
-      [e.target.name]: e.target.value
+      [name]: value
     });
   };
 
@@ -92,6 +150,17 @@ export default function AddFaculty() {
     e.preventDefault();
     setError('');
     setSuccess('');
+
+    // Validate name fields - only alphabets and spaces
+    if (!/^[A-Za-z\s]+$/.test(facultyData.firstName)) {
+      setError('First name should contain only alphabets and spaces');
+      return;
+    }
+    
+    if (facultyData.lastName && !/^[A-Za-z\s]+$/.test(facultyData.lastName)) {
+      setError('Last name should contain only alphabets and spaces');
+      return;
+    }
 
     const password = facultyData.password;
     if (password.length < 8) {
@@ -171,31 +240,39 @@ export default function AddFaculty() {
       
       console.log('Bulk upload response:', response);
       
-      setSuccess(response.data.message);
-      setCsvFile(null);
-      setCsvFileName('');
-      // Reset the file input
-      const fileInput = document.querySelector('input[type="file"]');
-      if (fileInput) fileInput.value = '';
-    } catch (error) {
-      console.error('Upload error:', error.response?.data || error);
-      const errorMessage = error.response?.data?.message;
-      const errorList = error.response?.data?.errors;
-      
-      if (errorList && Array.isArray(errorList)) {
-        setError(
+      if (response.data.success) {
+        // Simplified success message without detailed failure reasons
+        const successMessage = (
           <div>
-            <p>{errorMessage}</p>
-            <ul className="list-disc pl-5 mt-2">
-              {errorList.map((err, index) => (
-                <li key={index}>{err}</li>
-              ))}
-            </ul>
+            <p className="mb-2">{response.data.message}</p>
+            <div className="p-2 bg-blue-50 rounded text-sm">
+              <div className="mb-1"><span className="font-medium">Total records in CSV:</span> {response.data.totalRows || 'N/A'}</div>
+              <div className="mb-1 text-green-700"><span className="font-medium">Successfully added:</span> {response.data.createdCount || response.data.userIds?.length || 0}</div>
+              <div className="text-amber-700"><span className="font-medium">Not added:</span> {
+                (response.data.totalRows && response.data.createdCount) 
+                  ? (response.data.totalRows - response.data.createdCount) 
+                  : (response.data.skippedCount || 'Unknown')
+              } 
+                <span className="text-xs ml-1">(duplicates or validation errors)</span>
+              </div>
+            </div>
           </div>
         );
+        
+        setSuccess(successMessage);
+        
+        setCsvFile(null);
+        setCsvFileName('');
+        if (fileInputRef.current) fileInputRef.current.value = '';
       } else {
-        setError(errorMessage || 'Error uploading faculty');
+        setError(response.data.message);
       }
+    } catch (error) {
+      console.error('Upload error:', error.response?.data || error);
+      
+      // Simplified error message
+      const errorMessage = error.response?.data?.message || 'An unexpected error occurred while uploading faculty';
+      setError(errorMessage);
     }
   };
 
@@ -355,27 +432,33 @@ export default function AddFaculty() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="relative">
                       <label className="block text-gray-700 text-sm font-medium mb-2">Department</label>
-                      <input
-                        type="text"
+                      <select
                         name="department"
                         value={facultyData.department}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Computer Science"
-                      />
+                      >
+                        <option value="" disabled>Select a department</option>
+                        {departments.map((dept, index) => (
+                          <option key={index} value={dept}>{dept}</option>
+                        ))}
+                      </select>
                     </div>
                     <div className="relative">
                       <label className="block text-gray-700 text-sm font-medium mb-2">Position</label>
-                      <input
-                        type="text"
+                      <select
                         name="position"
                         value={facultyData.position}
                         onChange={handleChange}
                         required
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Professor"
-                      />
+                      >
+                        <option value="" disabled>Select a position</option>
+                        {facultyPositions.map((position, index) => (
+                          <option key={index} value={position}>{position}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                   
@@ -504,16 +587,17 @@ export default function AddFaculty() {
                     <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                       <h4 className="text-sm font-semibold text-blue-700 mb-2">CSV File Requirements</h4>
                       <ul className="space-y-1 text-xs text-gray-700">
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>username</b>: Unique identifier</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>username</b>: Unique username</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>firstName</b>: Faculty's first name</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>lastName</b>: Faculty's last name</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>: Valid email address</li>
+                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>:Faculty's email address</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>department</b>: Faculty's department</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>position</b>: Faculty's position</li>
                         <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>password</b>: Initial password</li>
                       </ul>
                       <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
-                        Ensure your CSV file uses commas as separators and includes a header row.
+                        <p>Ensure your CSV file uses commas as separators and includes a header row.</p>
+                        <p className="mt-1">Note: Records with invalid names, departments, positions, or passwords will be skipped, but valid records will still be processed.</p>
                       </div>
                     </div>
                   </div>
