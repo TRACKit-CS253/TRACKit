@@ -5,121 +5,7 @@ import { FaLinkedin, FaInstagram, FaEnvelope, FaPhone, FaRegUser, FaGithub } fro
 import { GoHome } from "react-icons/go";
 import { motion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
-import ved from "../../assets/ved.png";
-
-const developers = [
-  {
-    id: 1,
-    image:ved,
-    name: "Ved Prakash",
-    role: "Full Stack Engineer",
-    phone: "+91-8009090434",
-    email: "vedprakash22@iitk.ac.in",
-    linkedin: "https://www.linkedin.com/in/ved-prakash-vishwakarma-7a0a2223a/",
-    instagram: "https://www.instagram.com/vedprakash_226/",
-    github:"https://github.com/vedprakash226"
-  },
-  {
-    id: 2,
-    name: "Aditya Gautam",
-    role: "UI Designer",
-    phone: "+91-98765-4321",
-    email: "gaditiya@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-  {
-    id: 3,
-    name: "Sharique Ahmad",
-    role: "Backend Developer",
-    phone: "+91-98765-4322",
-    email: "asharique@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-  {
-    id: 4,
-    name: "Dhruv Varshney",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "vdhruv@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-  {
-    id: 5,
-    name: "Dhruv Rai",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "rdhruv@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-  {
-    id: 6,
-    name: "Mayur",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "mayur@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-  {
-    id: 7,
-    name: "Abhijeet Agarwal",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "abhijeet@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-  {
-    id: 8,
-    name: "Aaayush Singh",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "aayush@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-  {
-    id: 9,
-    name: "Aryan Bansal",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "aryan@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:""
-  },
-  {
-    id: 10,
-    name: "Rahul Ahirwar",
-    role: "DevOps Engineer",
-    phone: "+91-9302008834",
-    email: "rahula22@iitk.ac.in",
-    linkedin: "https://www.linkedin.com/in/rahul-a-6b2853252/",
-    instagram: "https://www.google.com",
-    github:"https://github.com/Rahula-22"
-  },
-  {
-    id: 11,
-    name: "Akash Verma",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "akash@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
-  },
-];
+import developers from "./Developers";
 
 export default function ContactDevelopers() {
   const navigate = useNavigate();
@@ -233,63 +119,136 @@ export default function ContactDevelopers() {
             <motion.div
               key={dev.id}
               variants={cardVariants}
-              className="relative"
+              className="relative group"
               onMouseEnter={() => setHoveredCard(dev.id)}
               onMouseLeave={() => setHoveredCard(null)}
             >
+              {/* Enhanced card with layered animations */}
               <motion.div 
-                className="bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300"
-                whileHover={{ y: -8 }}
+                className="bg-white rounded-2xl overflow-hidden shadow-md transition-all duration-300 relative z-10"
+                initial={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}
+                whileHover={{ 
+                  y: -12, 
+                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)",
+                  transition: { type: "spring", stiffness: 300, damping: 15 }
+                }}
               >
-                {/* Card header with gradient */}
-                <div className={`h-8 bg-gradient-to-r ${getRoleStyle(dev.role)}`}></div>
+                {/* Add a glow effect behind the card that appears on hover */}
+                <motion.div 
+                  className={`absolute inset-0 -z-10 rounded-2xl bg-gradient-to-r ${getRoleStyle(dev.role)} opacity-0 blur-xl`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  whileHover={{ 
+                    opacity: 0.15, 
+                    scale: 1.05,
+                    transition: { duration: 0.3 }
+                  }}
+                />
+
+                {/* Card header with gradient - now with animation */}
+                <motion.div 
+                  className={`h-8 bg-gradient-to-r ${getRoleStyle(dev.role)}`}
+                  whileHover={{
+                    height: "2.25rem", // slightly expand header on hover
+                    transition: { duration: 0.2 }
+                  }}
+                />
                 
                 {/* Profile section */}
                 <div className="relative flex flex-col items-center pt-12 pb-6 px-6">
-                  {/* Avatar */}
-                  <div className="absolute -top-10 rounded-full p-1 bg-white shadow-md">
+                  {/* Animated Avatar */}
+                  <motion.div 
+                    className="absolute -top-10 rounded-full p-1 bg-white shadow-md z-20"
+                    whileHover={{ scale: 1.08, y: -2, transition: { type: "spring", stiffness: 400 } }}
+                  >
                     <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white">
-                      <motion.img 
-                        src={dev.image || profilePic} 
-                        alt={dev.name} 
-                        className="w-full h-full object-cover"
-                        whileHover={{ scale: 1.1 }}
-                      />
+                      <motion.div className="w-full h-full overflow-hidden">
+                        <motion.img 
+                          src={dev.image || profilePic} 
+                          alt={dev.name} 
+                          className="w-full h-full object-cover"
+                          whileHover={{ 
+                            scale: 1.15,
+                            transition: { duration: 0.5 }
+                          }}
+                        />
+                      </motion.div>
                     </div>
-                  </div>
+                  </motion.div>
                   
-                  {/* Developer info */}
-                  <h3 className="text-xl font-bold text-gray-800 mt-2 text-center">{dev.name}</h3>
-                  <span className={`inline-block font-semibold px-3 py-1 rounded-full text-xs mt-1 bg-gradient-to-r ${getRoleStyle(dev.role)} text-white`}>
+                  {/* Developer info with subtle animations */}
+                  <motion.h3 
+                    className="text-xl font-bold text-gray-800 mt-2 text-center"
+                    whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
+                  >
+                    {dev.name}
+                  </motion.h3>
+                  
+                  <motion.span 
+                    className={`inline-block font-semibold px-3 py-1 rounded-full text-xs mt-1 bg-gradient-to-r ${getRoleStyle(dev.role)} text-white`}
+                    whileHover={{ 
+                      scale: 1.05, 
+                      y: -2,
+                      transition: { duration: 0.2 }
+                    }}
+                  >
                     {dev.role}
-                  </span>
+                  </motion.span>
                   
-                  {/* Contact info */}
-                  <div className="w-full mt-6 space-y-3">
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <div className="bg-gray-100 rounded-full p-2">
+                  {/* Contact info with subtle reveal animation */}
+                  <motion.div 
+                    className="w-full mt-6 space-y-3"
+                    initial={{ opacity: 0.9 }}
+                    whileHover={{ opacity: 1 }}
+                  >
+                    <motion.div 
+                      className="flex items-center gap-3 text-gray-600"
+                      whileHover={{ x: 2, transition: { duration: 0.2 } }}
+                    >
+                      <motion.div 
+                        className="bg-gray-100 rounded-full p-2"
+                        whileHover={{ 
+                          backgroundColor: "#e0e7ff", 
+                          scale: 1.1,
+                          transition: { duration: 0.2 }
+                        }}
+                      >
                         <FaPhone className="text-gray-500" size={14} />
-                      </div>
+                      </motion.div>
                       <span className="text-sm">{dev.phone}</span>
-                    </div>
+                    </motion.div>
                     
-                    <div className="flex items-center gap-3 text-gray-600">
-                      <div className="bg-gray-100 rounded-full p-2">
+                    <motion.div 
+                      className="flex items-center gap-3 text-gray-600"
+                      whileHover={{ x: 2, transition: { duration: 0.2 } }}
+                    >
+                      <motion.div 
+                        className="bg-gray-100 rounded-full p-2"
+                        whileHover={{ 
+                          backgroundColor: "#e0e7ff", 
+                          scale: 1.1,
+                          transition: { duration: 0.2 }
+                        }}
+                      >
                         <FaEnvelope className="text-gray-500" size={14} />
-                      </div>
+                      </motion.div>
                       <span className="text-sm truncate">{dev.email}</span>
-                    </div>
-                  </div>
+                    </motion.div>
+                  </motion.div>
                   
-                  {/* Social links */}
+                  {/* Social links with enhanced animations */}
                   <div className="flex justify-center gap-3 mt-5">
                     <motion.a 
                       href={dev.linkedin} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="bg-blue-100 p-2.5 rounded-full text-blue-600"
-                      whileHover={{ scale: 1.15, backgroundColor: "#dbeafe" }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ 
+                        scale: 1.2, 
+                        backgroundColor: "#dbeafe", 
+                        boxShadow: "0 0 0 4px rgba(59, 130, 246, 0.15)",
+                        transition: { type: "spring", stiffness: 400, damping: 10 }
+                      }}
+                      whileTap={{ scale: 0.9 }}
                     >
                       <FaLinkedin size={18} />
                     </motion.a>
@@ -299,8 +258,13 @@ export default function ContactDevelopers() {
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="bg-red-100 p-2.5 font-semibold rounded-full text-red-400"
-                      whileHover={{ scale: 1.15 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ 
+                        scale: 1.2, 
+                        backgroundColor: "#fee2e2", 
+                        boxShadow: "0 0 0 4px rgba(248, 113, 113, 0.15)",
+                        transition: { type: "spring", stiffness: 400, damping: 10 }
+                      }}
+                      whileTap={{ scale: 0.9 }}
                     >
                       <FaInstagram size={18} />
                     </motion.a>
@@ -310,28 +274,46 @@ export default function ContactDevelopers() {
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="bg-gray-100 p-2.5 rounded-full text-gray-700"
-                      whileHover={{ scale: 1.15, backgroundColor: "#f3f4f6" }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ 
+                        scale: 1.2, 
+                        backgroundColor: "#f3f4f6", 
+                        boxShadow: "0 0 0 4px rgba(75, 85, 99, 0.15)",
+                        transition: { type: "spring", stiffness: 400, damping: 10 }
+                      }}
+                      whileTap={{ scale: 0.9 }}
                     >
                       <FaGithub size={18} />
                     </motion.a>
                   </div>
                 </div>
                 
-                {/* Contact button */}
+                {/* Contact button with enhanced animation */}
                 <div className="px-6 pb-6">
                   <motion.button
                     onClick={() => handleContactClick(dev.email)}
-                    className={`w-full py-2.5 rounded-xl font-semibold bg-gradient-to-r ${getRoleStyle(dev.role)} text-white font-medium`}
-                    whileHover={{ scale: 1.03 }}
+                    className={`w-full py-2.5 rounded-xl font-semibold bg-gradient-to-r ${getRoleStyle(dev.role)} text-white font-medium relative overflow-hidden`}
+                    whileHover={{ 
+                      scale: 1.03,
+                      transition: { type: "spring", stiffness: 400, damping: 10 }
+                    }}
                     whileTap={{ scale: 0.97 }}
                   >
+                    {/* Add shine effect on hover */}
+                    <motion.div
+                      className="absolute inset-0 w-full h-full bg-white opacity-0"
+                      initial={{ x: "-100%", opacity: 0 }}
+                      whileHover={{ 
+                        x: "100%", 
+                        opacity: 0.15,
+                        transition: { duration: 0.8, ease: "easeInOut" }
+                      }}
+                    />
                     Contact Me
                   </motion.button>
                 </div>
               </motion.div>
               
-              {/* Rising particles effect on hover */}
+              {/* Enhanced particles effect */}
               {hoveredCard === dev.id && (
                 <motion.div
                   className="absolute inset-0 pointer-events-none"
@@ -339,24 +321,42 @@ export default function ContactDevelopers() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
-                  {[...Array(8)].map((_, i) => (
+                  {/* More particles with varied sizes and animations */}
+                  {[...Array(12)].map((_, i) => (
                     <motion.div
                       key={i}
-                      className={`absolute w-2 h-2 rounded-full bg-gradient-to-r ${getRoleStyle(dev.role)}`}
+                      className={`absolute w-${i % 3 === 0 ? '3' : '2'} h-${i % 3 === 0 ? '3' : '2'} rounded-full bg-gradient-to-r ${getRoleStyle(dev.role)}`}
                       initial={{
-                        x: Math.random() * 100 - 50 + 50,
-                        y: 80,
+                        x: 100 + Math.random() * 100 - 50,
+                        y: 100 + Math.random() * 50,
                         opacity: 0,
                         scale: 0.2
                       }}
                       animate={{
-                        y: -100,
-                        opacity: 1,
-                        scale: 1,
-                        transition: { duration: 1, delay: i * 0.1 }
+                        y: -150 - Math.random() * 100,
+                        x: 100 + Math.random() * 150 - 75,
+                        opacity: [0, 0.8, 0],
+                        scale: [0.2, i % 3 === 0 ? 1.2 : 0.8, 0.1],
+                        transition: { 
+                          duration: 1.5 + Math.random() * 1.5, 
+                          delay: i * 0.08,
+                          repeat: Infinity,
+                          repeatDelay: Math.random() * 2
+                        }
                       }}
                     />
                   ))}
+                  
+                  {/* Add glow effect around the card */}
+                  <motion.div
+                    className={`absolute -inset-4 rounded-3xl opacity-0 bg-gradient-to-r ${getRoleStyle(dev.role)} blur-xl z-0`}
+                    initial={{ opacity: 0 }}
+                    animate={{ 
+                      opacity: [0, 0.08, 0.05, 0.08, 0],
+                      scale: [0.95, 1.05, 1, 1.05, 0.95],
+                      transition: { duration: 4, repeat: Infinity }
+                    }}
+                  />
                 </motion.div>
               )}
             </motion.div>

@@ -35,6 +35,8 @@ const ManageCourses = () => {
   const [facultySearchTerm, setFacultySearchTerm] = useState("");
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [selectedFaculty, setSelectedFaculty] = useState([]);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [courseToDelete, setCourseToDelete] = useState(null);
 
   // Filtered lists based on search terms
   const filteredStudents = courseDetails.Students.filter((student) =>
@@ -68,20 +70,9 @@ const ManageCourses = () => {
   };
 
   // Delete course handler
-  const handleDeleteCourse = async (courseId) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this course? This action cannot be undone."
-    );
-    if (!confirmDelete) return; // Exit if the user cancels
-
-    try {
-      await axiosInstance.delete(`/api/courses/${courseId}`);
-      setCourses(courses.filter((course) => course.id !== courseId));
-      alert("Course deleted successfully.");
-    } catch (error) {
-      console.error("Error deleting course: ", error);
-      alert("Failed to delete the course.");
-    }
+  const handleDeleteCourse = (courseId, courseName) => {
+    setCourseToDelete({ id: courseId, name: courseName });
+    setShowConfirmDialog(true);
   };
 
   const handlegetuserIdfromRollnumber = async (rollNumber) => {
@@ -362,15 +353,46 @@ const ManageCourses = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="relative">
+          <div className="relative max-w-2xl mx-auto">
             <input
               type="text"
               placeholder="Search courses by name or code..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full p-4 pl-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm"
+              className="w-full p-4 pl-14 pr-12 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm transition-all duration-300"
             />
-            <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+            <div className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-blue-100 text-blue-600 p-2 rounded-lg">
+              <FaSearch size={18} />
+            </div>
+            
+            {searchTerm && (
+              <motion.button
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                onClick={() => setSearchTerm('')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </motion.button>
+            )}
+          </div>
+          
+          {/* Search stats */}
+          <div className="mt-6">
+            <motion.div 
+              className="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              {searchTerm ? (
+                <span>Found <b>{filteredCourses.length}</b> courses matching "<span className="text-blue-600 font-medium">{searchTerm}</span>"</span>
+              ) : (
+                <span>Showing all <b>{courses.length}</b> courses</span>
+              )}
+            </motion.div>
           </div>
         </motion.div>
 
@@ -384,53 +406,63 @@ const ManageCourses = () => {
             filteredCourses.map((course, index) => (
               <motion.div
                 key={course.id}
-                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300"
+                className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                whileHover={{ y: -5 }}
+                whileHover={{ 
+                  y: -5,
+                  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05)",
+                  transition: { type: "spring", stiffness: 400, damping: 17 }
+                }}
               >
-                <div className="flex justify-between items-center">
+                <div className="flex flex-col sm:flex-row justify-between gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-blue-100">
-                        <FaBook className="text-blue-600" size={20} />
+                    <div className="flex items-start gap-4">
+                      <div className="p-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-sm">
+                        <FaBook className="text-white" size={22} />
                       </div>
-                      <div>
-                        <h3 className="text-xl font-semibold text-gray-800">{course.name}</h3>
-                        <div className="flex gap-6 mt-1">
-                          <p className="text-sm text-gray-500 flex items-center gap-1">
-                            <span className="font-medium text-gray-700">Code:</span> {course.code}
-                          </p>
-                          <p className="text-sm text-gray-500 flex items-center gap-1">
-                            <span className="font-medium text-gray-700">Semester:</span> {course.semester}
-                          </p>
-                          <p className="text-sm text-gray-500 flex items-center gap-1">
-                            <span className="font-medium text-gray-700">Credits:</span> {course.credits}
-                          </p>
+                      <div className="flex-1">
+                        <div className="flex flex-wrap justify-between items-start gap-2">
+                          <h3 className="text-xl font-semibold text-gray-800 mb-2">{course.name}</h3>
+                          <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-1 rounded">
+                            {course.credits} Credits
+                          </span>
                         </div>
+                        <div className="flex flex-wrap gap-3 mt-1 mb-2">
+                          <span className="inline-flex items-center bg-gray-100 px-2.5 py-1 rounded-md text-sm text-gray-800">
+                            <span className="font-medium mr-1">Code:</span> {course.code}
+                          </span>
+                          <span className="inline-flex items-center bg-amber-50 text-amber-800 px-2.5 py-1 rounded-md text-sm">
+                            <span className="font-medium mr-1">Semester:</span> {course.semester}
+                          </span>
+                        </div>
+                        {course.description && (
+                          <p className="mt-2 text-gray-600 line-clamp-2 text-sm">{course.description}</p>
+                        )}
                       </div>
                     </div>
-                    {course.description && (
-                      <p className="mt-2 text-gray-600 line-clamp-2">{course.description}</p>
-                    )}
                   </div>
-                  <div className="flex gap-3">
+
+                  {/* Improved action buttons with more refined styling */}
+                  <div className="flex sm:flex-col gap-3 mt-3 sm:mt-0 ml-auto">
+                    
                     <motion.button
                       onClick={() => handleEditCourse(course)}
-                      className="flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-lg shadow-sm"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      className="flex items-center justify-center gap-2 py-2 px-4 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-lg border border-amber-200 transition-all"
+                      whileHover={{ scale: 1.03, backgroundColor: "#fef3c7" }}
+                      whileTap={{ scale: 0.97 }}
                     >
-                      <FaEdit size={16} /> Edit
+                      <FaEdit size={14} /> Edit
                     </motion.button>
+                    
                     <motion.button
-                      onClick={() => handleDeleteCourse(course.id)}
-                      className="flex items-center gap-2 py-2 px-4 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg shadow-sm"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      onClick={() => handleDeleteCourse(course.id, course.name)}
+                      className="flex items-center justify-center gap-2 py-2 px-4 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition-all"
+                      whileHover={{ scale: 1.03, backgroundColor: "#fee2e2" }}
+                      whileTap={{ scale: 0.97 }}
                     >
-                      <FaTrashAlt size={16} /> Delete
+                      <FaTrashAlt size={14} /> Delete
                     </motion.button>
                   </div>
                 </div>
@@ -438,11 +470,31 @@ const ManageCourses = () => {
             ))
           ) : (
             <motion.div
-              className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 text-center"
+              className="bg-white p-8 rounded-xl shadow-sm border border-gray-200 text-center"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
             >
-              <p className="text-gray-500 text-lg">No courses found matching your search</p>
+              <div className="flex flex-col items-center">
+                <div className="p-6 bg-gray-100 rounded-full mb-4">
+                  <FaSearch size={30} className="text-gray-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No courses found</h3>
+                <p className="text-gray-500 mb-6">
+                  {searchTerm ? `No courses matching "${searchTerm}"` : "You haven't added any courses yet"}
+                </p>
+                
+                {searchTerm && (
+                  <motion.button
+                    onClick={() => setSearchTerm('')}
+                    className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-200"
+                    whileHover={{ scale: 1.03, backgroundColor: "#e0e7ff" }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    Clear Search
+                  </motion.button>
+                )}
+              </div>
             </motion.div>
           )}
         </div>
@@ -774,6 +826,104 @@ const ManageCourses = () => {
                   Save Changes
                 </motion.button>
               )}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && (
+        <motion.div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-30"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-xl shadow-xl w-[32rem] mx-4"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+          >
+            <div className="p-6 text-center">
+              <div className="flex justify-center mb-4">
+                <div className="p-4 bg-red-100 rounded-full">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Delete Course</h3>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete <span className="font-semibold text-red-600">{courseToDelete?.name}</span>? This action cannot be undone.
+              </p>
+              
+              <div className="flex justify-center gap-4">
+                <motion.button
+                  onClick={() => setShowConfirmDialog(false)}
+                  className="px-5 py-2.5 bg-gray-100 text-gray-700 font-medium rounded-lg border border-gray-300"
+                  whileHover={{ scale: 1.03, backgroundColor: "#f3f4f6" }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Cancel
+                </motion.button>
+                
+                <motion.button
+                  onClick={async () => {
+                    try {
+                      setShowConfirmDialog(false);
+                      await axiosInstance.delete(`/api/courses/${courseToDelete.id}`);
+                      setCourses(courses.filter((course) => course.id !== courseToDelete.id));
+                      
+                      // Show toast notification
+                      const successToast = document.createElement('div');
+                      successToast.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-red-50 border border-red-100 p-4 rounded-lg shadow-lg text-red-700 flex items-center max-w-md animate-fade-in';
+                      successToast.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Course "${courseToDelete.name}" has been deleted.</span>
+                      `;
+                      document.body.appendChild(successToast);
+                      
+                      // Remove toast after 3 seconds
+                      setTimeout(() => {
+                        successToast.classList.add('animate-fade-out');
+                        setTimeout(() => {
+                          document.body.removeChild(successToast);
+                        }, 300);
+                      }, 3000);
+                    } catch (error) {
+                      console.error("Error deleting course: ", error);
+                      setShowConfirmDialog(false);
+                      
+                      // Show error toast
+                      const errorToast = document.createElement('div');
+                      errorToast.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 z-50 bg-red-50 border border-red-200 p-4 rounded-lg shadow-lg text-red-700 flex items-center max-w-md';
+                      errorToast.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+                        </svg>
+                        <span>Failed to delete course. Please try again.</span>
+                      `;
+                      document.body.appendChild(errorToast);
+                      
+                      // Remove toast after 3 seconds
+                      setTimeout(() => {
+                        document.body.removeChild(errorToast);
+                      }, 3000);
+                    }
+                  }}
+                  className="px-5 py-2.5 bg-gradient-to-r from-red-500 to-red-600 text-white font-medium rounded-lg shadow-sm"
+                  whileHover={{ 
+                    scale: 1.03,
+                    boxShadow: "0 4px 12px rgba(239, 68, 68, 0.2)"
+                  }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Yes, Delete Course
+                </motion.button>
+              </div>
             </div>
           </motion.div>
         </motion.div>
