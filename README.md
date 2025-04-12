@@ -1,5 +1,5 @@
 # TRACKit
-Wesite is live on http://172.27.16.252:3000/
+Wesite is live on http://172.27.16.252:6001/login
 ## Steps to run
 
 1. npm start the backend on port 3001 (complete instructions in README in backend)
