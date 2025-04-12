@@ -1,4 +1,5 @@
 import ved from "../../assets/ved.png";
+import dhruv from "../../assets/dhruv.jpg";
 const developers = [
   {
     id: 1,
@@ -33,13 +34,14 @@ const developers = [
   },
   {
     id: 4,
+    image:dhruv,
     name: "Dhruv Varshney",
     role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "vdhruv@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
+    phone: "+91-8534973285",
+    email: "vdhruv22@iitk.ac.in",
+    linkedin: "https://www.linkedin.com/in/dhruv-varshney-b47b9824b/",
+    instagram: "https://www.instagram.com/var_dhruv26/?next=%2F",
+    github:"https://github.com/vdhruv221"
   },
   {
     id: 5,
