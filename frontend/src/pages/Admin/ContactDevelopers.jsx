@@ -363,6 +363,48 @@ export default function ContactDevelopers() {
           ))}
         </motion.div>
       </div>
+      
+      {/* Copyright Footer */}
+      <motion.div 
+        className="mt-16 py-8 border-t border-gray-200"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.6 }}
+      >
+        <div className="max-w-7xl mx-auto px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex flex-col items-center md:items-start">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text mb-1">
+                TRACKit
+              </h3>
+              <p className="text-sm text-gray-600">
+                Testing Reporting Academic Comprehensive Kit
+              </p>
+            </div>
+            
+            <div className="text-sm text-center md:text-right text-gray-600">
+              <p className="mb-1">© {new Date().getFullYear()} TRACKit. All rights reserved.</p>
+              <p>
+                <span>Made with </span>
+                <span className="inline-block animate-pulse text-red-500">❤</span>
+                <span> at IIT Kanpur</span>
+              </p>
+            </div>
+          </div>
+          
+          <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="text-xs text-gray-500">
+              Version 2.0.0 | Last updated: April 2025
+            </div>
+            
+            <div className="flex items-center gap-6">
+              <a href="#privacy" className="text-xs text-gray-500 hover:text-blue-600 transition-colors">Privacy Policy</a>
+              <a href="#terms" className="text-xs text-gray-500 hover:text-blue-600 transition-colors">Terms of Service</a>
+              <a href="#legal" className="text-xs text-gray-500 hover:text-blue-600 transition-colors">Legal</a>
+            </div>
+          </div>
+        </div>
+      </motion.div>
     </div>
   );
 }

@@ -439,7 +439,7 @@ export default function AddFaculty() {
                         required
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
-                        <option value="" disabled>Select a department</option>
+                        <option value="" disabled>Select Department</option>
                         {departments.map((dept, index) => (
                           <option key={index} value={dept}>{dept}</option>
                         ))}
@@ -454,7 +454,7 @@ export default function AddFaculty() {
                         required
                         className="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       >
-                        <option value="" disabled>Select a position</option>
+                        <option value="" disabled>Enrolled Position</option>
                         {facultyPositions.map((position, index) => (
                           <option key={index} value={position}>{position}</option>
                         ))}
@@ -598,6 +598,7 @@ export default function AddFaculty() {
                       <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
                         <p>Ensure your CSV file uses commas as separators and includes a header row.</p>
                         <p className="mt-1">Note: Records with invalid names, departments, positions, or passwords will be skipped, but valid records will still be processed.</p>
+                        <p className="mt-1">Note: Maximum of 2000 facultys could be added at a time</p>
                       </div>
                     </div>
                   </div>

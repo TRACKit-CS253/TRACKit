@@ -652,6 +652,7 @@ export default function AddStudent() {
                     <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
                       <p>Ensure your CSV file uses commas as separators and includes a header row.</p>
                       <p className="mt-1">Note: Records with invalid names or passwords will be skipped, but valid records will still be processed.</p>
+                      <p className="mt-1">Note: Maximum of 2000 students could be added at a time.</p>
                     </div>
                   </div>
                   
