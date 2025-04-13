@@ -125,7 +125,7 @@ export default function ContactDevelopers() {
             >
               {/* Enhanced card with layered animations */}
               <motion.div 
-                className="bg-white rounded-2xl overflow-hidden shadow-md transition-all duration-300 relative z-10"
+                className="bg-white rounded-2xl overflow-hidden shadow-md transition-all duration-300 relative -z-1"
                 initial={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}
                 whileHover={{ 
                   y: -12, 
@@ -154,13 +154,13 @@ export default function ContactDevelopers() {
                 />
                 
                 {/* Profile section */}
-                <div className="relative flex flex-col items-center pt-12 pb-6 px-6">
+                <div className="relative flex flex-col items-center pt-12 pb-6 px-6 -z-1">
                   {/* Animated Avatar */}
                   <motion.div 
-                    className="absolute -top-10 rounded-full p-1 bg-white shadow-md z-20"
+                    className="absolute -top-10 rounded-full p-1 bg-white shadow-md -z-1"
                     whileHover={{ scale: 1.08, y: -2, transition: { type: "spring", stiffness: 400 } }}
                   >
-                    <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white">
+                    <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white -z-1">
                       <motion.div className="w-full h-full overflow-hidden">
                         <motion.img 
                           src={dev.image || profilePic} 
