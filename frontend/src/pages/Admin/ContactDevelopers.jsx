@@ -183,7 +183,7 @@ export default function ContactDevelopers() {
                     {dev.name}
                   </motion.h3>
                   
-                  <motion.span 
+                  {/* <motion.span 
                     className={`inline-block font-semibold px-3 py-1 rounded-full text-xs mt-1 bg-gradient-to-r ${getRoleStyle(dev.role)} text-white`}
                     whileHover={{ 
                       scale: 1.05, 
@@ -192,7 +192,7 @@ export default function ContactDevelopers() {
                     }}
                   >
                     {dev.role}
-                  </motion.span>
+                  </motion.span> */}
                   
                   {/* Contact info with subtle reveal animation */}
                   <motion.div 
@@ -391,18 +391,7 @@ export default function ContactDevelopers() {
               </p>
             </div>
           </div>
-          
-          <div className="mt-6 pt-6 border-t border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div className="text-xs text-gray-500">
-              Version 2.0.0 | Last updated: April 2025
-            </div>
-            
-            <div className="flex items-center gap-6">
-              <a href="#privacy" className="text-xs text-gray-500 hover:text-blue-600 transition-colors">Privacy Policy</a>
-              <a href="#terms" className="text-xs text-gray-500 hover:text-blue-600 transition-colors">Terms of Service</a>
-              <a href="#legal" className="text-xs text-gray-500 hover:text-blue-600 transition-colors">Legal</a>
-            </div>
-          </div>
+        
         </div>
       </motion.div>
     </div>

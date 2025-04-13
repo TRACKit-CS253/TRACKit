@@ -25,6 +25,14 @@ const ManageUsers = () => {
   const [activeFilter, setActiveFilter] = useState('all');
   const [activeTab, setActiveTab] = useState("general");
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogTitle, setDialogTitle] = useState('');
+  const [dialogMessage, setDialogMessage] = useState('');
+  const [dialogType, setDialogType] = useState('info'); // 'info', 'success', 'error', 'warning', 'confirm'
+  const [dialogConfirmAction, setDialogConfirmAction] = useState(null);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState('success'); // 'success' or 'error'
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -53,15 +61,33 @@ const ManageUsers = () => {
   }, []);
 
   const handleDeleteUser = async (userId) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
+    // Show confirmation dialog
+    setDialogTitle("Delete User");
+    setDialogMessage("Are you sure you want to delete this user? This action cannot be undone.");
+    setDialogType('danger');
+    setDialogConfirmAction(() => async () => {
       try {
         await axiosInstance.delete(`/api/admin/user/${userId}`);
         setUsers(users.filter((user) => user.id !== userId));
+        
+        // Show success toast
+        setToastMessage("User deleted successfully");
+        setToastType('success');
+        setToastVisible(true);
+        setTimeout(() => setToastVisible(false), 3000);
+        
       } catch (error) {
         console.error("Error deleting user:", error);
-        alert("Failed to delete user.");
+        
+        // Show error toast
+        setToastMessage("Failed to delete user");
+        setToastType('error');
+        setToastVisible(true);
+        setTimeout(() => setToastVisible(false), 3000);
       }
-    }
+      setDialogVisible(false);
+    });
+    setDialogVisible(true);
   };
 
   const addstudenttocourse = async (courseId, userId) => {
@@ -80,13 +106,23 @@ const ManageUsers = () => {
       }));
 
       setSelectedCourse("");
-      setCourseSearchTerm(""); // Clear the search term
+      setCourseSearchTerm("");
       setShowSearchBox(false);
 
-      alert("Student added to course successfully.");
+      // Show success toast
+      setToastMessage("Student added to course successfully");
+      setToastType('success');
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 3000);
+      
     } catch (error) {
       console.error("Error adding student to course:", error);
-      alert("Failed to add student to course.");
+      
+      // Show error dialog
+      setDialogTitle("Error");
+      setDialogMessage("Failed to add student to course. Please try again.");
+      setDialogType('error');
+      setDialogVisible(true);
     }
   };
 
@@ -106,13 +142,23 @@ const ManageUsers = () => {
       }));
 
       setSelectedCourse("");
-      setCourseSearchTerm(""); // Clear the search term
+      setCourseSearchTerm("");
       setShowSearchBox(false);
 
-      alert("Faculty added to course successfully.");
+      // Show success toast
+      setToastMessage("Faculty added to course successfully");
+      setToastType('success');
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 3000);
+      
     } catch (error) {
       console.error("Error adding faculty to course:", error);
-      alert("Failed to add faculty to course.");
+      
+      // Show error dialog
+      setDialogTitle("Error");
+      setDialogMessage("Failed to add faculty to course. Please try again.");
+      setDialogType('error');
+      setDialogVisible(true);
     }
   };
 
@@ -126,9 +172,21 @@ const ManageUsers = () => {
       }));
 
       setSelectedCourse("");
+      
+      // Show success toast
+      setToastMessage("Faculty removed from course successfully");
+      setToastType('success');
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 3000);
+      
     } catch (error) {
       console.error("Error removing faculty from course:", error);
-      alert("Failed to remove faculty from course.");
+      
+      // Show error dialog
+      setDialogTitle("Error");
+      setDialogMessage("Failed to remove faculty from course. Please try again.");
+      setDialogType('error');
+      setDialogVisible(true);
     }
   };
 
@@ -142,9 +200,21 @@ const ManageUsers = () => {
       }));
 
       setSelectedCourse("");
+      
+      // Show success toast
+      setToastMessage("Student removed from course successfully");
+      setToastType('success');
+      setToastVisible(true);
+      setTimeout(() => setToastVisible(false), 3000);
+      
     } catch (error) {
       console.error("Error removing student from course:", error);
-      alert("Failed to remove student from course.");
+      
+      // Show error dialog
+      setDialogTitle("Error");
+      setDialogMessage("Failed to remove student from course. Please try again.");
+      setDialogType('error');
+      setDialogVisible(true);
     }
   };
 
@@ -187,14 +257,22 @@ const ManageUsers = () => {
     }
 
     if (missingFields.length > 0) {
-      alert(`Please fill in all required fields: ${missingFields.join(", ")}`);
+      // Show validation error dialog
+      setDialogTitle("Validation Error");
+      setDialogMessage(`Please fill in all required fields: ${missingFields.join(", ")}`);
+      setDialogType('warning');
+      setDialogVisible(true);
       return;
     }
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(selectedUser.email)) {
-      alert("Please enter a valid email address.");
+      // Show validation error dialog
+      setDialogTitle("Validation Error");
+      setDialogMessage("Please enter a valid email address.");
+      setDialogType('warning');
+      setDialogVisible(true);
       return;
     }
 
@@ -207,9 +285,17 @@ const ManageUsers = () => {
 
     if (duplicateUser) {
       if (duplicateUser.username === selectedUser.username) {
-        alert("The username is already in use. Please choose a different username.");
+        // Show error dialog
+        setDialogTitle("Duplicate Username");
+        setDialogMessage("The username is already in use. Please choose a different username.");
+        setDialogType('warning');
+        setDialogVisible(true);
       } else if (duplicateUser.email === selectedUser.email) {
-        alert("The email is already in use. Please choose a different email.");
+        // Show error dialog
+        setDialogTitle("Duplicate Email");
+        setDialogMessage("The email is already in use. Please choose a different email.");
+        setDialogType('warning');
+        setDialogVisible(true);
       }
       return;
     }
@@ -221,20 +307,31 @@ const ManageUsers = () => {
         `/api/admin/user/${selectedUser.id}`,
         selectedUser
       );
-      alert("User details updated successfully.");
-      console.log("User details updated successfully:", selectedUser);
-
-      setUsers((prevUsers) =>
-        prevUsers.map((user) =>
-          user.id === selectedUser.id ? { ...user, ...selectedUser } : user
-        )
-      );
-
-      setSelectedUser(null);
-      setHasChanges(false); // Reset changes state
+      
+      // Show success dialog
+      setDialogTitle("Success");
+      setDialogMessage("User details updated successfully.");
+      setDialogType('success');
+      setDialogConfirmAction(() => () => {
+        setUsers((prevUsers) =>
+          prevUsers.map((user) =>
+            user.id === selectedUser.id ? { ...user, ...selectedUser } : user
+          )
+        );
+        setSelectedUser(null);
+        setHasChanges(false);
+        setDialogVisible(false);
+      });
+      setDialogVisible(true);
+      
     } catch (error) {
       console.error("Error updating user details:", error);
-      alert("Failed to update user details.");
+      
+      // Show error dialog
+      setDialogTitle("Error");
+      setDialogMessage("Failed to update user details. Please try again.");
+      setDialogType('error');
+      setDialogVisible(true);
     }
   };
 
@@ -253,13 +350,25 @@ const ManageUsers = () => {
     } catch (error) {
       console.error("Error fetching user courses:", error);
       if (error.response?.status === 401) {
-        alert("Authentication failed. Please log in again.");
-        localStorage.removeItem("token");
-        window.location.href = "/login";
+        setDialogTitle("Authentication Error");
+        setDialogMessage("Authentication failed. Please log in again.");
+        setDialogType('error');
+        setDialogConfirmAction(() => () => {
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+          setDialogVisible(false);
+        });
+        setDialogVisible(true);
       } else if (error.response?.status === 403) {
-        alert("You do not have permission to view this user's courses.");
+        setDialogTitle("Permission Error");
+        setDialogMessage("You do not have permission to view this user's courses.");
+        setDialogType('error');
+        setDialogVisible(true);
       } else {
-        alert("Failed to fetch user courses.");
+        setDialogTitle("Error");
+        setDialogMessage("Failed to fetch user courses. Please try again.");
+        setDialogType('error');
+        setDialogVisible(true);
       }
     }
   };
@@ -916,6 +1025,153 @@ const ManageUsers = () => {
               </div>
             </div>
           </motion.div>
+        </motion.div>
+      )}
+
+      {/* Custom Dialog Component */}
+      {dialogVisible && (
+        <motion.div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-xl shadow-xl w-[30rem] mx-4 overflow-hidden"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+          >
+            <div className={`py-4 px-6 ${
+              dialogType === 'success' ? 'bg-green-500' : 
+              dialogType === 'error' ? 'bg-red-500' : 
+              dialogType === 'warning' ? 'bg-amber-500' : 
+              dialogType === 'danger' ? 'bg-red-500' : 
+              'bg-blue-500'
+            } text-white`}>
+              <h3 className="text-lg font-semibold">{dialogTitle}</h3>
+            </div>
+            
+            <div className="p-6">
+              <div className="flex items-start mb-4">
+                <div className={`p-2 rounded-full mr-3 flex-shrink-0 ${
+                  dialogType === 'success' ? 'bg-green-100 text-green-600' : 
+                  dialogType === 'error' ? 'bg-red-100 text-red-600' : 
+                  dialogType === 'warning' ? 'bg-amber-100 text-amber-600' : 
+                  dialogType === 'danger' ? 'bg-red-100 text-red-600' : 
+                  'bg-blue-100 text-blue-600'
+                }`}>
+                  {dialogType === 'success' && (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                  {(dialogType === 'error' || dialogType === 'danger') && (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  {dialogType === 'warning' && (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  )}
+                  {dialogType === 'info' && (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  )}
+                </div>
+                <p className="text-gray-600 text-base">{dialogMessage}</p>
+              </div>
+              
+              <div className="flex justify-end gap-3 mt-6">
+                {dialogType === 'danger' ? (
+                  <>
+                    <motion.button
+                      onClick={() => setDialogVisible(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700"
+                      whileHover={{ scale: 1.03, backgroundColor: "#f3f4f6" }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      onClick={dialogConfirmAction}
+                      className="px-4 py-2 bg-red-500 text-white rounded-lg"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Delete
+                    </motion.button>
+                  </>
+                ) : dialogType === 'confirm' ? (
+                  <>
+                    <motion.button
+                      onClick={() => setDialogVisible(false)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700"
+                      whileHover={{ scale: 1.03, backgroundColor: "#f3f4f6" }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      onClick={dialogConfirmAction}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg"
+                      whileHover={{ scale: 1.03 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      Confirm
+                    </motion.button>
+                  </>
+                ) : (
+                  <motion.button
+                    onClick={dialogConfirmAction || (() => setDialogVisible(false))}
+                    className={`px-4 py-2 rounded-lg text-white ${
+                      dialogType === 'success' ? 'bg-green-500' : 
+                      dialogType === 'warning' ? 'bg-amber-500' : 
+                      dialogType === 'error' ? 'bg-red-500' : 
+                      'bg-blue-500'
+                    }`}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    OK
+                  </motion.button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* Toast Notification */}
+      {toastVisible && (
+        <motion.div 
+          className="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 min-w-[300px] max-w-md"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.3 }}
+        >
+          <div className={`flex items-center p-4 rounded-lg shadow-lg ${
+            toastType === 'success' 
+              ? 'bg-green-500 text-white' 
+              : 'bg-red-500 text-white'
+          }`}>
+            <div className="mr-3">
+              {toastType === 'success' ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              )}
+            </div>
+            <span className="text-sm font-medium">{toastMessage}</span>
+          </div>
         </motion.div>
       )}
     </div>

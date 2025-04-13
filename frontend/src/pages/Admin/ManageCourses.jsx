@@ -37,6 +37,13 @@ const ManageCourses = () => {
   const [selectedFaculty, setSelectedFaculty] = useState([]);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState(null);
+  const [csvError, setCsvError] = useState(null);
+  const [csvErrorDetails, setCsvErrorDetails] = useState([]);
+  const [showCsvErrorDialog, setShowCsvErrorDialog] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
+  const [showFileSelectDialog, setShowFileSelectDialog] = useState(false);
+
 
   // Filtered lists based on search terms
   const filteredStudents = courseDetails.Students.filter((student) =>
@@ -130,6 +137,7 @@ const ManageCourses = () => {
       const Papa = await import("papaparse");
       const missingRollNumbers = []; // Array to store roll numbers with no user ID
       const missingUserIds = []; // Array to store user IDs that don't exist
+      let successCount = 0;
 
       Papa.parse(file, {
         header: true,
@@ -150,6 +158,7 @@ const ManageCourses = () => {
                   courseId,
                   userId,
                 });
+                successCount++;
               } catch (error) {
                 console.error(
                   `Error adding student with userId ${userId} to course ${courseId}:`,
@@ -163,30 +172,59 @@ const ManageCourses = () => {
             }
           }
 
-          // Show error message for missing roll numbers and user IDs
-          if (missingRollNumbers.length > 0 || missingUserIds.length > 0) {
-            const errorMessage = `
-            The following issues were found while processing the CSV file:
-            
-            ${missingRollNumbers.length > 0 ? `Roll Numbers with no User ID:\n${missingRollNumbers.join("\n")}\n\n` : ""}
-            ${missingUserIds.length > 0 ? `User IDs that could not be added:\n${missingUserIds.join("\n")}` : ""}
-          `;
-            alert(errorMessage);
-          } else {
-            alert("Bulk students added successfully!");
-          }
-
           // Refresh course details
           await fetchCourseDetails(courseId);
+          
+          // Clear the selected file
+          setSelectedFile(null);
+          
+          // Show success toast if any students were added
+          if (successCount > 0) {
+            setToastMessage(`Successfully added ${successCount} students to the course.`);
+            setShowSuccessToast(true);
+            setTimeout(() => setShowSuccessToast(false), 3000);
+          }
+          
+          // Show error dialog if there were any issues
+          if (missingRollNumbers.length > 0 || missingUserIds.length > 0) {
+            setCsvError("Issues While Processing CSV");
+            
+            // Prepare detailed error messages
+            const errorDetails = [];
+            if (missingRollNumbers.length > 0) {
+              errorDetails.push({
+                title: "Roll Numbers with no User ID",
+                items: missingRollNumbers
+              });
+            }
+            if (missingUserIds.length > 0) {
+              errorDetails.push({
+                title: "User IDs that could not be added",
+                items: missingUserIds
+              });
+            }
+            setCsvErrorDetails(errorDetails);
+            setShowCsvErrorDialog(true);
+          }
         },
         error: (error) => {
           console.error("Error parsing CSV file:", error);
-          alert("Failed to parse the CSV file.");
+          setCsvError("CSV Parsing Error");
+          setCsvErrorDetails([{
+            title: "Error Details",
+            items: ["The CSV file could not be parsed. Please check its format and try again."]
+          }]);
+          setShowCsvErrorDialog(true);
         },
       });
     } catch (error) {
       console.error("Error adding bulk students:", error);
-      alert("Failed to add bulk students.");
+      setCsvError("Upload Error");
+      setCsvErrorDetails([{
+        title: "Error Details",
+        items: ["An unexpected error occurred while processing the CSV file."]
+      }]);
+      setShowCsvErrorDialog(true);
     }
   };
 
@@ -808,6 +846,21 @@ const ManageCourses = () => {
                           className="hidden"
                         />
                       </label>
+                      
+                      {/* Add Remove File button when a file is selected */}
+                      {selectedFile && (
+                        <div className="flex justify-center mt-3">
+                          <motion.button
+                            onClick={() => setSelectedFile(null)}
+                            className="text-red-600 text-sm font-medium flex items-center gap-1 px-3 py-1 rounded-md hover:bg-red-50"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            <FaTrashAlt size={12} />
+                            <span>Remove File</span>
+                          </motion.button>
+                        </div>
+                      )}
                     </div>
                     
                     <motion.button
@@ -815,12 +868,16 @@ const ManageCourses = () => {
                         if (selectedFile) {
                           handleBulkAddStudents(selectedFile, courseDetails.id);
                         } else {
-                          alert("Please select a file first.");
+                          setShowFileSelectDialog(true);
                         }
                       }}
-                      className="mt-4 bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 w-full justify-center"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      className={`mt-4 px-4 py-2 rounded-lg flex items-center gap-2 w-full justify-center ${
+                        selectedFile 
+                          ? "bg-gradient-to-r from-amber-500 to-amber-600 text-white"
+                          : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      }`}
+                      whileHover={selectedFile ? { scale: 1.02 } : {}}
+                      whileTap={selectedFile ? { scale: 0.98 } : {}}
                       disabled={!selectedFile}
                     >
                       <FaFileUpload size={16} />
@@ -948,6 +1005,79 @@ const ManageCourses = () => {
                   whileTap={{ scale: 0.97 }}
                 >
                   Yes, Delete Course
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+
+      {/* CSV Error Dialog */}
+      {showCsvErrorDialog && (
+        <motion.div 
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex justify-center items-center z-30"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-xl shadow-xl w-[40rem] max-h-[80vh] mx-4"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+          >
+            <div className="p-6">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="p-3 bg-amber-100 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-600" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v4a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-800">{csvError}</h3>
+                </div>
+                <motion.button
+                  onClick={() => setShowCsvErrorDialog(false)}
+                  className="text-gray-500 hover:bg-gray-100 p-2 rounded-full"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </motion.button>
+              </div>
+              
+              <div className="max-h-60 overflow-y-auto pr-2 mb-6 custom-scrollbar">
+                {csvErrorDetails.map((section, idx) => (
+                  <div key={idx} className="mb-4">
+                    <h4 className="font-semibold text-gray-700 mb-2">{section.title}:</h4>
+                    <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                      {section.items.length > 0 ? (
+                        <ul className="space-y-1 text-sm text-gray-600">
+                          {section.items.map((item, i) => (
+                            <li key={i} className="flex items-start">
+                              <span className="inline-block w-2 h-2 bg-amber-500 rounded-full mt-1.5 mr-2"></span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="text-sm text-gray-500">No items to display.</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="flex justify-end">
+                <motion.button
+                  onClick={() => setShowCsvErrorDialog(false)}
+                  className="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-medium rounded-lg"
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  OK
                 </motion.button>
               </div>
             </div>
