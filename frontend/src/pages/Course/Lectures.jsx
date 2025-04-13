@@ -126,6 +126,13 @@ export default function Lectures({ role }) {
 
   const downloadHandler = (e, fileUrls) => {
     e.stopPropagation();
+    
+    // Check if there's already an open overlay
+    const existingOverlay = document.getElementById('file-download-overlay');
+    if (existingOverlay) {
+      return; // Exit early if an overlay is already open
+    }
+    
     if (!fileUrls || fileUrls.length === 0) {
       showNotification('No files available for download', 'error');
       return;
@@ -138,6 +145,7 @@ export default function Lectures({ role }) {
     }));
   
     const overlay = document.createElement('div');
+    overlay.id = 'file-download-overlay'; // Add ID to identify this overlay
     overlay.style.position = 'fixed';
     overlay.style.top = '80px';
     overlay.style.left = '0';
@@ -237,6 +245,7 @@ export default function Lectures({ role }) {
     overlay.appendChild(contentBox);
     document.body.appendChild(overlay);
     
+    // Force browser to acknowledge the new element before animating
     void overlay.offsetHeight;
     
     overlay.style.transform = 'translateY(0)';
@@ -244,7 +253,9 @@ export default function Lectures({ role }) {
     const closeOverlay = () => {
       overlay.style.transform = 'translateY(-100%)';
       setTimeout(() => {
-        document.body.removeChild(overlay);
+        if (document.body.contains(overlay)) {
+          document.body.removeChild(overlay);
+        }
       }, 300);
     };
     
@@ -255,6 +266,16 @@ export default function Lectures({ role }) {
         closeOverlay();
       }
     });
+  
+    // Add escape key handler to close the overlay
+    const handleEscapeKey = (e) => {
+      if (e.key === 'Escape') {
+        closeOverlay();
+        document.removeEventListener('keydown', handleEscapeKey);
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscapeKey);
   };
 
   const handleFormSubmit = async (e) => {
