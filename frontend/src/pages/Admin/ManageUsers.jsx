@@ -373,7 +373,9 @@ const ManageUsers = () => {
     }
   };
 
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = users
+  .filter(user => user.userType !== 'admin') // Filter out admin users
+  .filter((user) => {
     // First apply the search term filter
     const fullName = `${user.firstName || ""} ${user.lastName || ""}`.toLowerCase();
     const matchesSearch = 
