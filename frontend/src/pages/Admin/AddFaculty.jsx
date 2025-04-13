@@ -567,18 +567,19 @@ export default function AddFaculty() {
                     <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                       <h4 className="text-sm font-semibold text-blue-700 mb-2">CSV File Requirements</h4>
                       <ul className="space-y-1 text-xs text-gray-700">
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>username</b>: Unique username</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>firstName</b>: Faculty's first name</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>lastName</b>: Faculty's last name</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>:Faculty's email address</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>department</b>: Faculty's department</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>position</b>: Faculty's position</li>
-                        <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>password</b>: Initial password</li>
+                        <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>username</b>: Unique username</li>
+                        <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>firstName</b>: Faculty's first name (should be in alphabets only)</li>
+                        <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>lastName</b>: Faculty's last name (should be in alphabets only)</li>
+                        <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>email</b>: Faculty's email address</li>
+                        <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>department</b>: Faculty's department</li>
+                        <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>position</b>: Faculty's position</li>
+                        <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>password</b>: Min 8 characters, with uppercase, number & special 
+                          character</li>
                       </ul>
                       <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
                         <p>Ensure your CSV file uses commas as separators and includes a header row.</p>
                         <p className="mt-1">Note: Records with invalid names, departments, positions, or passwords will be skipped, but valid records will still be processed.</p>
-                        <p className="mt-1">Note: Maximum of 2000 facultys could be added at a time</p>
+                        <p className="mt-1">Note: Maximum of 2000 faculty members could be added at a time.</p>
                       </div>
                     </div>
                   </div>

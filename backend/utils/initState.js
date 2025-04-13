@@ -294,14 +294,14 @@ async function createStudents(courses) {
       courseIndices: [0, 1, 2, 3, 4, 5] // All courses
     },
     {
-      username: 'student1',
-      password: 'student123',
-      email: 'student2@trackit.com',  
-      firstName: 'Dhruv Varshney',
-      lastName: 'Williams',
+      username: 'vdhruv22',
+      password: 'Dhr@12345',
+      email: 'vdhruv22@iitk.ac.in',  
+      firstName: 'Dhruv',
+      lastName: 'Varshney',
       rollNumber: '220366',
-      enrollmentYear: 2020,
-      major: 'Computer Science',
+      enrollmentYear: 2022,
+      major: 'Electrical Engineering',
       courseIndices: [0, 1, 2, 3, 4, 5] // All courses
     },
     {

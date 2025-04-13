@@ -640,14 +640,15 @@ export default function AddStudent() {
                   <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                     <h4 className="text-sm font-semibold text-blue-700 mb-2">CSV File Requirements</h4>
                     <ul className="space-y-1 text-xs text-gray-700">
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>username</b>: Unique identifier</li>
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>firstName</b>: Student's first name</li>
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>lastName</b>: Student's last name</li>
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>email</b>: Valid email address</li>
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>rollNumber</b>: Student's roll number</li>
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>enrollmentYear</b>: Year of enrollment</li>
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>major</b>: Student's major</li>
-                      <li className="flex items-center"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span> <b>password</b>: Initial password</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>username</b>: Unique identifier</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>firstName</b>: Student's first name (should be in alphabets only)</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>lastName</b>: Student's last name (should be in alphabets only)</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>email</b>: Valid email address</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>rollNumber</b>: Student's roll number (should be in numeric only)</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>enrollmentYear</b>: Year of enrollment</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>major</b>: Student's major</li>
+                      <li className="flex items-start"><span className="w-2 h-2 bg-blue-500 rounded-full mr-2 mt-1.5"></span> <b>password</b>: Min 8 characters, with uppercase, number & special 
+                        character</li>
                     </ul>
                     <div className="mt-2 text-xs text-amber-600 font-medium bg-amber-50 p-2 rounded border border-amber-200">
                       <p>Ensure your CSV file uses commas as separators and includes a header row.</p>

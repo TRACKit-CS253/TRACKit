@@ -57,6 +57,14 @@ exports.addStudent = async (req, res) => {
       });
     }
 
+    // Validate roll number - must be numeric only
+    if (!/^\d+$/.test(req.body.rollNumber)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Roll number must contain only numeric characters'
+      });
+    }
+
     // Validate enrollment year
     if (isNaN(req.body.enrollmentYear) || req.body.enrollmentYear < 2000 || req.body.enrollmentYear > 2099) {
       return res.status(400).json({
@@ -255,6 +263,14 @@ exports.createUser = async (req, res) => {
         return res.status(400).json({
           success: false,
           message: `Missing required student fields: ${missingStudentFields.join(', ')}`
+        });
+      }
+
+      // Validate roll number - must be numeric only
+      if (!/^\d+$/.test(req.body.rollNumber)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Roll number must contain only numeric characters'
         });
       }
 
@@ -477,7 +493,7 @@ exports.bulkCreateStudents = async (req, res) => {
       });
     }
 
-    // ...existing code to process the CSV...
+    // Parse the CSV file
     const records = parse(csvData, {  
       columns: true,
       skip_empty_lines: true,
@@ -525,8 +541,28 @@ exports.bulkCreateStudents = async (req, res) => {
     const duplicateEmails = [];
     const duplicateRollNumbers = [];
 
+    // Add debug logging to inspect the problematic entries
+    console.log("First few records from CSV:", records.slice(0, 3));
+    
+    // Check record types
+    const sampleRecord = records[0];
+    console.log("Sample record types:", {
+      username: typeof sampleRecord.username,
+      email: typeof sampleRecord.email,
+      rollNumber: typeof sampleRecord.rollNumber,
+      rollNumberValue: sampleRecord.rollNumber
+    });
+
     for (const [index, record] of records.entries()) {
       try {
+        // Log each record for debugging
+        console.log(`Processing record ${index + 1}:`, {
+          username: record.username,
+          email: record.email,
+          rollNumber: record.rollNumber,
+          rollNumberType: typeof record.rollNumber
+        });
+        
         // Basic validation
         if (!record.username || !record.email || !record.password || !record.firstName || 
             !record.rollNumber || !record.enrollmentYear || !record.major) {
@@ -542,6 +578,18 @@ exports.bulkCreateStudents = async (req, res) => {
         
         if (record.lastName && !nameRegex.test(record.lastName)) {
           validationErrors.push(`Row ${index + 2}: Last name should contain only alphabets and spaces`);
+          continue;
+        }
+
+        // Roll number validation with better error reporting
+        const rollNumber = String(record.rollNumber).trim();
+        console.log(`Row ${index + 2}: Validating roll number "${rollNumber}"`);
+        
+        if (!/^\d+$/.test(rollNumber)) {
+          // Show character codes to detect hidden characters
+          const charCodes = Array.from(rollNumber).map(c => c.charCodeAt(0));
+          console.log(`Invalid roll number "${rollNumber}" char codes:`, charCodes);
+          validationErrors.push(`Row ${index + 2}: Roll number "${rollNumber}" must contain only numeric characters`);
           continue;
         }
 
@@ -612,11 +660,11 @@ exports.bulkCreateStudents = async (req, res) => {
 
         // Check for existing roll number
         const existingStudent = await Student.findOne({
-          where: { rollNumber: record.rollNumber }
+          where: { rollNumber: rollNumber }
         });
 
         if (existingStudent) {
-          duplicateRollNumbers.push(record.rollNumber);
+          duplicateRollNumbers.push(rollNumber);
           continue;
         }
 
@@ -633,7 +681,7 @@ exports.bulkCreateStudents = async (req, res) => {
 
         await Student.create({
           userId: user.id,
-          rollNumber: record.rollNumber,
+          rollNumber: rollNumber,  // Use the cleaned value
           enrollmentYear: enrollmentYear,
           major: record.major
         }, { transaction: t });
@@ -741,7 +789,7 @@ exports.bulkCreateFaculty = async (req, res) => {
       });
     }
 
-    // ...existing code to process the CSV...
+    // Parse the CSV file
     const records = parse(csvData, {  
       columns: true,
       skip_empty_lines: true,
@@ -1011,13 +1059,12 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-
 // Delete user
 exports.deleteUser = async (req, res) => {
   try {
     const userId = req.params.userId;
     const user = await User.findByPk(userId);
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -1034,7 +1081,6 @@ exports.deleteUser = async (req, res) => {
     }
     
     await user.destroy();
-    
     res.status(200).json({
       success: true,
       message: 'User deleted successfully'
@@ -1054,7 +1100,7 @@ exports.createCourse = async (req, res) => {
     const existingCourse = await Course.findOne({
       where: { code: req.body.code }
     });
-    
+
     if (existingCourse) {
       return res.status(400).json({
         success: false,
@@ -1072,7 +1118,7 @@ exports.createCourse = async (req, res) => {
         message: `Missing required fields: ${missingFields.join(', ')}`
       });
     }
-    
+
     // Validate credits
     const credits = parseInt(req.body.credits);
     if (isNaN(credits) || credits <= 0 || credits > 20) {
@@ -1100,14 +1146,12 @@ exports.createCourse = async (req, res) => {
   } catch (error) {
     // Log the detailed error for debugging
     console.error('Error creating course:', error);
-    
     let errorMessage = 'Error creating course';
     if (error.name === 'SequelizeValidationError') {
       errorMessage = error.errors.map(e => e.message).join(', ');
     } else if (error.name === 'SequelizeUniqueConstraintError') {
       errorMessage = 'Course code already exists';
     }
-    
     res.status(400).json({
       success: false,
       message: errorMessage
@@ -1159,19 +1203,17 @@ exports.bulkCreateCourses = async (req, res) => {
       console.log("Using first file in req.files");
     }
   }
-  
   // Check for multer style if still not found
   if (!uploadedFile && req.file) {
     uploadedFile = req.file;
     console.log("Using req.file");
   }
-  
   // Additional check for single file array in multer
   if (!uploadedFile && req.files && Array.isArray(req.files) && req.files.length > 0) {
     uploadedFile = req.files[0];
     console.log("Using first file from req.files array");
   }
-  
+
   if (!uploadedFile) {
     return res.status(400).json({
       success: false,
@@ -1229,7 +1271,7 @@ exports.bulkCreateCourses = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: 'The uploaded CSV file is empty or unreadable',
-        fileInfo: {
+        fileInfo: { 
           name: uploadedFile.name || uploadedFile.originalname || "unnamed",
           size: uploadedFile.size || "unknown",
           type: uploadedFile.mimetype || uploadedFile.type || "unknown"
@@ -1237,7 +1279,7 @@ exports.bulkCreateCourses = async (req, res) => {
       });
     }
 
-    // Parse the CSV with more robust settings
+    // Parse the CSV file
     let records;
     try {
       records = parse(csvData, {  
@@ -1249,7 +1291,6 @@ exports.bulkCreateCourses = async (req, res) => {
         relaxQuotes: true,
         delimiter: ','
       });
-      
       console.log("Successfully parsed CSV with", records.length, "records");
       if (records.length === 0) {
         return res.status(400).json({
@@ -1276,9 +1317,9 @@ exports.bulkCreateCourses = async (req, res) => {
         error: parseError.message
       });
     }
-    
+
     // Map expected CSV headers to model fields - handle both formats
-    const headerMap = {
+    const headerMap = { 
       'course code': 'code',
       'coursecode': 'code',
       'code': 'code',
@@ -1306,7 +1347,7 @@ exports.bulkCreateCourses = async (req, res) => {
     }
     
     console.log("Found header mappings:", foundMappings);
-    
+
     // Check for missing required fields
     for (const field of requiredFields) {
       if (!foundMappings[field]) {
@@ -1328,20 +1369,20 @@ exports.bulkCreateCourses = async (req, res) => {
     // Extract all course codes from the CSV file
     const csvCourseCodes = records.map(record => 
       record[foundMappings.code].trim().toUpperCase());
-    
+
     // Check which course codes in the CSV already exist in the database
     const existingCourses = await Course.findAll({
       where: { 
         code: {
           [db.Sequelize.Op.in]: csvCourseCodes
-        }
+        },
       },
       attributes: ['code']
     });
-    
+
     // Create a set of existing course codes for faster lookups
     const existingCourseCodes = new Set(existingCourses.map(course => course.code.toUpperCase()));
-    
+
     const createdCourses = [];
     const duplicateCourseCodes = [];
     const errors = [];
@@ -1412,7 +1453,7 @@ exports.bulkCreateCourses = async (req, res) => {
           id: course.id,
           code: course.code
         });
-        
+
         // Add to the set of existing codes to prevent duplicates within the CSV
         existingCourseCodes.add(code.toUpperCase());
       } catch (error) {
@@ -1421,7 +1462,7 @@ exports.bulkCreateCourses = async (req, res) => {
     }
 
     await t.commit();
-    
+
     // If there were errors or duplicates, but we still created some courses
     if (errors.length > 0 || duplicateCourseCodes.length > 0) {
       console.log("Partial success - created:", createdCourses.length, 
@@ -1515,7 +1556,7 @@ exports.testDBPersistence = async (req, res) => {
   try {
     // Count total users
     const userCount = await User.count();
-    
+
     // Get basic DB stats
     const dbStats = {
       totalUsers: userCount,
@@ -1524,15 +1565,15 @@ exports.testDBPersistence = async (req, res) => {
       admins: await Admin.count(),
       courses: await Course.count()
     };
-    
+
     res.status(200).json({
       success: true,
       message: 'Database connection test successful',
       persistenceEnabled: process.env.FORCE_SYNC !== 'true',
-      stats: dbStats,
       note: process.env.FORCE_SYNC === 'true' ? 
         'WARNING: Database is configured to reset on server restart!' : 
-        'Database persistence is enabled'
+        'Database persistence is enabled',
+      stats: dbStats,
     });
   } catch (error) {
     res.status(500).json({
