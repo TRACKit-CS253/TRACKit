@@ -168,6 +168,53 @@ const ManageUsers = () => {
   };
 
   const handleSaveChanges = async () => {
+    // Validation logic
+    const requiredFields = ["username", "firstName", "email", "userType"];
+    const missingFields = requiredFields.filter((field) => !selectedUser[field]);
+
+    if (selectedUser.userType === "student") {
+      const studentFields = ["rollNumber", "major", "enrollmentYear"];
+      missingFields.push(
+        ...studentFields.filter((field) => !selectedUser.student?.[field])
+      );
+    }
+
+    if (selectedUser.userType === "faculty") {
+      const facultyFields = ["department", "position"];
+      missingFields.push(
+        ...facultyFields.filter((field) => !selectedUser.faculty?.[field])
+      );
+    }
+
+    if (missingFields.length > 0) {
+      alert(`Please fill in all required fields: ${missingFields.join(", ")}`);
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(selectedUser.email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    // Check for duplicate username or email
+    const duplicateUser = users.find(
+      (user) =>
+        (user.username === selectedUser.username || user.email === selectedUser.email) &&
+        user.id !== selectedUser.id
+    );
+
+    if (duplicateUser) {
+      if (duplicateUser.username === selectedUser.username) {
+        alert("The username is already in use. Please choose a different username.");
+      } else if (duplicateUser.email === selectedUser.email) {
+        alert("The email is already in use. Please choose a different email.");
+      }
+      return;
+    }
+
+    // Save changes if validation passes
     try {
       console.log("Saving user details:", selectedUser);
       await axiosInstance.put(
@@ -577,7 +624,6 @@ const ManageUsers = () => {
                               >
                                 <option value="student">Student</option>
                                 <option value="faculty">Faculty</option>
-                                <option value="admin">Admin</option>
                               </select>
                             ) : (
                               <input

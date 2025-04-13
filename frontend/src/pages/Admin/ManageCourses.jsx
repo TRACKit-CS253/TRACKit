@@ -66,6 +66,7 @@ const ManageCourses = () => {
   const handleEditCourse = (course) => {
     setEditCourseId(course.id);
     setNewCourse({ ...course });
+    setActiveTab("edit"); // Set the default tab to "Course Details"
     setShowModal(true);
   };
 
@@ -85,8 +86,6 @@ const ManageCourses = () => {
         throw new Error("Failed to fetch user ID.");
       }
     } catch (error) {
-      console.error("Error fetching user ID from roll number:", error);
-      alert("Failed to fetch user ID from roll number.");
       return null; // Return null if there's an error
     }
   };
@@ -94,6 +93,7 @@ const ManageCourses = () => {
   const fetchCourseDetails = async (courseId) => {
     try {
       const response = await axiosInstance.get(`/api/courses/${courseId}`);
+      console.log("Fetched Course Details:", response.data);
       const students =
         response.data.data.students?.map((student) => ({
           id: student.userId,
@@ -105,7 +105,6 @@ const ManageCourses = () => {
           id: fac.userId,
           name: `${fac.user.firstName} ${fac.user.lastName} - ${fac.position} (${fac.department})`,
         })) || [];
-
       setCourseDetails({ Students: students, Faculty: faculty, id: courseId });
       setActiveTab("details"); // Switch to the "details" tab
     } catch (error) {
@@ -129,6 +128,9 @@ const ManageCourses = () => {
   const handleBulkAddStudents = async (file, courseId) => {
     try {
       const Papa = await import("papaparse");
+      const missingRollNumbers = []; // Array to store roll numbers with no user ID
+      const missingUserIds = []; // Array to store user IDs that don't exist
+
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
@@ -153,17 +155,28 @@ const ManageCourses = () => {
                   `Error adding student with userId ${userId} to course ${courseId}:`,
                   error
                 );
+                missingUserIds.push(userId); // Add userId to missing list if the API call fails
               }
             } else {
-              console.error(
-                `Skipping row: Missing userId or rollNumber for row:`,
-                row
-              );
+              // Add roll number to the missing list if no user ID is found
+              missingRollNumbers.push(row.rollNumber);
             }
           }
 
-          alert("Bulk students added successfully!");
+          // Show error message for missing roll numbers and user IDs
+          if (missingRollNumbers.length > 0 || missingUserIds.length > 0) {
+            const errorMessage = `
+            The following issues were found while processing the CSV file:
+            
+            ${missingRollNumbers.length > 0 ? `Roll Numbers with no User ID:\n${missingRollNumbers.join("\n")}\n\n` : ""}
+            ${missingUserIds.length > 0 ? `User IDs that could not be added:\n${missingUserIds.join("\n")}` : ""}
+          `;
+            alert(errorMessage);
+          } else {
+            alert("Bulk students added successfully!");
+          }
 
+          // Refresh course details
           await fetchCourseDetails(courseId);
         },
         error: (error) => {
@@ -179,6 +192,18 @@ const ManageCourses = () => {
 
   // Save course handler (PUT request)
   const handleSaveCourse = async () => {
+    // Validation logic
+    if (
+      !newCourse.code.trim() ||
+      !newCourse.name.trim() ||
+      !newCourse.description.trim() ||
+      !newCourse.credits ||
+      !newCourse.semester.trim()
+    ) {
+      alert("All fields are required. Please fill out all fields before saving.");
+      return;
+    }
+
     try {
       await axiosInstance.put(`/api/courses/${editCourseId}`, newCourse);
       const updatedCourses = courses.map((course) =>
@@ -188,6 +213,7 @@ const ManageCourses = () => {
       handleCancel(); // Close modal and reset form
     } catch (error) {
       console.error("Error updating course: ", error);
+      alert("Failed to save course. Please try again.");
     }
   };
 
