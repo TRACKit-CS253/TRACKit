@@ -560,6 +560,21 @@ export default function Announcements({ role }) {
         textarea::-webkit-scrollbar-thumb:hover {
           background: rgba(148, 163, 184, 0.7);
         }
+
+        /* Standardized modal backdrop transitions */
+        .fixed.inset-0.bg-gray-900,
+        .fixed.inset-0.bg-black,
+        [data-modal-backdrop="true"],
+        #file-download-backdrop {
+          transition: opacity 150ms ease-out;
+        }
+        
+        /* Ensure all blur effects have the same duration and timing */
+        .backdrop-blur-md,
+        .backdrop-blur-sm,
+        .backdrop-blur-lg {
+          transition: backdrop-filter 150ms ease-out;
+        }
       `}</style>
     </div>
   );

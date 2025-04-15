@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { NavLink, useParams } from 'react-router-dom';
 import { GoHome } from "react-icons/go";
@@ -18,9 +18,14 @@ export default function CourseMenu() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const {logout} = useAuth();
   const navigate = useNavigate();
+  
+  // Store previous state to prevent unnecessary re-renders
+  const isModalOpenRef = useRef(isModalOpen);
 
-  // Check for modal backdrops in the DOM to determine if a modal is open
+  // Optimized modal detection with requestAnimationFrame for smoother transitions
   useEffect(() => {
+    let animationFrameId;
+    
     const checkForModals = () => {
       // Look for any modal backdrop elements with more specific selectors
       const modalBackdrops = document.querySelectorAll([
@@ -31,20 +36,37 @@ export default function CourseMenu() {
         '#file-download-backdrop'
       ].join(', '));
       
-      setIsModalOpen(modalBackdrops.length > 0);
+      const modalIsOpen = modalBackdrops.length > 0;
+      
+      // Only update state if there's a change, to avoid unnecessary renders
+      if (modalIsOpen !== isModalOpenRef.current) {
+        isModalOpenRef.current = modalIsOpen;
+        // Use requestAnimationFrame to sync with browser's rendering cycle
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = requestAnimationFrame(() => {
+          setIsModalOpen(modalIsOpen);
+        });
+      }
     };
 
     // Initial check
     checkForModals();
 
-    // Set up a MutationObserver to detect DOM changes that might include modal backdrops
-    const observer = new MutationObserver(checkForModals);
+    // Set up a MutationObserver with higher priority config
+    const observer = new MutationObserver(() => {
+      checkForModals();
+    });
+    
     observer.observe(document.body, { 
       childList: true, 
-      subtree: true
+      subtree: true,
+      attributes: false  // Optimize by not watching attributes
     });
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
   const tabs = [
@@ -64,11 +86,10 @@ export default function CourseMenu() {
 
   return (
     <div 
-      className={`w-full h-full flex flex-col rounded-xl overflow-hidden bg-white shadow-md border border-gray-100 transition-all duration-300
-        ${isModalOpen ? 'backdrop-blur-sm' : ''}
-      `}
+      className="w-full h-full flex flex-col rounded-xl overflow-hidden bg-white shadow-md border border-gray-100"
       style={{
         filter: isModalOpen ? 'blur(4px)' : 'none',
+        transition: 'filter 150ms ease-out', // Match this to the modal backdrop transition
       }}
     >
       {/* Header section */}
