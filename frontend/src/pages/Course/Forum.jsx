@@ -383,13 +383,6 @@ export default function Forum({ role }) {
           </div>
         </div>
 
-        {/* New Post Form - Overlay when visible */}
-        {showNewPostForm && (
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-40 backdrop-blur-md z-[200]" 
-               data-modal-backdrop="true" 
-               onClick={() => setShowNewPostForm(false)}></div>
-        )}
-
         {/* New Post Form */}
         {showNewPostForm && (
           <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-md mb-6 overflow-hidden animate-fade-in">
@@ -602,21 +595,6 @@ export default function Forum({ role }) {
         
         .animate-fade-in {
           animation: fade-in 0.4s ease-out forwards;
-        }
-        
-        /* Standardized modal backdrop transitions */
-        .fixed.inset-0.bg-gray-900,
-        .fixed.inset-0.bg-black,
-        [data-modal-backdrop="true"],
-        #file-download-backdrop {
-          transition: opacity 150ms ease-out;
-        }
-        
-        /* Ensure all blur effects have the same duration and timing */
-        .backdrop-blur-md,
-        .backdrop-blur-sm,
-        .backdrop-blur-lg {
-          transition: backdrop-filter 150ms ease-out;
         }
       `}</style>
     </div>
