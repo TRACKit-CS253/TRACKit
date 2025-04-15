@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { CgProfile } from "react-icons/cg";
+import { FaPlus, FaRegEdit, FaCalendarAlt } from "react-icons/fa";
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import React, { useState, useEffect } from 'react';
@@ -577,12 +578,9 @@ export default function Results() {
                   <button
                     onClick={handleShowAddResultForm}
                     disabled={loadingExams}
-                    className="hidden sm:flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium rounded-lg transition-colors hover:from-blue-700 hover:to-blue-800"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    Add Result
+                    <FaPlus /> Add Result
                   </button>
                 )}
                 

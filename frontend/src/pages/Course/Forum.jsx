@@ -294,7 +294,7 @@ export default function Forum({ role }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 flex flex-col items-center justify-center">
         <div className="animate-spin rounded-full h-14 w-14 border-t-2 border-b-2 border-blue-600 mb-4"></div>
         <p className="text-xl font-medium text-gray-700">Loading forum discussions...</p>
       </div>
@@ -302,14 +302,14 @@ export default function Forum({ role }) {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
       {/* Modern Header */}
       <div className="sticky top-0 z-50 backdrop-blur-md bg-white bg-opacity-70 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center gap-3">
-              <div className="bg-indigo-100 p-2 rounded-lg">
-                <MdOutlineForum className="text-indigo-600 text-xl" />
+              <div className="bg-blue-100 p-2 rounded-lg">
+                <MdOutlineForum className="text-blue-600 text-xl" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-800">Course Forum</h1>
@@ -323,9 +323,9 @@ export default function Forum({ role }) {
             <div className="flex items-center gap-4">
               <button 
                 onClick={handleAddPost}
-                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
+                className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
               >
-                <FaPlus className="text-sm" /> New Discussion
+                <FaPlus/> New Discussion
               </button>
               
               <NavLink 
@@ -345,11 +345,11 @@ export default function Forum({ role }) {
         <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-6">
             <div className="text-center">
-              <p className="text-2xl font-semibold text-indigo-600">{posts.length}</p>
+              <p className="text-2xl font-semibold text-blue-600">{posts.length}</p>
               <p className="text-sm text-gray-600">Discussions</p>
             </div>
             <div className="text-center">
-              <p className="text-2xl font-semibold text-indigo-600">{totalReplies}</p>
+              <p className="text-2xl font-semibold text-blue-600">{totalReplies}</p>
               <p className="text-sm text-gray-600">Replies</p>
             </div>
           </div>
@@ -357,7 +357,7 @@ export default function Forum({ role }) {
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <select
-                className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
@@ -370,7 +370,7 @@ export default function Forum({ role }) {
             
             <div className="relative">
               <select
-                className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm"
+                className="pl-8 pr-4 py-2 bg-white border border-gray-200 rounded-lg appearance-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 value={filterByRole}
                 onChange={(e) => setFilterByRole(e.target.value)}
               >
@@ -388,7 +388,7 @@ export default function Forum({ role }) {
           <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-md mb-6 overflow-hidden animate-fade-in">
             <div className="p-4 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                <FaPlus className="text-indigo-500 text-sm" />
+                <FaPlus className="text-blue-500 text-sm" />
                 <span>New Discussion</span>
               </h2>
               <button
@@ -402,7 +402,7 @@ export default function Forum({ role }) {
             </div>
             <form onSubmit={handleSubmitPost} className="p-6">
               <textarea
-                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                className="w-full p-4 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                 placeholder="What would you like to discuss?"
                 value={newQuery}
                 onChange={(e) => setNewQuery(e.target.value)}
@@ -419,7 +419,7 @@ export default function Forum({ role }) {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg hover:from-indigo-600 hover:to-indigo-700 transition-all flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all flex items-center gap-2"
                 >
                   <FaPaperPlane className="text-sm" />
                   Post Discussion
@@ -432,8 +432,8 @@ export default function Forum({ role }) {
         {/* No Posts State */}
         {filteredAndSortedPosts.length === 0 ? (
           <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-sm p-12 mb-6 text-center">
-            <div className="bg-indigo-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MdOutlineForum className="text-indigo-500 text-3xl" />
+            <div className="bg-blue-50 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MdOutlineForum className="text-blue-500 text-3xl" />
             </div>
             <h3 className="text-xl font-medium text-gray-800 mb-2">No discussions yet</h3>
             <p className="text-gray-600 max-w-md mx-auto mb-6">
@@ -444,7 +444,7 @@ export default function Forum({ role }) {
             </p>
             <button 
               onClick={handleAddPost}
-              className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all inline-flex items-center gap-2"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all inline-flex items-center gap-2"
             >
               <FaPlus />
               Start a New Discussion
@@ -460,7 +460,7 @@ export default function Forum({ role }) {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        post.userType === 'faculty' ? 'bg-indigo-100 text-indigo-600' : 'bg-blue-100 text-blue-600'
+                        post.userType === 'faculty' ? 'bg-blue-100 text-blue-600' : 'bg-blue-100 text-blue-600'
                       }`}>
                         <FaUser className="text-lg" />
                       </div>
@@ -468,7 +468,7 @@ export default function Forum({ role }) {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium text-gray-800">{post.author}</span>
                           {post.userType === 'faculty' && (
-                            <span className="inline-flex items-center gap-1 bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full text-xs">
+                            <span className="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full text-xs">
                               Instructor
                             </span>
                           )}
@@ -518,7 +518,7 @@ export default function Forum({ role }) {
                     {replyingToPost === post.id && (
                       <div className="bg-white rounded-lg border border-gray-200 p-4 mb-4 animate-fade-in">
                         <textarea
-                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+                          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                           rows="3"
                           placeholder="Write your reply..."
                           value={replyContent}
@@ -532,7 +532,7 @@ export default function Forum({ role }) {
                             Cancel
                           </button>
                           <button
-                            className="px-3 py-1.5 bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-lg hover:from-indigo-600 hover:to-indigo-700 transition-all flex items-center gap-1.5 text-sm"
+                            className="px-3 py-1.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all flex items-center gap-1.5 text-sm"
                             onClick={() => handleSubmitReply(post.id)}
                           >
                             <FaPaperPlane className="text-xs" />
@@ -549,7 +549,7 @@ export default function Forum({ role }) {
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                                reply.userType === 'faculty' ? 'bg-indigo-100 text-indigo-600' : 'bg-blue-100 text-blue-600'
+                                reply.userType === 'faculty' ? 'bg-blue-100 text-blue-600' : 'bg-blue-100 text-blue-600'
                               }`}>
                                 <FaUser className="text-sm" />
                               </div>
@@ -557,7 +557,7 @@ export default function Forum({ role }) {
                                 <div className="flex items-center gap-1.5">
                                   <span className="text-sm font-medium text-gray-800">{reply.author}</span>
                                   {reply.userType === 'faculty' && (
-                                    <span className="inline-flex items-center bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded-full text-xs">
+                                    <span className="inline-flex items-center bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full text-xs">
                                       Instructor
                                     </span>
                                   )}
