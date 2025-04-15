@@ -156,11 +156,6 @@ export default function Course() {
                           +{courseDetails[course.id].facultyNames.length - 1} more faculty
                         </div>
                       )}
-                      
-                      <div className="mt-2 flex items-center text-sm text-gray-600">
-                        <FaClock className="text-gray-400 mr-2" />
-                        <span>{course.schedule || 'Schedule not available'}</span>
-                      </div>
                     </div>
                     
                     <div className="mt-4 pt-3 border-t border-gray-100 flex justify-end">

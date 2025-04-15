@@ -261,6 +261,13 @@ export default function Performance() {
 
   // Get a performance grade based on overall performance
   const getPerformanceGrade = () => {
+    // Check if there are any results at all
+    const hasAnyResults = Object.values(courseResults).some(results => results.length > 0);
+    
+    if (!hasAnyResults) {
+      return { grade: 'N/A', color: 'text-gray-500' };
+    }
+    
     const score = calculateOverallPerformance();
     
     if (score >= 90) return { grade: 'A+', color: 'text-green-600' };
@@ -348,7 +355,9 @@ export default function Performance() {
               </div>
             </div>
             <p className="text-sm text-gray-600 mt-4">
-              {calculateOverallPerformance().toFixed(1)}% average across all subjects
+              {performanceGrade.grade === 'N/A' 
+                ? 'No results have been released yet' 
+                : `${calculateOverallPerformance().toFixed(1)}% average across all subjects`}
             </p>
           </div>
           
@@ -373,18 +382,24 @@ export default function Performance() {
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500 mb-1">Relative Performance</p>
-                <p className={`text-4xl font-bold ${calculateMedianPerformance() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {Math.abs(calculateMedianPerformance()).toFixed(1)}%
-                </p>
+                {performanceGrade.grade === 'N/A' ? (
+                  <p className="text-4xl font-bold text-gray-500">N/A</p>
+                ) : (
+                  <p className={`text-4xl font-bold ${calculateMedianPerformance() >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {Math.abs(calculateMedianPerformance()).toFixed(1)}%
+                  </p>
+                )}
               </div>
               <div className="bg-green-50 p-3 rounded-full">
                 <FaChartLine className="text-green-600 text-xl" />
               </div>
             </div>
             <p className="text-sm text-gray-600 mt-4">
-              {calculateMedianPerformance() >= 0 
-                ? 'Above class median' 
-                : 'Below class median'}
+              {performanceGrade.grade === 'N/A' 
+                ? 'No results have been released yet' 
+                : (calculateMedianPerformance() >= 0 
+                    ? 'Above class median' 
+                    : 'Below class median')}
             </p>
           </div>
           
