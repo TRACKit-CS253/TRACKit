@@ -138,17 +138,6 @@ export default function Lectures({ role }) {
       return;
     }
   
-    // First create a backdrop overlay
-    const backdrop = document.createElement('div');
-    backdrop.id = 'file-download-backdrop';
-    backdrop.setAttribute('data-modal-backdrop', 'true');
-    backdrop.style.position = 'fixed';
-    backdrop.style.inset = '0';
-    backdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    backdrop.style.backdropFilter = 'blur(8px)';
-    backdrop.style.zIndex = '200'; // Increased z-index to be above sidebar
-    document.body.appendChild(backdrop);
-  
     const fileList = fileUrls.map((file, index) => ({
       name: file.name || `File ${index + 1}`,
       url: file.url,
@@ -161,7 +150,7 @@ export default function Lectures({ role }) {
     overlay.style.top = '80px';
     overlay.style.left = '0';
     overlay.style.width = '100%';
-    overlay.style.zIndex = '201'; // Increased z-index to be above backdrop
+    overlay.style.zIndex = '1000';
     overlay.style.transform = 'translateY(-100%)';
     overlay.style.transition = 'transform 0.3s ease-in-out';
     
@@ -263,13 +252,9 @@ export default function Lectures({ role }) {
     
     const closeOverlay = () => {
       overlay.style.transform = 'translateY(-100%)';
-      backdrop.style.opacity = '0';
       setTimeout(() => {
         if (document.body.contains(overlay)) {
           document.body.removeChild(overlay);
-        }
-        if (document.body.contains(backdrop)) {
-          document.body.removeChild(backdrop);
         }
       }, 300);
     };
@@ -816,13 +801,13 @@ export default function Lectures({ role }) {
       {(showHeadingForm || showForm || showDeleteConfirm || showSubsectionForm || 
         Object.values(showSubheadingForm).some(value => value) || 
         showSubheadingDeleteConfirm) && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-[200] transition-opacity duration-300" data-modal-backdrop="true"></div>
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-[51] transition-opacity duration-300"></div>
       )}
 
       {/* Heading Form Modal */}
       {showHeadingForm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white bg-opacity-95 backdrop-blur-xl rounded-xl shadow-lg max-w-md w-full p-6 animate-modal-in border border-gray-100">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 animate-modal-in border border-gray-100">
             <div className="flex items-start gap-4 mb-6">
               <div className="bg-blue-100 p-2.5 rounded-full">
                 <IoBook className="text-blue-600 text-xl" />
@@ -868,8 +853,8 @@ export default function Lectures({ role }) {
 
       {/* Lecture Form Modal */}
       {showForm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white bg-opacity-95 backdrop-blur-xl rounded-xl shadow-xl max-w-3xl w-full p-6 animate-modal-in overflow-y-auto max-h-[90vh] border border-gray-100">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full p-6 animate-modal-in overflow-y-auto max-h-[90vh] border border-gray-100">
             <div className="flex items-start gap-4 mb-6">
               <div className="bg-blue-100 p-2.5 rounded-full">
                 {formType === 'create' ? (
@@ -1024,8 +1009,8 @@ export default function Lectures({ role }) {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white bg-opacity-95 backdrop-blur-xl rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
             <div className="flex items-start gap-4 mb-6">
               <div className="bg-red-100 p-2.5 rounded-full">
                 <AiOutlineDelete className="text-red-600 text-xl" />
@@ -1057,8 +1042,8 @@ export default function Lectures({ role }) {
 
       {/* Subsection Form Modal */}
       {showSubsectionForm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white bg-opacity-95 backdrop-blur-xl rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
             <div className="flex items-start gap-4 mb-6">
               <div className="bg-blue-100 p-2.5 rounded-full">
                 <FaPlus className="text-blue-600 text-lg" />
@@ -1114,8 +1099,8 @@ export default function Lectures({ role }) {
 
       {/* Edit Subheading Modal */}
       {Object.entries(showSubheadingForm).some(([key, value]) => value === true) && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white bg-opacity-95 backdrop-blur-xl rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
             <div className="flex items-start gap-4 mb-6">
               <div className="bg-blue-100 p-2.5 rounded-full">
                 <FaEdit className="text-blue-600 text-lg" />
@@ -1176,8 +1161,8 @@ export default function Lectures({ role }) {
 
       {/* Subheading Delete Confirmation Modal */}
       {showSubheadingDeleteConfirm && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-          <div className="bg-white bg-opacity-95 backdrop-blur-xl rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
+        <div className="fixed inset-0 flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in border border-gray-100">
             <div className="flex items-start gap-4 mb-4">
               <div className="bg-red-100 p-2.5 rounded-full">
                 <AiOutlineDelete className="text-red-600 text-xl" />
@@ -1256,21 +1241,6 @@ export default function Lectures({ role }) {
         
         .backdrop-blur-xl {
           backdrop-filter: blur(24px);
-        }
-
-        /* Standardized modal backdrop transitions */
-        .fixed.inset-0.bg-gray-900,
-        .fixed.inset-0.bg-black,
-        [data-modal-backdrop="true"],
-        #file-download-backdrop {
-          transition: opacity 150ms ease-out;
-        }
-        
-        /* Ensure all blur effects have the same duration and timing */
-        .backdrop-blur-md,
-        .backdrop-blur-sm,
-        .backdrop-blur-lg {
-          transition: backdrop-filter 150ms ease-out;
         }
       `}</style>
     </div>
