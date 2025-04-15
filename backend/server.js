@@ -13,7 +13,10 @@ const multer = require('multer');
 const fs = require('fs');
 
 const app = express();
+<<<<<<< HEAD
 // app.set('trust proxy', 1); 
+=======
+>>>>>>> origin/trackit/v2
 
 // Security middleware
 app.use(helmet());
