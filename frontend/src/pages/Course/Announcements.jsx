@@ -398,8 +398,10 @@ export default function Announcements({ role }) {
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <>
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[100]" onClick={() => setShowDeleteConfirm(false)}></div>
-          <div className="fixed inset-0 flex items-center justify-center z-[101] p-4">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[200]" 
+               data-modal-backdrop="true" 
+               onClick={() => setShowDeleteConfirm(false)}></div>
+          <div className="fixed inset-0 flex items-center justify-center z-[201] p-4">
             <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-xl shadow-xl max-w-md w-full p-6 border border-gray-100">
               <div className="flex items-start gap-4 mb-4">
                 <div className="bg-red-100 p-3 rounded-full">
@@ -435,8 +437,10 @@ export default function Announcements({ role }) {
       {/* Create/Edit Announcement Form */}
       {showForm && (
         <>
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[100]" onClick={() => setShowForm(false)}></div>
-          <div className="fixed inset-0 flex items-center justify-center z-[101] p-4">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[200]" 
+               data-modal-backdrop="true" 
+               onClick={() => setShowForm(false)}></div>
+          <div className="fixed inset-0 flex items-center justify-center z-[201] p-4">
             <div className="bg-white bg-opacity-90 backdrop-blur-md rounded-xl shadow-xl max-w-3xl w-full p-6 border border-gray-100">
               <div className="flex items-start gap-4 mb-6">
                 <div className={`bg-${formType === 'create' ? 'blue' : 'green'}-100 p-3 rounded-full`}>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { IoCalendarNumberOutline } from "react-icons/io5";
 import { NavLink, useParams } from 'react-router-dom';
 import { GoHome } from "react-icons/go";
@@ -15,8 +15,37 @@ export default function CourseMenu() {
   const { courseCode } = useParams();
   const { courseDetails, loading } = useCourse();
   const [activeTab, setActiveTab] = useState('coursehome');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const {logout} = useAuth();
   const navigate = useNavigate();
+
+  // Check for modal backdrops in the DOM to determine if a modal is open
+  useEffect(() => {
+    const checkForModals = () => {
+      // Look for any modal backdrop elements with more specific selectors
+      const modalBackdrops = document.querySelectorAll([
+        // Common backdrop selectors
+        '.fixed.inset-0.bg-gray-900',
+        '.fixed.inset-0.bg-black',
+        '[data-modal-backdrop="true"]',
+        '#file-download-backdrop'
+      ].join(', '));
+      
+      setIsModalOpen(modalBackdrops.length > 0);
+    };
+
+    // Initial check
+    checkForModals();
+
+    // Set up a MutationObserver to detect DOM changes that might include modal backdrops
+    const observer = new MutationObserver(checkForModals);
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   const tabs = [
     { id: 'coursehome', label: 'Course Home', icon: <GoHome className="text-lg" /> , link: `coursehome`},
@@ -34,7 +63,14 @@ export default function CourseMenu() {
   };
 
   return (
-    <div className='w-full h-full flex flex-col rounded-xl overflow-hidden bg-white shadow-md border border-gray-100'>
+    <div 
+      className={`w-full h-full flex flex-col rounded-xl overflow-hidden bg-white shadow-md border border-gray-100 transition-all duration-300
+        ${isModalOpen ? 'backdrop-blur-sm' : ''}
+      `}
+      style={{
+        filter: isModalOpen ? 'blur(4px)' : 'none',
+      }}
+    >
       {/* Header section */}
       <div className='bg-gradient-to-r from-blue-600 to-blue-800 px-5 py-6 text-white'>
         <div className="flex items-center gap-4">

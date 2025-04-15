@@ -1,0 +1,12 @@
+/* Common modal backdrop styles */
+.global-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(8px);
+  z-index: 200;
+}
+
+.global-modal-content {
+  z-index: 201;
+}

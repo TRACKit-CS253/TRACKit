@@ -59,7 +59,7 @@ export default function Courses({ role, courseCode }) {
   
   return (
     <SingleCourseProvider courseCode={courseCode}>
-      <div className='w-full flex bg-[#F5F5F5] h-full'>
+      <div className='w-full flex bg-[#F5F5F5] h-full relative'>
         <button 
           onClick={toggleMenu}
           className={`fixed top-7 -left-1 z-20 md:hidden bg-blue-500 text-white p-2 rounded-md shadow-lg`}
@@ -67,14 +67,16 @@ export default function Courses({ role, courseCode }) {
           {isMenuOpen ? <FaTimes size={20} /> : <FaBars size={20} />}
         </button>
         
+        {/* Sidebar - now with lower z-index to ensure modal backdrops appear above */}
         <div 
-          className={`fixed h-[98%] transition-all duration-300 ease-in-out z-10 mt-2
+          className={`fixed h-[98%] transition-all duration-300 ease-in-out z-30 mt-2
           ${isMenuOpen ? 'left-0 w-[85%] md:w-[19%]' : '-left-full md:left-0 md:w-[19%]'}
           ${isMobile ? 'bg-white shadow-lg ml-0' : 'ml-1'}`}
         >
           <CourseMenu courseCode={courseCode} />
         </div>
         
+        {/* Main content */}
         <div 
           className={`transition-all duration-300 ease-in-out z-0 h-full w-full
           ${isMenuOpen ? 'md:ml-[20%]' : 'ml-0 md:ml-[20%]'} 
@@ -94,7 +96,7 @@ export default function Courses({ role, courseCode }) {
         {/* Overlay to close menu when clicking outside on mobile */}
         {isMobile && isMenuOpen && (
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-5"
+            className="fixed inset-0 bg-black bg-opacity-50 z-20"
             onClick={toggleMenu}
           />
         )}
