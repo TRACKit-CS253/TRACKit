@@ -606,51 +606,81 @@ export default function Results() {
           </div>
         )}
 
-        {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Confirm Delete</h3>
-            <p className="mb-6">Are you sure you want to delete the results for {examDetails?.examName}? This action cannot be undone.</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={handleCancelDelete}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmDelete}
-                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-              >
-                Delete
-              </button>
+        {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <>
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[200]" 
+               data-modal-backdrop="true" 
+               onClick={() => setShowDeleteConfirm(false)}></div>
+          <div className="fixed inset-0 flex items-center justify-center z-[201] p-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">Confirm Delete</h3>
+              <p className="mb-6">Are you sure you want to delete the results for {examDetails?.examName}? This action cannot be undone.</p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleCancelDelete}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
       
+      {/* Modify Confirmation Modal */}
       {showModifyConfirm && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 className="text-xl font-bold mb-4">Confirm Modify</h3>
-            <p className="mb-6">Are you sure you want to modify the results for {examDetails?.examName}?</p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={handleCancelModifyConfirm}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmModify}
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Proceed
-              </button>
+        <>
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[200]" 
+               data-modal-backdrop="true" 
+               onClick={() => setShowModifyConfirm(false)}></div>
+          <div className="fixed inset-0 flex items-center justify-center z-[201] p-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+              <h3 className="text-xl font-bold mb-4">Confirm Modify</h3>
+              <p className="mb-6">Are you sure you want to modify the results for {examDetails?.examName}?</p>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={handleCancelModifyConfirm}
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmModify}
+                  className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >
+                  Proceed
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
+
+      {/* Add standardized modal transition styles */}
+      <style jsx global>{`
+        /* Standardized modal backdrop transitions */
+        .fixed.inset-0.bg-gray-900,
+        .fixed.inset-0.bg-black,
+        [data-modal-backdrop="true"],
+        #file-download-backdrop {
+          transition: opacity 150ms ease-out;
+        }
+        
+        /* Ensure all blur effects have the same duration and timing */
+        .backdrop-blur-md,
+        .backdrop-blur-sm,
+        .backdrop-blur-lg {
+          transition: backdrop-filter 150ms ease-out;
+        }
+      `}</style>
 
         {/* Exam Selection Controls */}
         <div className="flex flex-col md:flex-row md:items-end mb-6 gap-4">
