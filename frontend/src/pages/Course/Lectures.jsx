@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CgProfile } from 'react-icons/cg';
 import { IoIosArrowDropdown } from "react-icons/io";
-import { FaRegEdit, FaDownload, FaFilePdf } from "react-icons/fa";
+import { FaPlus, FaRegEdit, FaDownload, FaFilePdf } from "react-icons/fa";
 import { AiOutlineDelete } from "react-icons/ai";
 import { NavLink } from 'react-router-dom';
 import { useCourse } from '../../contexts/CourseContext';
@@ -535,22 +535,34 @@ export default function Lectures({ role }) {
             {courseDetails.code} • {courseDetails.credits} Credits • {courseDetails.semester}
           </p>
         </div>
-        <NavLink to="/dashboard/profile">
-          <CgProfile className="text-[40px] cursor-pointer hover:scale-95 transition-all duration-200 hover:text-blue-500" />
-        </NavLink>
+        <div className='flex items-center gap-4'>
+          {role !== "student" && (
+            <button 
+              className='bg-blue-500 shadow-xl text-white py-2 px-4 flex justify-center items-center gap-2 hover:bg-green-600 hover:scale-95 transition-all duration-200 rounded'
+              onClick={() => setShowHeadingForm(true)}
+            >
+              <FaPlus className='text-[18px]' />
+              <p>Add Module</p>
+            </button>
+          )}
+          <NavLink to="/dashboard/profile">
+            <CgProfile className="text-[40px] cursor-pointer hover:scale-95 transition-all duration-200 hover:text-blue-500" />
+          </NavLink>
+      </div>
       </div>
 
-      {/* Add Section Button */}
+      {/* Add Section Button - Commented out
       {role !== "student" && (
-        <div className='flex justify-start py-2 px-8'> {/* Reduced padding from py-4 to py-2 */}
+        <div className='flex justify-start py-2 px-8'>
           <button
             className='bg-black text-white py-2 px-4 flex justify-center items-center gap-2 hover:bg-gray-800 transition-all duration-200 rounded-full'
             onClick={() => setShowHeadingForm(true)}
           >
-            <p>Add Module</p>
+            <p>+ Add Module</p>
           </button>
         </div>
       )}
+      */}
 
       {/* Lecture Content */}
       <div className='p-4 md:p-6'>
@@ -573,7 +585,7 @@ export default function Lectures({ role }) {
                     handleAddSubsectionClick(heading);
                   }}
                 >
-                  Add Section
+                  + Add Section
                 </button>
               )}
               <IoIosArrowDropdown
@@ -590,7 +602,7 @@ export default function Lectures({ role }) {
               expandedWeeks[heading] ? 'max-h-[1000px] opacity-100 py-3' : 'max-h-0 opacity-0'
             }`}
           >
-            {Object.entries(topics).map(([subheading, lectures]) => (
+            {Object.entries(topics).reverse().map(([subheading, lectures]) => (
               <div key={subheading} className="mb-4">
                 <div className="flex justify-between items-center flex-wrap gap-2">
                   <div className="flex items-center gap-2 flex-wrap">
@@ -623,7 +635,7 @@ export default function Lectures({ role }) {
                         handleAddLecture(heading, subheading);
                       }}
                     >
-                      Add Lecture
+                      + Add Lecture
                     </button>
                   )}
                 </div>
