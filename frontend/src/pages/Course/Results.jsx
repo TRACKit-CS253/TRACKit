@@ -1009,7 +1009,7 @@ export default function Results() {
           <div className="rounded-xl border border-gray-200 overflow-hidden shadow-sm">
             <div className="overflow-x-auto max-h-96 overflow-y-auto">
               <table className="min-w-full bg-white">
-                <thead className="sticky top-0 bg-gray-50 border-b border-gray-200">
+                <thead className="sticky top-0 bg-gray-50 border-b border-gray-200 z-10">
                   <tr>
                     <th className="py-3.5 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Roll Number</th>
                     <th className="py-3.5 px-6 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Student Name</th>
@@ -1019,9 +1019,9 @@ export default function Results() {
                 <tbody className="divide-y divide-gray-100">
                   {students.map((student, index) => (
                     <tr key={student.userId} className={index % 2 === 0 ? 'bg-white' : 'bg-gray-50 transition-colors'}>
-                      <td className="py-4 px-6 text-sm text-gray-700">{student.rollNumber}</td>
-                      <td className="py-4 px-6 text-sm text-gray-800 font-medium">{`${student.user.firstName} ${student.user.lastName}`}</td>
-                      <td className="py-4 px-6 text-sm text-gray-700">
+                      <td className="py-4 px-6 text-sm text-gray-700 -z-10">{student.rollNumber}</td>
+                      <td className="py-4 px-6 text-sm text-gray-800 font-medium -z-10">{`${student.user.firstName} ${student.user.lastName}`}</td>
+                      <td className="py-4 px-6 text-sm text-gray-700 -z-10">
                         <div className="w-full max-w-xs mx-auto">
                           <div className="relative rounded-md">
                             <input
