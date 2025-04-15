@@ -1,0 +1,96 @@
+I want to connect this partially completed frontend to my app's backend.
+
+First I have to implement the correct login and authentication, and storage of the login credentials in the frontend at a standard place, so that they are available all throughout the frontend. Update the existing files like App.jsx, src/pages/Login.jsx. I have created a basic unfinished gui template for the frontend already.
+
+Now my app has three user types. 
+'admin', 'faculty', and 'student'
+
+when the app is launced, I want the default page to be the dashboard of the user type (if logged in), or the login page: Thus going to http://localhost:5000 should lead to the correct page as given.
+
+For the backend, its url should be an easily changeable constant.
+For now, it will be http://localhost:3001 = backend-url
+
+How to process login?
+
+To login, a post request should be sent to "backend-url/api/auth/login"
+The header should be Content-Type : application/json
+
+The body should look like,
+
+{
+  "username": "admin",
+  "password": "admin123"
+}
+
+upon successful login, it will return a json like:
+
+{
+    "success": true,
+    "message": "Login successful",
+    "user": {
+        "id": 1,
+        "username": "admin",
+        "email": "admin@trackit.com",
+        "firstName": "Admin",
+        "lastName": "User",
+        "userType": "admin"
+    },
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlclR5cGUiOiJhZG1pbiIsImlhdCI6MTc0MjEyMjYyOCwiZXhwIjoxNzQyMjA5MDI4fQ.e-4QkIUA9M5ocGHvJkTP6_aHiqzmwBcBCAIeacWTo7U"
+}
+
+These fields of the return json will be same for all user types. The userType field is self-explantory. All these parameters must be stored until the user logs out. right now, a log out button is not there, but build the functionality for it.
+
+If the user is a student/ faculty, additional parameters are required.
+fetch these get request to using "backend-url/api/{userType}/id/profile".
+
+add the authentication header as, 
+Authorization : Bearer {token}
+here this is the {token} is the token received after login.
+
+For student, the following will be received, as an example. Store it appropriately.
+{
+    "success": true,
+    "data": {
+        "userId": 4,
+        "rollNumber": "EE19B001",
+        "enrollmentYear": 2019,
+        "major": "Electrical Engineering",
+        "createdAt": "2025-03-16T10:46:26.575Z",
+        "updatedAt": "2025-03-16T10:46:26.575Z",
+        "user": {
+            "id": 4,
+            "username": "student1",
+            "email": "student1@trackit.com",
+            "firstName": "Alice",
+            "lastName": "Johnson",
+            "userType": "student"
+        }
+    }
+}
+
+For faculty, the following will be received, as an example. Store it appropriately.
+{
+    "success": true,
+    "data": {
+        "userId": 2,
+        "department": "Electrical Engineering",
+        "position": "Associate Professor",
+        "createdAt": "2025-03-16T10:46:26.535Z",
+        "updatedAt": "2025-03-16T10:46:26.535Z",
+        "user": {
+            "id": 2,
+            "username": "faculty1",
+            "email": "faculty1@trackit.com",
+            "firstName": "John",
+            "lastName": "Doe",
+            "userType": "faculty"
+        }
+    }
+}
+
+After login, I want the user's to go to their appropriate dashboard. The admin should go to the admin dashboard. The student/faculty should go to their common dashboard which changes based on the role parameter. set the role to the userType received. 
+
+First implement all this in the a standard way. do it all correctly. 
+
+
+

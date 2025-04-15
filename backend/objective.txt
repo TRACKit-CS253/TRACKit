@@ -1,0 +1,35 @@
+I need to work in Javascript, using node.js, and follow all standard practices. The frontent will be a js based frontend, most likely using react.
+Here, I am just building the backend.
+
+I am building a college course information portal with 3 user types: Faculty, Student, and Admin.
+Only the admin can add or remove users, add or remove courses, and add/remove faculty and students to said courses.
+I need to implement authentication.
+
+the login functionality should be common, that is, typing the user id, and password should lead to a user's account, no matter what their type.
+
+I want my project to be based on object oriented principles. Hence ensure inheritence in user types from a base user class, when its feasible.
+This project will run on a server, but I need to simulate it and test it on my local machine now. U
+
+after this base functionality is done, I will implement various features and attributes related to different user types and with each course. 
+As a preview, a faculty who has access to a course will able to add/remove announcements to the course, which every other student/ faculty in that course will be able to view in a certain place in the frontend. Don't do this for now, just focus on the core implementation mentioned above.
+
+Tech Stack for TrackIt Backend (Local Server)
+1. Backend (Node.js & Express.js)
+Node.js – JavaScript runtime for backend.
+Express.js – Web framework for API routes.
+2. Authentication & Security
+JWT (jsonwebtoken) – User authentication.
+bcrypt.js – Password hashing.
+Helmet.js – Security middleware.
+express-rate-limit – Prevent brute-force attacks.
+3. Database
+Recommendation for TrackIt: Start with SQLite + Sequelize(ORM), then move to PostgreSQL when scaling
+SQLite (for lightweight local storage) or
+PostgreSQL/MySQL (for better scalability).
+Sequelize (ORM) – Database management.
+4. API Testing & Debugging
+Postman / Thunder Client – API testing.
+Node.js Debugger – Debugging the backend.
+5. Server Management
+PM2 – Keeps the backend running.
+Nginx (Optional) – Reverse proxy for better performance.
