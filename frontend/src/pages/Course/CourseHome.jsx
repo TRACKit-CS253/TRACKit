@@ -737,7 +737,7 @@ export default function CourseHome({ role }) {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center z-[101]">
           <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
             <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
             <p>Are you sure you want to delete this course description entry?</p>
@@ -764,7 +764,7 @@ export default function CourseHome({ role }) {
 
       {/* Create/Edit Description Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center z-[101]">
           <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
             <h3 className="text-lg font-bold mb-4">
               {formType === 'create' ? 'Create New Course Description' : 'Edit Course Description'}

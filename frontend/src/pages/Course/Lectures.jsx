@@ -138,6 +138,16 @@ export default function Lectures({ role }) {
       return;
     }
   
+    // First create a backdrop overlay
+    const backdrop = document.createElement('div');
+    backdrop.id = 'file-download-backdrop';
+    backdrop.style.position = 'fixed';
+    backdrop.style.inset = '0';
+    backdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    backdrop.style.backdropFilter = 'blur(8px)';
+    backdrop.style.zIndex = '100';
+    document.body.appendChild(backdrop);
+  
     const fileList = fileUrls.map((file, index) => ({
       name: file.name || `File ${index + 1}`,
       url: file.url,
@@ -150,7 +160,7 @@ export default function Lectures({ role }) {
     overlay.style.top = '80px';
     overlay.style.left = '0';
     overlay.style.width = '100%';
-    overlay.style.zIndex = '1000';
+    overlay.style.zIndex = '101';
     overlay.style.transform = 'translateY(-100%)';
     overlay.style.transition = 'transform 0.3s ease-in-out';
     
@@ -252,9 +262,13 @@ export default function Lectures({ role }) {
     
     const closeOverlay = () => {
       overlay.style.transform = 'translateY(-100%)';
+      backdrop.style.opacity = '0';
       setTimeout(() => {
         if (document.body.contains(overlay)) {
           document.body.removeChild(overlay);
+        }
+        if (document.body.contains(backdrop)) {
+          document.body.removeChild(backdrop);
         }
       }, 300);
     };

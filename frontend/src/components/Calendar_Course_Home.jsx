@@ -204,12 +204,12 @@ const MyCalendar = () => {
         {showEventModal && selectedEvent && (
           <>
             <div 
-              className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-40" 
+              className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md z-[100]" 
               onClick={() => setShowEventModal(false)}
             ></div>
             
             <motion.div 
-              className="fixed inset-0 flex items-center justify-center z-50 p-4"
+              className="fixed inset-0 flex items-center justify-center z-[101] p-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}

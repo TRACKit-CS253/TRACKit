@@ -131,6 +131,15 @@ export default function Calendar() {
         .animate-fadeIn {
           animation: fadeIn 0.2s ease-out forwards;
         }
+        
+        /* Modal backdrop styles for future modal implementations */
+        .modal-backdrop {
+          @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[100];
+        }
+        
+        .modal-content {
+          @apply z-[101];
+        }
       `}</style>
     </div>
   );

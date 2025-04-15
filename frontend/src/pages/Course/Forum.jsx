@@ -383,6 +383,11 @@ export default function Forum({ role }) {
           </div>
         </div>
 
+        {/* New Post Form - Overlay when visible */}
+        {showNewPostForm && (
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-40 backdrop-blur-md z-[100]" onClick={() => setShowNewPostForm(false)}></div>
+        )}
+
         {/* New Post Form */}
         {showNewPostForm && (
           <div className="bg-white bg-opacity-90 backdrop-blur-sm rounded-xl border border-gray-100 shadow-md mb-6 overflow-hidden animate-fade-in">

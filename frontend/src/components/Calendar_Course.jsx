@@ -341,8 +341,8 @@ const MyCalendar = ({ initialView = 'month' }) => {
       {/* Add Event Modal */}
       {showForm && (
         <>
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm z-40" onClick={() => setShowForm(false)}></div>
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[100]" onClick={() => setShowForm(false)}></div>
+          <div className="fixed inset-0 flex items-center justify-center z-[101] p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between mb-5">
                 <div className="flex items-center gap-3">
@@ -476,8 +476,8 @@ const MyCalendar = ({ initialView = 'month' }) => {
       {/* Event Details Modal */}
       {showEventModal && selectedEvent && (
         <>
-          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm z-40" onClick={() => setShowEventModal(false)}></div>
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[100]" onClick={() => setShowEventModal(false)}></div>
+          <div className="fixed inset-0 flex items-center justify-center z-[101] p-4">
             <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-modal-in" onClick={e => e.stopPropagation()}>
               <div className="flex items-start justify-between mb-5">
                 <div className="flex items-start gap-3">
