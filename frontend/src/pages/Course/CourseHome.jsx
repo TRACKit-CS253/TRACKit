@@ -737,8 +737,8 @@ export default function CourseHome({ role }) {
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center z-[201]">
-          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center z-[201]" data-modal-backdrop="true">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-md z-[201]">
             <h3 className="text-lg font-bold mb-4">Confirm Delete</h3>
             <p>Are you sure you want to delete this course description entry?</p>
             <div className="flex justify-end gap-4 mt-6">
@@ -764,8 +764,8 @@ export default function CourseHome({ role }) {
 
       {/* Create/Edit Description Form */}
       {showForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center z-[201]">
-          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-md flex items-center justify-center z-[201]" data-modal-backdrop="true">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl z-[201]">
             <h3 className="text-lg font-bold mb-4">
               {formType === 'create' ? 'Create New Course Description' : 'Edit Course Description'}
             </h3>
@@ -821,6 +821,23 @@ export default function CourseHome({ role }) {
           </div>
         </div>
       )}
+
+      <style jsx global>{`
+        /* Standardized modal backdrop transitions */
+        .fixed.inset-0.bg-gray-900,
+        .fixed.inset-0.bg-black,
+        [data-modal-backdrop="true"],
+        #file-download-backdrop {
+          transition: opacity 150ms ease-out;
+        }
+        
+        /* Ensure all blur effects have the same duration and timing */
+        .backdrop-blur-md,
+        .backdrop-blur-sm,
+        .backdrop-blur-lg {
+          transition: backdrop-filter 150ms ease-out;
+        }
+      `}</style>
     </div>
   );
 }

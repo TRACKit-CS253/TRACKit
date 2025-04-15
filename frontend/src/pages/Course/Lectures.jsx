@@ -141,11 +141,12 @@ export default function Lectures({ role }) {
     // First create a backdrop overlay
     const backdrop = document.createElement('div');
     backdrop.id = 'file-download-backdrop';
+    backdrop.setAttribute('data-modal-backdrop', 'true');
     backdrop.style.position = 'fixed';
     backdrop.style.inset = '0';
     backdrop.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
     backdrop.style.backdropFilter = 'blur(8px)';
-    backdrop.style.zIndex = '100'; // Increased z-index to be above sidebar
+    backdrop.style.zIndex = '200'; // Increased z-index to be above sidebar
     document.body.appendChild(backdrop);
   
     const fileList = fileUrls.map((file, index) => ({
@@ -160,7 +161,7 @@ export default function Lectures({ role }) {
     overlay.style.top = '80px';
     overlay.style.left = '0';
     overlay.style.width = '100%';
-    overlay.style.zIndex = '101'; // Increased z-index to be above backdrop
+    overlay.style.zIndex = '201'; // Increased z-index to be above backdrop
     overlay.style.transform = 'translateY(-100%)';
     overlay.style.transition = 'transform 0.3s ease-in-out';
     
@@ -815,7 +816,7 @@ export default function Lectures({ role }) {
       {(showHeadingForm || showForm || showDeleteConfirm || showSubsectionForm || 
         Object.values(showSubheadingForm).some(value => value) || 
         showSubheadingDeleteConfirm) && (
-        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-[200] transition-opacity duration-300"></div>
+        <div className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm z-[200] transition-opacity duration-300" data-modal-backdrop="true"></div>
       )}
 
       {/* Heading Form Modal */}
@@ -1255,6 +1256,21 @@ export default function Lectures({ role }) {
         
         .backdrop-blur-xl {
           backdrop-filter: blur(24px);
+        }
+
+        /* Standardized modal backdrop transitions */
+        .fixed.inset-0.bg-gray-900,
+        .fixed.inset-0.bg-black,
+        [data-modal-backdrop="true"],
+        #file-download-backdrop {
+          transition: opacity 150ms ease-out;
+        }
+        
+        /* Ensure all blur effects have the same duration and timing */
+        .backdrop-blur-md,
+        .backdrop-blur-sm,
+        .backdrop-blur-lg {
+          transition: backdrop-filter 150ms ease-out;
         }
       `}</style>
     </div>

@@ -132,13 +132,26 @@ export default function Calendar() {
           animation: fadeIn 0.2s ease-out forwards;
         }
         
-        /* Modal backdrop styles for future modal implementations */
-        .modal-backdrop {
-          @apply fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-md z-[100];
+        /* Standardized modal backdrop styles */
+        .modal-backdrop, 
+        [data-modal-backdrop="true"] {
+          position: fixed;
+          inset: 0;
+          background-color: rgba(17, 24, 39, 0.5);
+          backdrop-filter: blur(8px);
+          z-index: 200;
+          transition: opacity 150ms ease-out;
         }
         
         .modal-content {
-          @apply z-[101];
+          z-index: 201;
+        }
+        
+        /* Ensure all blur effects have the same duration and timing */
+        .backdrop-blur-md,
+        .backdrop-blur-sm,
+        .backdrop-blur-lg {
+          transition: backdrop-filter 150ms ease-out;
         }
       `}</style>
     </div>
