@@ -2,6 +2,7 @@ import ved from "../../assets/ved.png";
 import dhruv from "../../assets/dhruv.jpg";
 import aditya from "../../assets/aditya.jpg";
 import aayush from "../../assets/aayush.jpg";
+import abhijeet from "../../assets/abhijeet.jpg";
 const developers = [
   {
     id: 1,
@@ -68,6 +69,7 @@ const developers = [
   },
   {
     id: 7,
+    image :abhijeet,
     name: "Abhijeet Agarwal",
     role: "DevOps Engineer",
     phone: "+91-98765-4324",
