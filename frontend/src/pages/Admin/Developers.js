@@ -1,6 +1,7 @@
 import ved from "../../assets/ved.png";
 import dhruv from "../../assets/dhruv.jpg";
 import aditya from "../../assets/aditya.jpg";
+import aayush from "../../assets/aayush.jpg";
 const developers = [
   {
     id: 1,
@@ -77,13 +78,14 @@ const developers = [
   },
   {
     id: 8,
+    image :aayush,
     name: "Aaayush Singh",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "aayush@example.com",
-    linkedin: "https://www.google.com",
+    role: "Backend Engineer",
+    phone: "+91-70173-34417",
+    email: "aayushs22@iitk.ac.in",
+    linkedin: "https://www.linkedin.com/in/aayush-singh-ab7023208/",
     instagram: "https://www.google.com",
-    github:"#"
+    github:"https://github.com/aayushs22"
   },
   {
     id: 9,
