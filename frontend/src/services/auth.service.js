@@ -1,4 +1,4 @@
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+const API_URL = process.env.REACT_APP_BACKEND_URL ;
 
 export const checkUsername = async (username) => {
   try {

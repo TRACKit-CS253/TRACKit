@@ -20,7 +20,7 @@ app.use(express.json());
 
 // Update CORS configuration
 app.use(cors({
-  origin: `${process.env.FRONTEND_URL}`, // or whatever port your frontend is running on
+  origin: [process.env.FRONTEND_URL, process.env.FRONTEND_URL_v2], // Add the second allowed IP here
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']

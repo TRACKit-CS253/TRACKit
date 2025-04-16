@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
 import ved from "../../assets/ved.png";
 import dhruv from "../../assets/dhruv.jpg";
+import aayush from "../../assets/aayush.jpg";
 import dhruv_rai from "../../assets/dhruv_rai.jpg";
 const developers = [
   {
@@ -84,13 +85,14 @@ const developers = [
   },
   {
     id: 8,
+    image:aayush,
     name: "Aaayush Singh",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "aayush@example.com",
-    linkedin: "https://www.google.com",
+    role: "Backend Engineer",
+    phone: "+91-7017334417",
+    email: "aayushs22@iitk.ac.in",
+    linkedin: "https://www.linkedin.com/in/aayush-singh-ab7023208/",
     instagram: "https://www.google.com",
-    github:"#"
+    github:"https://github.com/aayushs22"
   },
   {
     id: 9,
