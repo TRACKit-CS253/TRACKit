@@ -1,5 +1,6 @@
 import ved from "../../assets/ved.png";
 import dhruv from "../../assets/dhruv.jpg";
+import aditya from "../../assets/aditya.jpg";
 const developers = [
   {
     id: 1,
