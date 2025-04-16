@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
 import ved from "../../assets/ved.png";
 import dhruv from "../../assets/dhruv.jpg";
+import dhruv_rai from "../../assets/dhruv_rai.jpg";
 const developers = [
   {
     id: 1,
@@ -52,13 +53,14 @@ const developers = [
   },
   {
     id: 5,
+    image:dhruv_rai,
     name: "Dhruv Rai",
-    role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "rdhruv@example.com",
-    linkedin: "https://www.google.com",
+    role: "Full Stack Engineer",
+    phone: "+91-7355085013",
+    email: "dhruvrai22@iitk.ac.in",
+    linkedin: "https://www.linkedin.com/in/dhruv-rai-7a942726b/",
     instagram: "https://www.google.com",
-    github:"#"
+    github:"https://github.com/Dhruv-Rai365"
   },
   {
     id: 6,
