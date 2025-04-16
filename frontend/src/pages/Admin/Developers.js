@@ -14,13 +14,14 @@ const developers = [
   },
   {
     id: 2,
+    image :aditya,
     name: "Aditya Gautam",
-    role: "UI Designer",
-    phone: "+91-98765-4321",
-    email: "gaditiya@example.com",
-    linkedin: "https://www.google.com",
-    instagram: "https://www.google.com",
-    github:"#"
+    role: "Full Stack Engineer",
+    phone: "+91-8630402793",
+    email: "agautam22@iitk.ac.in",
+    linkedin: "https://www.linkedin.com/in/aditya-gautam-845030252/",
+    instagram: "https://www.instagram.com/aditya.gtm16/",
+    github:"https://github.com/adityagautamiitk"
   },
   {
     id: 3,
