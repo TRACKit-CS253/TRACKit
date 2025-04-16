@@ -17,6 +17,7 @@ router.post('/bulk-students', upload.single('file'), adminController.bulkCreateS
 router.get('/users', adminController.getAllUsers);
 router.put('/user/:userId', adminController.updateUser);
 router.delete('/user/:userId', adminController.deleteUser);
+router.get("/dropdown-data", adminController.getDropdownData);
 
 // Course management routes
 router.post('/course', adminController.createCourse);

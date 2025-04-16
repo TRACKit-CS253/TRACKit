@@ -33,6 +33,9 @@ const ManageUsers = () => {
   const [toastVisible, setToastVisible] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success'); // 'success' or 'error'
+  const [departments, setDepartments] = useState([]);
+  const [positions, setPositions] = useState([]);
+  const [majors, setMajors] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -55,9 +58,21 @@ const ManageUsers = () => {
         console.error("Error fetching courses:", error);
       }
     };
+
+    const fetchDropdownData = async () => {
+      try {
+        const response = await axiosInstance.get("/api/admin/dropdown-data");
+        setDepartments(response.data.departments || []);
+        setPositions(response.data.positions || []);
+        setMajors(response.data.majors || []);
+      } catch (error) {
+        console.error("Error fetching dropdown data:", error);
+      }
+    };
     
     fetchUsers();
     fetchCourses();
+    fetchDropdownData();
   }, []);
 
   const handleDeleteUser = async (userId) => {
@@ -757,19 +772,42 @@ const ManageUsers = () => {
                         <FaUserGraduate className="text-blue-600" /> Student Details
                       </h3>
                       <div className="grid grid-cols-2 gap-4">
-                        {["rollNumber", "major", "enrollmentYear"].map(field => (
-                          <div key={field} className="bg-white p-3 rounded-lg border border-blue-100">
-                            <label className="block text-sm font-medium text-gray-700 mb-1">
-                              {labelMapping[field]}
-                            </label>
-                            <input
-                              type={field === "enrollmentYear" ? "number" : "text"}
-                              value={selectedUser.student?.[field] || ""}
-                              onChange={(e) => handleNestedInputChange("student", field, e.target.value)}
-                              className="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                          </div>
-                        ))}
+                        <div className="bg-white p-3 rounded-lg border border-blue-100">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Major
+                          </label>
+                          <select
+                            value={selectedUser.student?.major || ""}
+                            onChange={(e) =>
+                              handleNestedInputChange("student", "major", e.target.value)
+                            }
+                            className="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          >
+                            <option value="">Select Major</option>
+                            {majors.map((major) => (
+                              <option key={major} value={major}>
+                                {major}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                        <div className="bg-white p-3 rounded-lg border border-blue-100">
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Enrollment Year
+                          </label>
+                          <input
+                            type="number"
+                            value={selectedUser.student?.enrollmentYear || ""}
+                            onChange={(e) =>
+                              handleNestedInputChange(
+                                "student",
+                                "enrollmentYear",
+                                e.target.value
+                              )
+                            }
+                            className="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          />
+                        </div>
                       </div>
                     </div>
                   )}
@@ -784,23 +822,43 @@ const ManageUsers = () => {
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Department
                           </label>
-                          <input
-                            type="text"
+                          <select
                             value={selectedUser.faculty?.department || ""}
-                            onChange={(e) => handleNestedInputChange("faculty", "department", e.target.value)}
+                            onChange={(e) =>
+                              handleNestedInputChange(
+                                "faculty",
+                                "department",
+                                e.target.value
+                              )
+                            }
                             className="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                          >
+                            <option value="">Select Department</option>
+                            {departments.map((department) => (
+                              <option key={department} value={department}>
+                                {department}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div className="bg-white p-3 rounded-lg border border-green-100">
                           <label className="block text-sm font-medium text-gray-700 mb-1">
                             Position
                           </label>
-                          <input
-                            type="text"
+                          <select
                             value={selectedUser.faculty?.position || ""}
-                            onChange={(e) => handleNestedInputChange("faculty", "position", e.target.value)}
+                            onChange={(e) =>
+                              handleNestedInputChange("faculty", "position", e.target.value)
+                            }
                             className="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
+                          >
+                            <option value="">Select Position</option>
+                            {positions.map((position) => (
+                              <option key={position} value={position}>
+                                {position}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                       </div>
                     </div>

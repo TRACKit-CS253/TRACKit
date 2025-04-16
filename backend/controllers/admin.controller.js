@@ -1583,3 +1583,19 @@ exports.testDBPersistence = async (req, res) => {
     });
   }
 };
+
+exports.getDropdownData = (req, res) => {
+  try {
+    res.status(200).json({
+      success: true,
+      departments,
+      majors: engineeringBranches,
+      positions: facultyPositions,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error fetching dropdown data",
+    });
+  }
+};
