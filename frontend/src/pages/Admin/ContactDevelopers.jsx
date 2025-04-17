@@ -65,10 +65,10 @@ const developers = [
   },
   {
     id: 6,
-    name: "Mayur",
+    name: "Mayur Agrawal",
     role: "DevOps Engineer",
-    phone: "+91-98765-4324",
-    email: "mayur@example.com",
+    phone: "+91-8770049246",
+    email: "mayurag@iitk.ac.in",
     linkedin: "https://www.google.com",
     instagram: "https://www.google.com",
     github:"#"
