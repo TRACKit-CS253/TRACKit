@@ -1,15 +1,9 @@
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:3001';
+import axiosInstance from '../utils/axiosInstance';
 
 export const checkUsername = async (username) => {
   try {
-    const response = await fetch(`${API_URL}/api/auth/check-username`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username }),
-    });
-    return await response.json();
+    const response = await axiosInstance.post('/auth/check-username', { username });
+    return response.data;
   } catch (error) {
     throw new Error('Failed to check username');
   }

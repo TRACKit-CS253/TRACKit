@@ -69,9 +69,9 @@ const storage = multer.diskStorage({
 });
 
 // Create multer upload instance with file size limits
-const upload = multer({ 
+const upload = multer({
   storage: storage,
-  limits: { 
+  limits: {
     fileSize: 10 * 1024 * 1024 // 10MB max file size
   },
   fileFilter: function (req, file, cb) {
@@ -79,11 +79,11 @@ const upload = multer({
     const filetypes = /csv|text|plain|excel|octet-stream/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    
+
     if (mimetype || extname) {
       return cb(null, true);
     }
-    
+
     cb(new Error('File upload only supports CSV files!'));
   }
 });
@@ -117,15 +117,15 @@ app.post('/api/admin/bulk-create-faculty', upload.single('file'), adminControlle
 const listRoutes = (app) => {
   console.log('Registered routes:');
   app._router.stack.forEach((middleware) => {
-      if (middleware.route) {
-          console.log(`${middleware.route.stack[0].method.toUpperCase()} ${middleware.route.path}`);
-      } else if (middleware.name === 'router') {
-          middleware.handle.stack.forEach((handler) => {
-              if (handler.route) {
-                  console.log(`${handler.route.stack[0].method.toUpperCase()} /api${handler.route.path}`);
-              }
-          });
-      }
+    if (middleware.route) {
+      console.log(`${middleware.route.stack[0].method.toUpperCase()} ${middleware.route.path}`);
+    } else if (middleware.name === 'router') {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          console.log(`${handler.route.stack[0].method.toUpperCase()} /api${handler.route.path}`);
+        }
+      });
+    }
   });
 };
 listRoutes(app);
@@ -136,7 +136,10 @@ const shouldForceSync = process.env.NODE_ENV === 'development' && process.env.FO
 db.sequelize.sync({ force: shouldForceSync })
   .then(async () => {
     console.log('Database synced successfully');
-    if (shouldForceSync) {
+    const userCount = await db.User.count();
+
+    if (shouldForceSync || userCount === 0) {
+      console.log(shouldForceSync ? 'Force sync enabled...' : 'Database appears empty...');
       console.log('Waiting for database tables to settle before initialization...');
       await new Promise(resolve => setTimeout(resolve, 3000));
       try {

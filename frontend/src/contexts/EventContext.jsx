@@ -1,13 +1,11 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axiosInstance from '../utils/axiosInstance';
 import { useAuth } from './AuthContext';
 import { useCourses } from './CourseContext';
 
 const EventContext = createContext();
 
 export const useEvents = () => useContext(EventContext);
-
-const BACKEND_URL = process.env.REACT_APP_API_URL;
 
 // Course colors for consistent color coding
 const courseColors = [
@@ -61,7 +59,6 @@ export const EventProvider = ({ children }) => {
 
     try {
       setLoading(true);
-      const token = localStorage.getItem('token');
       
       // Create an object to store events by course ID
       const eventsByCourseTmp = {};
@@ -69,13 +66,7 @@ export const EventProvider = ({ children }) => {
       
       // Use Promise.all for parallel requests
       const requests = courses.map(course => {
-        return axios.get(
-          `${BACKEND_URL}/api/events/course/${course.id}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-            timeout: 5000
-          }
-        )
+        return axiosInstance.get(`/events/course/${course.id}`)
         .then(response => {
           if (response.data.success && Array.isArray(response.data.data)) {
             // Format the events
@@ -125,16 +116,9 @@ export const EventProvider = ({ children }) => {
   // Add an event
   const addEvent = async (courseId, eventData) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `${BACKEND_URL}/api/events/course/${courseId}`,
-        eventData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
+      const response = await axiosInstance.post(
+        `/events/course/${courseId}`,
+        eventData
       );
       
       if (response.data.success) {
@@ -168,13 +152,7 @@ export const EventProvider = ({ children }) => {
   // Delete an event
   const deleteEvent = async (eventId, courseId) => {
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.delete(
-        `${BACKEND_URL}/api/events/${eventId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` }
-        }
-      );
+      const response = await axiosInstance.delete(`/events/${eventId}`);
       
       if (response.data.success) {
         // Update course-specific events
